@@ -47,6 +47,7 @@ It is important to have a precise contract defining the scope and the engagement
 
 2. **Information gathering (Reconnaissance, footprinting)**\\
 The idea of this phase is to gather as much information about the target as possible. We want to know how the target works and how it can be attacked. Commons reconnaissance methods include :
+
 - Google hacking
 - Domain name searches
 - WHOIS lookups
