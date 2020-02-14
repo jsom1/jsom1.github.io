@@ -6,43 +6,10 @@ The chapters and their content are the following :
 1. TOC
 {:toc}
 
-Pentesting basics : presents the methodology of pentests
-
-Metasploit basics : introoduction to the tools of Metasploit
-
-Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
-
-Vulnerability scanning : how to identify vulnerabilities and scanning techniques
-
-Exploitation : introduction to exploitation
-
-Meterpreter : presentation of the post exploitation swiss knife
-
-Avoid detection : ideas behind AVs evasion
-
-Client side attacks exploitation
-
-Metasploit : auxiliary modules
-
-Social engineering toolkit (SET)
-
-FAST-TRACK : an automated pentest infrastructure
-
-Karmetasploit : how to use it for wireless attacks
-
-Create your own module : how to build your own module for exploitation
-
-Create your own exploit : covers fuzzing and exploits for buffer overflows
-
-Carry exploits on the Metasploit framework
-
-Meterpreter scripts
-
-Pentest simulation
 
 # Pentesting basics
 
-## 1.1 The 7 PTES (Penetration Testing Execution Standard) phases
+## The 7 PTES (Penetration Testing Execution Standard) phases
 
 1. **Pre-Engagement Actions**\\
 Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …)
@@ -79,7 +46,7 @@ The report is the most important part of a pentest. It contains what we did, how
 The report should contain an abstract, a presentation and a technical part.
 
 
-## 1.2 Penetration test types
+## Penetration test types
 
 * **White box (white hat)**\\
 It is a visible test : we work with the client.
@@ -94,36 +61,36 @@ Cons : lasts way longer than a white box test and require more skills.
 If possible, this should be the prefered over a white box test.
 
 
-# 2. Metasploit basics : introoduction to the tools of Metasploit
+# Metasploit basics : introoduction to the tools of Metasploit
 
-# 3. Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
+# Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
 
-# 4. Vulnerability scanning : how to identify vulnerabilities and scanning techniques
+# Vulnerability scanning : how to identify vulnerabilities and scanning techniques
 
-# 5. Exploitation : introduction to exploitation
+# Exploitation : introduction to exploitation
 
-# 6. Meterpreter : presentation of the post exploitation swiss knife
+# Meterpreter : presentation of the post exploitation swiss knife
 
-# 7. Avoid detection : ideas behind AVs evasion
+# Avoid detection : ideas behind AVs evasion
 
-# 8. Client side attacks exploitation
+# Client side attacks exploitation
 
-# 9. Metasploit : auxiliary modules
+# Metasploit : auxiliary modules
 
-# 10. Social engineering toolkit (SET)
+# Social engineering toolkit (SET)
 
-# 11. FAST-TRACK : an automated pentest infrastructure
+# FAST-TRACK : an automated pentest infrastructure
 
-# 12. Karmetasploit : how to use it for wireless attacks
+# Karmetasploit : how to use it for wireless attacks
 
-# 13. Create your own module : how to build your own module for exploitation
+# Create your own module : how to build your own module for exploitation
 
-# 14. Create your own exploit : covers fuzzing and exploits for buffer overflows
+# Create your own exploit : covers fuzzing and exploits for buffer overflows
 
-# 15. Carry exploits on the Metasploit framework
+# Carry exploits on the Metasploit framework
 
-# 16. Meterpreter scripts
+# Meterpreter scripts
 
-# 17. Pentest simulation
+# Pentest simulation
 
 
