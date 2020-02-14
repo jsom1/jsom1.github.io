@@ -1,5 +1,5 @@
 ---
-layout: summaries
+layout: default
 title: test
 ---
 
