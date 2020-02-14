@@ -48,14 +48,14 @@ It is important to have a precise contract defining the scope and the engagement
 2. **Information gathering (Reconnaissance, footprinting)**\\
 The idea of this phase is to gather as much information about the target as possible. We want to know how the target works and how it can be attacked. Commons reconnaissance methods include :
 
-- Google hacking
-- Domain name searches
-- WHOIS lookups
-- reverse DNS
-- Social engineering
-- Social networks footprinting
-- Dumpster diving (various physical methods to get information)
-- Tailgating (closely follow someone who has legitimate access)
+  - Google hacking
+  - Domain name searches
+  - WHOIS lookups
+  - reverse DNS
+  - Social engineering
+  - Social networks footprinting
+  - Dumpster diving (various physical methods to get information)
+  - Tailgating (closely follow someone who has legitimate access)
 
 3. **Threat Modeling**\\
 Think like an attacker about the company’s assets and how they could be used. It can be useful to make an organizational structure of the company : who works where, what is their role, can they be used to gain access to something (information gathered in the previous phase) ?
@@ -74,6 +74,7 @@ We really have to think like a pirate in this phase.
 7. **Report**\\
 The report is the most important part of a pentest. It contains what we did, how we did it, and most importantly, what could the organization do to correct the vulnerabilities we found and used. The purpose is that the client enhances the global security, and doesn’t just patch the vulnerabilities.
 The report should contain an abstract, a presentation and a technical part.
+
 
 ### Penetration test types
 
