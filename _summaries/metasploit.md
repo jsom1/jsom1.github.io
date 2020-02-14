@@ -1,4 +1,4 @@
-# Hacking and pentesting with Metasploit
+//# Hacking and pentesting with Metasploit
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters and their content are the following :
@@ -40,9 +40,9 @@ The chapters and their content are the following :
 
 17. Pentest simulation
 
-## 1. Pentesting basics
+# 1. Pentesting basics
 
-### The 7 PTES (Penetration Testing Execution Standard) phases
+## 1.1 The 7 PTES (Penetration Testing Execution Standard) phases
 
 1. **Pre-Engagement Actions**\\
 Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …)
@@ -79,7 +79,7 @@ The report is the most important part of a pentest. It contains what we did, how
 The report should contain an abstract, a presentation and a technical part.
 
 
-### Penetration test types
+## 1.2 Penetration test types
 
 * **White box (white hat)**\\
 It is a visible test : we work with the client.
@@ -93,5 +93,37 @@ Pros : much more realistic than a white box test.
 Cons : lasts way longer than a white box test and require more skills.
 If possible, this should be the prefered over a white box test.
 
+
+# 2. Metasploit basics : introoduction to the tools of Metasploit
+
+# 3. Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
+
+# 4. Vulnerability scanning : how to identify vulnerabilities and scanning techniques
+
+# 5. Exploitation : introduction to exploitation
+
+# 6. Meterpreter : presentation of the post exploitation swiss knife
+
+# 7. Avoid detection : ideas behind AVs evasion
+
+# 8. Client side attacks exploitation
+
+# 9. Metasploit : auxiliary modules
+
+# 10. Social engineering toolkit (SET)
+
+# 11. FAST-TRACK : an automated pentest infrastructure
+
+# 12. Karmetasploit : how to use it for wireless attacks
+
+# 13. Create your own module : how to build your own module for exploitation
+
+# 14. Create your own exploit : covers fuzzing and exploits for buffer overflows
+
+# 15. Carry exploits on the Metasploit framework
+
+# 16. Meterpreter scripts
+
+# 17. Pentest simulation
 
 
