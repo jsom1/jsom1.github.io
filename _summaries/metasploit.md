@@ -6,41 +6,41 @@ The chapters and their content are the following :
 1. TOC
 {:toc}
 
-1. Pentesting basics : presents the methodology of pentests
+Pentesting basics : presents the methodology of pentests
 
-2. Metasploit basics : introoduction to the tools of Metasploit
+Metasploit basics : introoduction to the tools of Metasploit
 
-3. Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
+Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
 
-4. Vulnerability scanning : how to identify vulnerabilities and scanning techniques
+Vulnerability scanning : how to identify vulnerabilities and scanning techniques
 
-5. Exploitation : introduction to exploitation
+Exploitation : introduction to exploitation
 
-6. Meterpreter : presentation of the post exploitation swiss knife
+Meterpreter : presentation of the post exploitation swiss knife
 
-7. Avoid detection : ideas behind AVs evasion
+Avoid detection : ideas behind AVs evasion
 
-8. Client side attacks exploitation
+Client side attacks exploitation
 
-9. Metasploit : auxiliary modules
+Metasploit : auxiliary modules
 
-10. Social engineering toolkit (SET)
+Social engineering toolkit (SET)
 
-11. FAST-TRACK : an automated pentest infrastructure
+FAST-TRACK : an automated pentest infrastructure
 
-12. Karmetasploit : how to use it for wireless attacks
+Karmetasploit : how to use it for wireless attacks
 
-13. Create your own module : how to build your own module for exploitation
+Create your own module : how to build your own module for exploitation
 
-14. Create your own exploit : covers fuzzing and exploits for buffer overflows
+Create your own exploit : covers fuzzing and exploits for buffer overflows
 
-15. Carry exploits on the Metasploit framework
+Carry exploits on the Metasploit framework
 
-16. Meterpreter scripts
+Meterpreter scripts
 
-17. Pentest simulation
+Pentest simulation
 
-# 1. Pentesting basics
+# Pentesting basics
 
 ## 1.1 The 7 PTES (Penetration Testing Execution Standard) phases
 
