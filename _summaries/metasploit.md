@@ -2,8 +2,11 @@
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters and their content are the following :
+
 1. Pentesting basics : presents the methodology of pentests
+
 2. Metasploit basics : introoduction to the tools of Metasploit
+
 3. Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
 4. Vulnerability scanning : how to identify vulnerabilities and scanning techniques
 5. Exploitation : introduction to exploitation
@@ -56,13 +59,14 @@ The report should contain an abstract, a presentation and a technical part.
 
 
 ### Penetration test types
-* White box (white hat)
+
+* White box (white hat)\
 It is a visible test : we work with the client.
 Pros : the client’s security team can show us the systems and everything we might want to know.
 Cons : might be biased.
 A white box test can be good when we have a limited time and can’t do a proper information gathering phase.
 
-* Black box
+* Black box\
 It is an invisible test, performed without the knowledge of the organization.
 Pros : much more realistic than a white box test.
 Cons : lasts way longer than a white box test and require more skills.
