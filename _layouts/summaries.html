@@ -1,8 +1,32 @@
----
-layout: default
----
-<h1>{{ page.title }}</h1>
-
-<div class="summaries">
-  {{ content }}
-</div>
+<!DOCTYPE html>
+	<html>
+		<head>
+			<title>{{ page.title }}</title>
+			<!-- link to main stylesheet -->
+			<link rel="stylesheet" type="text/css" href="/css/main.css">
+		</head>
+		<body>
+			<nav>
+	    		<ul>
+	        		<li><a href="/">Home</a></li>
+		        	<li><a href="/about">About</a></li>
+	        		<!--<li><a href="/cv">CV</a></li>-->
+	        		<li><a href="/walkthroughs">Walkthroughs</a></li>
+				<li><a href="/summaries">Summaries</a></li>
+				<li><a href="/resources">Resources</a></li>
+				<li><a href="/contact">Contact</a></li>
+	    		</ul>
+			</nav>
+			<div class="container">
+			
+			{{ content }}
+			
+			</div><!-- /.container -->
+			<footer>
+	    		<!--<ul>
+	        		<li><a href="mailto:netpal@protonmail.com">email</a></li>
+	        		<li><a href="https://github.com/jsom1">github.com/jsom1</a></li>
+				</ul>-->
+			</footer>
+		</body>
+	</html>
