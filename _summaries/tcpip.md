@@ -1,5 +1,6 @@
 ---
 layout: summaries
+permalink: /tcpip
 title: test
 ---
 
