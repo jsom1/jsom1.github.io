@@ -3,6 +3,9 @@
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters and their content are the following :
 
+- TOC
+{:toc}
+
 1. Pentesting basics : presents the methodology of pentests
 
 2. Metasploit basics : introoduction to the tools of Metasploit
