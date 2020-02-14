@@ -1,3 +1,11 @@
+---
+title: "Hacking and pentesting with Metasploit"
+author: "Me"
+date: "May 25, 2015"
+output: html_document
+fontsize: 12pt
+---
+
 # Hacking and pentesting with Metasploit
 {: .gitlab-purple}
 {:.no_toc}
