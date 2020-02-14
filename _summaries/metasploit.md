@@ -19,16 +19,16 @@ h1.title {
 }
 h1 { /* Header 1 */
   font-size: 28px;
-  color: DarkBlue;
+  color: DarkRed;
 }
 h2 { /* Header 2 */
     font-size: 22px;
-  color: DarkBlue;
+  color: DarkRed;
 }
 h3 { /* Header 3 */
   font-size: 18px;
   font-family: "Times New Roman", Times, serif;
-  color: DarkBlue;
+  color: DarkRed;
 }
 code.r{ /* Code block */
     font-size: 12px;
@@ -38,6 +38,8 @@ pre { /* Code block - determines code spacing between lines */
 }
 </style>
 
+# Hacking and pentesting with Metasploit
+{:.no_toc}
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters and their content are the following :
