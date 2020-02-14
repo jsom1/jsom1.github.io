@@ -60,13 +60,13 @@ The report should contain an abstract, a presentation and a technical part.
 
 ### Penetration test types
 
-* White box (white hat)
+* White box (white hat)\\
 It is a visible test : we work with the client.
 Pros : the client’s security team can show us the systems and everything we might want to know.
 Cons : might be biased.
 A white box test can be good when we have a limited time and can’t do a proper information gathering phase.
 
-* Black box
+* Black box\\
 It is an invisible test, performed without the knowledge of the organization.
 Pros : much more realistic than a white box test.
 Cons : lasts way longer than a white box test and require more skills.
