@@ -38,9 +38,6 @@ pre { /* Code block - determines code spacing between lines */
 }
 </style>
 
-# Hacking and pentesting with Metasploit
-{: .gitlab-purple}
-{:.no_toc}
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters and their content are the following :
