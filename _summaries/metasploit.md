@@ -11,7 +11,7 @@ body{ /* Normal  */
       font-size: 12px;
   }
 td {  /* Table  */
-  font-size: 8px;
+  font-size: 12px;
 }
 h1.title {
   font-size: 38px;
