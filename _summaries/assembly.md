@@ -185,7 +185,7 @@ The **6 Segment Registers** are :
 4. Extra Segment (ES). Pointer to extra data ('E' stands for 'Extra').
 5. F Segment (FS). Pointer to more extra data ('F' comes after 'E').
 6. G Segment (GS). Pointer to still more extra data ('G' comes after 'F').
-{:style="color:DarkGray; font-size: 150%;"}
+{:style="color:#333; font-size: 150%;"}
 
 Most applications on most modern operating systems (like FreeBSD, Linux or Microsoft Windows) use a memory model that points nearly all segment registers to the same place (and uses paging instead), effectively disabling their use. Typically the use of FS or GS is an exception to this rule, instead being used to point at thread-specific data.
  
