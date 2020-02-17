@@ -54,7 +54,7 @@ The chapters are the following :
 # Introduction
 
 What is assembly language ?
-{:style="color:blue; font-size: 100%;"}
+{:style="color:DarkRed; font-size: 150%;"}
 There are 3 kinds of languages :
 - Machine language : what the computer sees and uses (sequence of numbers) → Specific to the processor.
 - Assembly language : same as machine language (also specific to the processor), but the numbers are replaced by letters. Easier to use for humans
@@ -65,10 +65,11 @@ Operation destination, source\\
 Example :
 
 | Assembly | Machine language (Intel) |
-| --- | ---:|
+| ---: | ---:|
 | mov epb, esp | 89 e5 |
 | sub esp, 0x8 | 83 ec 08 |
 {:.table-striped}
+{:style="font-size: 150%;"}
 		
 → This example transfers the value of esp into ebp, and subtracts 8 (0x8) to esp. The result is stored into esp. We will soon see what esp and ebp are.
 
