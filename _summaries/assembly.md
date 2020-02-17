@@ -118,10 +118,10 @@ How are numbers converted to bits ?
 {:style="color:DarkRed; font-size: 170%;"}
 The memory is a numbered sequence of fixed-size storage locations. The number attached to each storage location is called its address. The size of a single storage location is called a byte. On x86 processors, a byte is a number between 0 and 255 (because 1 byte = 8 bits, and a bit can be either 0 or 1 ; it has 2 possible state → 2^8 = 256, but we start from 0 so 0-255).
 Example :\\
-0 0 0 0 0 0 0 0	= 0 (0*2^7 + 0*2^6 + 0*2^5 + 0*2^4 + 0*2^3 + 0*2^2 + 0*2^1 + 0*2^0)\\
-1 1 1 1 1 1 1 1	= 255 (1\*2^7 + 1*2^6 + 1*2^5 + 1*2^4 + 1*2^3 + 1*2^2 + 1*2^1 + 1*2^0)\\
-0 0 0 0 0 1 1 1	= 7 (0*2^7 + 0*2^6 + 0*2^5 + 0*2^4 + 0*2^3 + 1*2^2 + 1*2^1 + 1*2^0)\\
-1 0 1 0 1 0 1 0	= 171 (1*2^7 + 0*2^6 + 1*2^5 + 0*2^4 + 1*2^3 + 0*2^2 + 1*2^1 + 1*2^0)\\
+0 0 0 0 0 0 0 0	= 0 (0\*2^7 + 0\*2^6 + 0\*2^5 + 0\*2^4 + 0\*2^3 + 0\*2^2 + 0\*2^1 + 0\*2^0)\\
+1 1 1 1 1 1 1 1	= 255 (1\*2^7 + 1\*2^6 + 1\*2^5 + 1\*2^4 + 1\*2^3 + 1\*2^2 + 1\*2^1 + 1\*2^0)\\
+0 0 0 0 0 1 1 1	= 7 (0\*2^7 + 0\*2^6 + 0\*2^5 + 0\*2^4 + 0\*2^3 + 1\*2^2 + 1\*2^1 + 1\*2^0)\\
+1 0 1 0 1 0 1 0	= 171 (1\*2^7 + 0\*2^6 + 1\*2^5 + 0\*2^4 + 1\*2^3 + 0\*2^2 + 1\*2^1 + 1\*2^0)\\
 
 How can a computer use and display text, if the memory only contains numbers ?
 {:style="color:DarkRed; font-size: 170%;"}
@@ -137,10 +137,10 @@ The x86 architecture is “little endian” → multi-bytes values are written l
 
 How can we represent negative numbers in binary ?
 {:style="color:DarkRed; font-size: 170%;"}
-We can use the method “2’s complement” : the sign is changed by inverting all the bits and adding one. Example :
-Start :		0 0 0 1 (represents decimal 1)
-Invert :		1 1 1 0
-Add one :	1 1 1 1 (represents decimal -1)
+We can use the method “2’s complement” : the sign is changed by inverting all the bits and adding one. Example :\\
+Start :		0 0 0 1 (represents decimal 1)\\
+Invert :		1 1 1 0\\
+Add one :	1 1 1 1 (represents decimal -1)\\
 
 What are registers ?
 {:style="color:DarkRed; font-size: 170%;"}
@@ -159,28 +159,35 @@ The only way the computer knows that a memory location is an instruction is that
 What are the registers of the x86 architecture ?
 {:style="color:DarkRed; font-size: 170%;"}
 The x86 architecture has 8 General-Purpose Registers (GPR), 6 Segment Registers, 1 Flags Register and an Instruction Pointer. 64-bit x86 has additional registers.
+
 The 8 GPRs are:
-Accumulator register (AX). Used in arithmetic operations
-Counter register (CX). Used in shift/rotate instructions and loops.
-Data register (DX). Used in arithmetic operations and I/O operations.
-Base register (BX). Used as a pointer to data (located in segment register DS, when in segmented mode).
-Stack Pointer register (SP). Pointer to the top of the stack.
-Stack Base Pointer register (BP). Used to point to the base of the stack.
-Source Index register (SI). Used as a pointer to a source in stream operations.
-Destination Index register (DI). Used as a pointer to a destination in stream operations.
+
+1. Accumulator register (AX). Used in arithmetic operations
+2. Counter register (CX). Used in shift/rotate instructions and loops.
+3. Data register (DX). Used in arithmetic operations and I/O operations.
+4. Base register (BX). Used as a pointer to data (located in segment register DS, when in segmented mode).
+5. Stack Pointer register (SP). Pointer to the top of the stack.
+6. Stack Base Pointer register (BP). Used to point to the base of the stack.
+7. Source Index register (SI). Used as a pointer to a source in stream operations.
+8. Destination Index register (DI). Used as a pointer to a destination in stream operations.
+
 The order in which they are listed here is for a reason: it is the same order that is used in a push-to-stack operation.
 All registers can be accessed in 16-bit and 32-bit modes. In 16-bit mode, the register is identified by its two-letter abbreviation from the list above. In 32-bit mode, this two-letter abbreviation is prefixed with an 'E' (extended). For example, 'EAX' is the accumulator register as a 32-bit value.
 Similarly, in the 64-bit version, the 'E' is replaced with an 'R' (register), so the 64-bit version of 'EAX' is called 'RAX'.
-6 Segment Registers are : 
-Stack Segment (SS). Pointer to the stack.
-Code Segment (CS). Pointer to the code.
-Data Segment (DS). Pointer to the data.
-Extra Segment (ES). Pointer to extra data ('E' stands for 'Extra').
-F Segment (FS). Pointer to more extra data ('F' comes after 'E').
-G Segment (GS). Pointer to still more extra data ('G' comes after 'F').
+
+The 6 Segment Registers are : 
+
+1. Stack Segment (SS). Pointer to the stack.
+2. Code Segment (CS). Pointer to the code.
+3. Data Segment (DS). Pointer to the data.
+4. Extra Segment (ES). Pointer to extra data ('E' stands for 'Extra').
+5. F Segment (FS). Pointer to more extra data ('F' comes after 'E').
+6. G Segment (GS). Pointer to still more extra data ('G' comes after 'F').
+
 Most applications on most modern operating systems (like FreeBSD, Linux or Microsoft Windows) use a memory model that points nearly all segment registers to the same place (and uses paging instead), effectively disabling their use. Typically the use of FS or GS is an exception to this rule, instead being used to point at thread-specific data.
  
 The EFLAGS is a 32-bit register used as a collection of bits representing Boolean values to store the results of operations and the state of the processor.
+
 The names of these bits are:
 
 0. CF : Carry Flag. Set if the last arithmetic operation carried (addition) or borrowed (subtraction) a bit beyond the size of the register. This is then checked when the operation is followed with an add-with-carry or subtract-with-borrow to deal with values too large for just one register to contain.
