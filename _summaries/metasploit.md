@@ -56,11 +56,9 @@ The chapters are the following :
 1. **Pre-Engagement Actions**\\
 Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …).  
 It is important to have a precise contract defining the scope and the engagements.
-{:style="color:black; font-size: 150%;"}
 
 2. **Information gathering (Reconnaissance, footprinting)**\\
 The idea of this phase is to gather as much information about the target as possible. We want to know how the target works and how it can be attacked. Commons reconnaissance methods include : Google hacking, domain name searches, WHOIS lookups, reverse DNS, social engineering, social networks footprinting, dumpster diving (various physical methods to get information) and tailgating (closely follow someone who has legitimate access into a secure building).
-{:style="color:black; font-size: 150%;"}
 
 3. **Threat Modeling**\\
 Think like an attacker about the company’s assets and how they could be used. It can be useful to make an organizational structure of the company : who works where, what is their role, can they be used to gain access to something (information gathered in the previous phase) ?
