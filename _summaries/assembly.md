@@ -91,7 +91,7 @@ Modern computer architecture is based off of the Von Neumann architecture. This 
 - The CPU (Central Processing Unit) or processor
 
 What is x86 ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 x86 is an instruction set (“language”) developed by Intel for the x86 class of processors. In other words, it’s the language a x86 CPU (or processor) speaks.
 The vast majority of private computers have x86 CPUs, that only understand x86 assembly language.
 
