@@ -121,7 +121,7 @@ Example :\\
 0 0 0 0 0 0 0 0	= 0 (0\*2^7 + 0\*2^6 + 0\*2^5 + 0\*2^4 + 0\*2^3 + 0\*2^2 + 0\*2^1 + 0\*2^0)\\
 1 1 1 1 1 1 1 1	= 255 (1\*2^7 + 1\*2^6 + 1\*2^5 + 1\*2^4 + 1\*2^3 + 1\*2^2 + 1\*2^1 + 1\*2^0)\\
 0 0 0 0 0 1 1 1	= 7 (0\*2^7 + 0\*2^6 + 0\*2^5 + 0\*2^4 + 0\*2^3 + 1\*2^2 + 1\*2^1 + 1\*2^0)\\
-1 0 1 0 1 0 1 0	= 171 (1\*2^7 + 0\*2^6 + 1\*2^5 + 0\*2^4 + 1\*2^3 + 0\*2^2 + 1\*2^1 + 1\*2^0)\\
+1 0 1 0 1 0 1 0	= 171 (1\*2^7 + 0\*2^6 + 1\*2^5 + 0\*2^4 + 1\*2^3 + 0\*2^2 + 1\*2^1 + 1\*2^0)
 
 How can a computer use and display text, if the memory only contains numbers ?
 {:style="color:DarkRed; font-size: 170%;"}
@@ -140,7 +140,7 @@ How can we represent negative numbers in binary ?
 We can use the method “2’s complement” : the sign is changed by inverting all the bits and adding one. Example :\\
 Start :		0 0 0 1 (represents decimal 1)\\
 Invert :		1 1 1 0\\
-Add one :	1 1 1 1 (represents decimal -1)\\
+Add one :	1 1 1 1 (represents decimal -1)
 
 What are registers ?
 {:style="color:DarkRed; font-size: 170%;"}
@@ -170,6 +170,7 @@ The 8 GPRs are:
 6. Stack Base Pointer register (BP). Used to point to the base of the stack.
 7. Source Index register (SI). Used as a pointer to a source in stream operations.
 8. Destination Index register (DI). Used as a pointer to a destination in stream operations.
+{:style="color:DarkGray; font-size: 150%;"}
 
 The order in which they are listed here is for a reason: it is the same order that is used in a push-to-stack operation.
 All registers can be accessed in 16-bit and 32-bit modes. In 16-bit mode, the register is identified by its two-letter abbreviation from the list above. In 32-bit mode, this two-letter abbreviation is prefixed with an 'E' (extended). For example, 'EAX' is the accumulator register as a 32-bit value.
@@ -183,6 +184,7 @@ The 6 Segment Registers are :
 4. Extra Segment (ES). Pointer to extra data ('E' stands for 'Extra').
 5. F Segment (FS). Pointer to more extra data ('F' comes after 'E').
 6. G Segment (GS). Pointer to still more extra data ('G' comes after 'F').
+{:style="color:DarkGray; font-size: 150%;"}
 
 Most applications on most modern operating systems (like FreeBSD, Linux or Microsoft Windows) use a memory model that points nearly all segment registers to the same place (and uses paging instead), effectively disabling their use. Typically the use of FS or GS is an exception to this rule, instead being used to point at thread-specific data.
  
