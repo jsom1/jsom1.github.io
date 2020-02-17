@@ -38,22 +38,24 @@ pre { /* Code block - determines code spacing between lines */
 }
 </style>
 
+
 # Hacking and pentesting with Metasploit
 {:.no_toc}
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters are the following :
 
+<span style="color:blue; font-size: 80%;">
 1. TOC
 {:toc}
-
+</span>
 
 # Pentesting basics
 
 ## The 7 PTES (Penetration Testing Execution Standard) phases
 
 1. **Pre-Engagement Actions**\\
-Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …)
+Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …).  
 It is important to have a precise contract defining the scope and the engagements.
 
 2. **Information gathering (Reconnaissance, footprinting)**\\
