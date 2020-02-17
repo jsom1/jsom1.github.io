@@ -45,10 +45,9 @@ pre { /* Code block - determines code spacing between lines */
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
 The chapters are the following :
 
-<span style="color:blue; font-size: 80%;">
 1. TOC
 {:toc}
-</span>
+{:style="color:blue; font-size: 80%;"}
 
 # Pentesting basics
 
