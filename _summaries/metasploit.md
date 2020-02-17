@@ -47,7 +47,7 @@ The chapters are the following :
 
 1. TOC
 {:toc}
-{:style="color:blue; font-size: 80%;"}
+{:style="color:black; font-size: 150%;"}
 
 # Pentesting basics
 
