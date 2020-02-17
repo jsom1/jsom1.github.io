@@ -56,6 +56,7 @@ The chapters are the following :
 1. **Pre-Engagement Actions**\\
 Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …).  
 It is important to have a precise contract defining the scope and the engagements.
+{:style="color:black; font-size: 150%;"}
 
 2. **Information gathering (Reconnaissance, footprinting)**\\
 The idea of this phase is to gather as much information about the target as possible. We want to know how the target works and how it can be attacked. Commons reconnaissance methods include : Google hacking, domain name searches, WHOIS lookups, reverse DNS, social engineering, social networks footprinting, dumpster diving (various physical methods to get information) and tailgating (closely follow someone who has legitimate access into a secure building).
@@ -81,13 +82,13 @@ The report should contain an abstract, a presentation and a technical part.
 
 ## Penetration test types
 
-- **White box (white hat)**\\
+1. **White box (white hat)**\\
 It is a visible test : we work with the client.
 Pros : the client’s security team can show us the systems and everything we might want to know.
 Cons : might be biased.
 A white box test can be good when we have a limited time and can’t do a proper information gathering phase.
 
-- **Black box**\\
+2. **Black box**\\
 It is an invisible test, performed without the knowledge of the organization.
 Pros : much more realistic than a white box test.
 Cons : lasts way longer than a white box test and require more skills.
