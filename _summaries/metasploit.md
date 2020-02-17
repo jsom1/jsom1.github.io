@@ -42,7 +42,7 @@ pre { /* Code block - determines code spacing between lines */
 {:.no_toc}
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”.
-The chapters and their content are the following :
+The chapters are the following :
 
 1. TOC
 {:toc}
@@ -57,16 +57,7 @@ Discussion of the test’s scope with the client (what can we do, what methods w
 It is important to have a precise contract defining the scope and the engagements.
 
 2. **Information gathering (Reconnaissance, footprinting)**\\
-The idea of this phase is to gather as much information about the target as possible. We want to know how the target works and how it can be attacked. Commons reconnaissance methods include :
-
-  - Google hacking
-  - Domain name searches
-  - WHOIS lookups
-  - reverse DNS
-  - Social engineering
-  - Social networks footprinting
-  - Dumpster diving (various physical methods to get information)
-  - Tailgating (closely follow someone who has legitimate access)
+The idea of this phase is to gather as much information about the target as possible. We want to know how the target works and how it can be attacked. Commons reconnaissance methods include : Google hacking, domain name searches, WHOIS lookups, reverse DNS, social engineering, social networks footprinting, dumpster diving (various physical methods to get information) and tailgating (closely follow someone who has legitimate access into a secure building).
 
 3. **Threat Modeling**\\
 Think like an attacker about the company’s assets and how they could be used. It can be useful to make an organizational structure of the company : who works where, what is their role, can they be used to gain access to something (information gathered in the previous phase) ?
@@ -83,19 +74,19 @@ Starts after we have compromised one or more systems. In this phase, we target s
 We really have to think like a pirate in this phase.
 
 7. **Report**\\
-The report is the most important part of a pentest. It contains what we did, how we did it, and most importantly, what could the organization do to correct the vulnerabilities we found and used. The purpose is that the client enhances the global security, and doesn’t just patch the vulnerabilities.
+The report is the most important part of a pentest. It contains what we did, how we did it, and most importantly, what could the organization do to correct the vulnerabilities we found and used. The purpose is that the client enhances the global security, not that he just patch the vulnerabilities we found.
 The report should contain an abstract, a presentation and a technical part.
 
 
 ## Penetration test types
 
-* **White box (white hat)**\\
+- **White box (white hat)**\\
 It is a visible test : we work with the client.
 Pros : the client’s security team can show us the systems and everything we might want to know.
 Cons : might be biased.
 A white box test can be good when we have a limited time and can’t do a proper information gathering phase.
 
-* **Black box**\\
+- **Black box**\\
 It is an invisible test, performed without the knowledge of the organization.
 Pros : much more realistic than a white box test.
 Cons : lasts way longer than a white box test and require more skills.
