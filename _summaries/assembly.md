@@ -60,12 +60,16 @@ There are 3 kinds of languages :
 - Assembly language : same as machine language (also specific to the processor), but the numbers are replaced by letters. Easier to use for humans
 - High-level language : closer to natural language. The purpose is to make programming easier. Not specific to the computer (portable across multiple systems).
 
-The syntax of assembly instructions is the following:\\  
-Operation <destination>, <source>\\
-Example :	Assembly		Machine language (Intel)
-		mov epb, esp		89 e5		
-		sub esp, 0x8		83 ec 08		
+The syntax of assembly instructions is the following:\\
+Operation destination, source\\
+Example :
 
+| Assembly | Machine language (Intel) |
+| --- | ---:|
+| mov epb, esp | 89 e5 |
+| sub esp, 0x8 | 83 ec 08 |
+{:.table-striped}
+		
 → This example transfers the value of esp into ebp, and subtracts 8 (0x8) to esp. The result is stored into esp. We will soon see what esp and ebp are.
 
 Assembly language is converted into executable machine code by a utility program referred to as an assembler.
