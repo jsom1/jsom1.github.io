@@ -72,7 +72,7 @@ Example :
 		
 → This example transfers the value of esp into ebp, and subtracts 8 (0x8) to esp. The result is stored into esp. We will soon see what esp and ebp are.
 
-Assembly language is converted into executable machine code by a utility program referred to as an **assembler**.
+Assembly language is converted into executable machine code by a utility program referred to as an **assembler**{: style="color: red"}.
 High-level languages are converted to machine language by a compiler.
 
 Why learn assembly ?
@@ -84,7 +84,7 @@ Also, understanding assembly language allows to fully understand what a program 
 # Computer Architecture
 
 What is the modern computer architecture ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 180%;"}
 Modern computer architecture is based off of the Von Neumann architecture. This latter divides the computer into 2 main parts :
 1. The memory
 2. The CPU (Central Processing Unit) or processor
@@ -103,15 +103,15 @@ What is a CPU or processor ?
 {:style="color:DarkRed; font-size: 150%;"}
 The CPU (or processor) allows us to access the data stored in memory, manipulate, and move it. It reads instructions from the memory (instructions of a program) one at a time and executes them → this is called the **fetch-execute cycle**. To achieve this, the CPU has :
 
-- a **Program Counter (PC)** : it holds the memory address of the next instruction to be executed (a number) → tells the computer what instruction to process by indicating an address in the memory. The CPU begins by looking at the PC, fetch the number stored at the specified location, and passes it to the instruction decoder.
+1. a **Program Counter (PC)** : it holds the memory address of the next instruction to be executed (a number) → tells the computer what instruction to process by indicating an address in the memory. The CPU begins by looking at the PC, fetch the number stored at the specified location, and passes it to the instruction decoder.
 
-- an **instruction decoder** : decodes what the number specified by the PC means (+, -, x, data movement, … and what memory locations are involved in the process).
+2. an **instruction decoder** : decodes what the number specified by the PC means (+, -, x, data movement, … and what memory locations are involved in the process).
 
-- a **data bus** : used by the computer to fetch the memory locations to be used in the calculation. It’s the connection between the CPU and memory (the actual wire that connects them).
+3. a **data bus** : used by the computer to fetch the memory locations to be used in the calculation. It’s the connection between the CPU and memory (the actual wire that connects them).
 
-- **Registers** : high-speed memory locations of the processor itself. It’s where the main action happens, used for computation (+, -, x, comparisons, …)
+4. **Registers** : high-speed memory locations of the processor itself. It’s where the main action happens, used for computation (+, -, x, comparisons, …)
 
-- an **Arithmetic and logic unit** (ALU) : once the CPU has retrieved all the data it needs, it passes the data and the decoded instruction to the ALU, where the instruction is actually executed. When the computation is done, the results are placed on the data bus and sent to the appropriate location in memory or in a register.
+5. an **Arithmetic and logic unit** (ALU) : once the CPU has retrieved all the data it needs, it passes the data and the decoded instruction to the ALU, where the instruction is actually executed. When the computation is done, the results are placed on the data bus and sent to the appropriate location in memory or in a register.
 
 
 How are numbers converted to bits ?
@@ -182,6 +182,7 @@ Most applications on most modern operating systems (like FreeBSD, Linux or Micro
  
 The EFLAGS is a 32-bit register used as a collection of bits representing Boolean values to store the results of operations and the state of the processor.
 The names of these bits are:
+
 0. CF : Carry Flag. Set if the last arithmetic operation carried (addition) or borrowed (subtraction) a bit beyond the size of the register. This is then checked when the operation is followed with an add-with-carry or subtract-with-borrow to deal with values too large for just one register to contain.
 2. PF : Parity Flag. Set if the number of set bits in the least significant byte is a multiple of 2.
 4. AF : Adjust Flag. Carry of Binary Code Decimal (BCD) numbers arithmetic operations.
@@ -199,6 +200,7 @@ The names of these bits are:
 19. VIF : Virtual Interrupt Flag. Virtual image of IF.
 20. VIP : Virtual Interrupt Pending flag. Set if an interrupt is pending.
 21. ID : Identification Flag. Support for CPUID instruction if can be set.
+{:style="color:DarkGray; font-size: 150%;"}
  
 Instruction pointer
 The EIP register contains the address of the next instruction to be executed if no branching is done.
