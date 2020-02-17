@@ -171,7 +171,7 @@ The **8 GPRs** are:
 6. Stack Base Pointer register (BP). Used to point to the base of the stack.
 7. Source Index register (SI). Used as a pointer to a source in stream operations.
 8. Destination Index register (DI). Used as a pointer to a destination in stream operations.
-{:style="color:DarkGray; font-size: 150%;"}
+{:style="color:#333; font-size: 150%;"}
 
 The order in which they are listed here is for a reason: it is the same order that is used in a push-to-stack operation.
 All registers can be accessed in 16-bit and 32-bit modes. In 16-bit mode, the register is identified by its two-letter abbreviation from the list above. In 32-bit mode, this two-letter abbreviation is prefixed with an 'E' (extended). For example, 'EAX' is the accumulator register as a 32-bit value.
@@ -210,7 +210,7 @@ The names of **EFLAGS bits** are:
 19. VIF : Virtual Interrupt Flag. Virtual image of IF.
 20. VIP : Virtual Interrupt Pending flag. Set if an interrupt is pending.
 21. ID : Identification Flag. Support for CPUID instruction if can be set.
-{:style="color:DarkGray; font-size: 150%;"}
+{:style="color:#333; font-size: 150%;"}
  
 Instruction pointer
 The EIP register contains the address of the next instruction to be executed if no branching is done.
