@@ -54,7 +54,7 @@ The chapters are the following :
 # Introduction
 
 What is assembly language ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 There are 3 kinds of languages :
 - Machine language : what the computer sees and uses (sequence of numbers) → Specific to the processor.
 - Assembly language : same as machine language (also specific to the processor), but the numbers are replaced by letters. Easier to use for humans
@@ -72,7 +72,7 @@ Example :
 		
 → This example transfers the value of esp into ebp, and subtracts 8 (0x8) to esp. The result is stored into esp. We will soon see what esp and ebp are.
 
-Assembly language is converted into executable machine code by a utility program referred to as an **assembler**{: style="color: red"}.
+Assembly language is converted into executable machine code by a utility program referred to as an **assembler**.
 High-level languages are converted to machine language by a compiler.
 
 Why learn assembly ?
@@ -84,7 +84,7 @@ Also, understanding assembly language allows to fully understand what a program 
 # Computer Architecture
 
 What is the modern computer architecture ?
-{:style="color:DarkRed; font-size: 180%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 Modern computer architecture is based off of the Von Neumann architecture. This latter divides the computer into 2 main parts :
 1. The memory
 2. The CPU (Central Processing Unit) or processor
@@ -95,12 +95,12 @@ x86 is an instruction set (“language”) developed by Intel for the x86 class 
 The vast majority of private computers have x86 CPUs, that only understand x86 assembly language.
 
 What is the memory of a computer and what does it contain ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 Everything in a computer lives in the memory (data and programs), in fixed-size storage locations (each location has a number and the same fixed-length size).
 The size of a single storage location is called a byte. On x86 processors, a byte is a number between 0 and 255 (1 byte = 8 bits →  2^8 = 256). We can only store a single number in a computer memory storage location (one kind of data). Therefore, the memory contains only numbers.
 
 What is a CPU or processor ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 The CPU (or processor) allows us to access the data stored in memory, manipulate, and move it. It reads instructions from the memory (instructions of a program) one at a time and executes them → this is called the **fetch-execute cycle**. To achieve this, the CPU has :
 
 1. a **Program Counter (PC)** : it holds the memory address of the next instruction to be executed (a number) → tells the computer what instruction to process by indicating an address in the memory. The CPU begins by looking at the PC, fetch the number stored at the specified location, and passes it to the instruction decoder.
@@ -115,35 +115,35 @@ The CPU (or processor) allows us to access the data stored in memory, manipulate
 
 
 How are numbers converted to bits ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 The memory is a numbered sequence of fixed-size storage locations. The number attached to each storage location is called its address. The size of a single storage location is called a byte. On x86 processors, a byte is a number between 0 and 255 (because 1 byte = 8 bits, and a bit can be either 0 or 1 ; it has 2 possible state → 2^8 = 256, but we start from 0 so 0-255).
 Example :\\
-0 0 0 0 0 0 0 0	= 0 (0*2^7 + 0*2^6 + 0*2^5 + 0*2^4 + 0*2^3 + 0*2^2 + 0*2^1 + 0*2^0) . 
-1 1 1 1 1 1 1 1	= 255 (1*2^7 + 1*2^6 + 1*2^5 + 1*2^4 + 1*2^3 + 1*2^2 + 1*2^1 + 1*2^0) . 
-0 0 0 0 0 1 1 1	= 7 (0*2^7 + 0*2^6 + 0*2^5 + 0*2^4 + 0*2^3 + 1*2^2 + 1*2^1 + 1*2^0) . 
-1 0 1 0 1 0 1 0	= 171 (1*2^7 + 0*2^6 + 1*2^5 + 0*2^4 + 1*2^3 + 0*2^2 + 1*2^1 + 1*2^0) . 
+0 0 0 0 0 0 0 0	= 0 (0*2^7 + 0*2^6 + 0*2^5 + 0*2^4 + 0*2^3 + 0*2^2 + 0*2^1 + 0*2^0)\\
+1 1 1 1 1 1 1 1	= 255 (1*2^7 + 1*2^6 + 1*2^5 + 1*2^4 + 1*2^3 + 1*2^2 + 1*2^1 + 1*2^0)\\
+0 0 0 0 0 1 1 1	= 7 (0*2^7 + 0*2^6 + 0*2^5 + 0*2^4 + 0*2^3 + 1*2^2 + 1*2^1 + 1*2^0)\\
+1 0 1 0 1 0 1 0	= 171 (1*2^7 + 0*2^6 + 1*2^5 + 0*2^4 + 1*2^3 + 0*2^2 + 1*2^1 + 1*2^0)\\
 
 How can a computer use and display text, if the memory only contains numbers ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 Specialized hardware (like graphics cards) have special interpretations for each number. For text, the computer uses ASCII code tables to translate the numbers into letters, and vice versa. For example, “A” is represented by the number 65. To print “HELLO”, we would give the computer the sequence of numbers 72, 69, 76, 76, 79.
 
 What if we need numbers larger than 255 ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 We can combine bytes. 2 bytes (=16 bits) can be used to represent numbers between 0 and 65’535 (2^16), and so on. Fortunately, the computer does it for us and work with 4 bytes numbers by default.
 
 What is big-endian and little endian ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 The x86 architecture is “little endian” → multi-bytes values are written least significant byte first. The least significant byte (smallest power of 2) is placed at the byte with the lowest address. It is the opposite in big endian.
 
 How can we represent negative numbers in binary ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 We can use the method “2’s complement” : the sign is changed by inverting all the bits and adding one. Example :
 Start :		0 0 0 1 (represents decimal 1)
 Invert :		1 1 1 0
 Add one :	1 1 1 1 (represents decimal -1)
 
 What are registers ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 Registers are high-speed memory locations (the “working memory”) of the processor itself.
 They keep the contents of numbers that we are manipulating.
 On 32-bits processor computers, the registers are 4 bytes long (32 bits). On 64-bits, they are 8 bytes long. The size of a typical register is called a computer’s word size. Old x86 processors have 4 byte words (old x86 are 32 bits processor, recent ones are 64 bits (also called x86-64)). 
@@ -153,11 +153,11 @@ A 64 bits x86 processor can access up to 1.8446744e+19 (2^64) bytes.
 This means that we can store addresses the same way we store any other number → the computer can’t tell the difference between a value that is an address, or a value that is a number, or a value that is an ASCII code, … A number becomes an ASCII code when we try to display it, a number becomes an address when we try to look up the byte it points to. Addresses stored in memory are also called pointers, because they point to a different location in memory.
 
 How does a computer know how to interpret a given byte or set of bytes of memory ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 The only way the computer knows that a memory location is an instruction is that a special-purpose register called the instruction pointer (EIP) points to them at one point or another. If the instruction pointer points to a memory location, it is loaded as an instruction. Other than that, the computer has no way of knowing the difference between instructions (programs) and other types of data.
 
 What are the registers of the x86 architecture ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 The x86 architecture has 8 General-Purpose Registers (GPR), 6 Segment Registers, 1 Flags Register and an Instruction Pointer. 64-bit x86 has additional registers.
 The 8 GPRs are:
 Accumulator register (AX). Used in arithmetic operations
