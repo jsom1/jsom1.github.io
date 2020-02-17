@@ -76,7 +76,7 @@ Assembly language is converted into executable machine code by a utility program
 High-level languages are converted to machine language by a compiler.
 
 Why learn assembly ?
-{:style="color:DarkRed; font-size: 150%;"}
+{:style="color:DarkRed; font-size: 170%;"}
 Assembly language is very low level and close to the processor → assembly is great for speed optimization.
 Also, understanding assembly language allows to fully understand what a program does and therefore is very useful for reverse engineering tasks.
 
@@ -86,8 +86,9 @@ Also, understanding assembly language allows to fully understand what a program 
 What is the modern computer architecture ?
 {:style="color:DarkRed; font-size: 170%;"}
 Modern computer architecture is based off of the Von Neumann architecture. This latter divides the computer into 2 main parts :
-1. The memory
-2. The CPU (Central Processing Unit) or processor
+
+- The memory
+- The CPU (Central Processing Unit) or processor
 
 What is x86 ?
 {:style="color:DarkRed; font-size: 150%;"}
@@ -160,7 +161,7 @@ What are the registers of the x86 architecture ?
 {:style="color:DarkRed; font-size: 170%;"}
 The x86 architecture has 8 General-Purpose Registers (GPR), 6 Segment Registers, 1 Flags Register and an Instruction Pointer. 64-bit x86 has additional registers.
 
-The 8 GPRs are:
+The **8 GPRs** are:
 
 1. Accumulator register (AX). Used in arithmetic operations
 2. Counter register (CX). Used in shift/rotate instructions and loops.
@@ -176,7 +177,7 @@ The order in which they are listed here is for a reason: it is the same order th
 All registers can be accessed in 16-bit and 32-bit modes. In 16-bit mode, the register is identified by its two-letter abbreviation from the list above. In 32-bit mode, this two-letter abbreviation is prefixed with an 'E' (extended). For example, 'EAX' is the accumulator register as a 32-bit value.
 Similarly, in the 64-bit version, the 'E' is replaced with an 'R' (register), so the 64-bit version of 'EAX' is called 'RAX'.
 
-The 6 Segment Registers are : 
+The **6 Segment Registers** are : 
 
 1. Stack Segment (SS). Pointer to the stack.
 2. Code Segment (CS). Pointer to the code.
@@ -190,7 +191,7 @@ Most applications on most modern operating systems (like FreeBSD, Linux or Micro
  
 The EFLAGS is a 32-bit register used as a collection of bits representing Boolean values to store the results of operations and the state of the processor.
 
-The names of these bits are:
+The names of **EFLAGS bits** are:
 
 0. CF : Carry Flag. Set if the last arithmetic operation carried (addition) or borrowed (subtraction) a bit beyond the size of the register. This is then checked when the operation is followed with an add-with-carry or subtract-with-borrow to deal with values too large for just one register to contain.
 2. PF : Parity Flag. Set if the number of set bits in the least significant byte is a multiple of 2.
