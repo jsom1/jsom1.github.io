@@ -114,6 +114,7 @@ The CPU (or processor) allows us to access the data stored in memory, manipulate
 
 5. an **Arithmetic and logic unit** (ALU) : once the CPU has retrieved all the data it needs, it passes the data and the decoded instruction to the ALU, where the instruction is actually executed. When the computation is done, the results are placed on the data bus and sent to the appropriate location in memory or in a register.
 
+In short, the fetch-execute cycle consists in 3 steps: fetching the instruction from the memory, decoding it, and executing it.
 
 How are numbers converted to bits ?
 {:style="color:DarkRed; font-size: 170%;"}
@@ -134,7 +135,9 @@ We can combine bytes. 2 bytes (=16 bits) can be used to represent numbers betwee
 
 What is big-endian and little endian ?
 {:style="color:DarkRed; font-size: 170%;"}
-The x86 architecture is “little endian” → multi-bytes values are written least significant byte first. The least significant byte (smallest power of 2) is placed at the byte with the lowest address. It is the opposite in big endian.
+The x86 architecture is “little endian” → multi-bytes values are written least significant byte first. The least significant byte (smallest power of 2) is placed at the byte with the lowest address. It is the opposite in big endian.\\
+Example: let's consider the hexadecimal number 0725 (= 1829 in decimal: 0\*16^3 + 7\*16^2 + 2\*16^1 + 5\*16^0).
+This number requires 2 bytes of memory. The most significant byte is 07, and the least significant is 25. If the processor brings the value 0725 from register to memory, it will transfer 25 first to the lower memory address and 07 to the next address.
 
 How can we represent negative numbers in binary ?
 {:style="color:DarkRed; font-size: 170%;"}
