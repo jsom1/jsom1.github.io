@@ -163,59 +163,82 @@ The x86 architecture has 8 General-Purpose Registers (GPR), 6 Segment Registers,
 
 The **8 GPRs** are:
 
-1. Accumulator register (AX). Used in arithmetic operations
-2. Counter register (CX). Used in shift/rotate instructions and loops.
-3. Data register (DX). Used in arithmetic operations and I/O operations.
-4. Base register (BX). Used as a pointer to data (located in segment register DS, when in segmented mode).
-5. Stack Pointer register (SP). Pointer to the top of the stack.
-6. Stack Base Pointer register (BP). Used to point to the base of the stack.
-7. Source Index register (SI). Used as a pointer to a source in stream operations.
-8. Destination Index register (DI). Used as a pointer to a destination in stream operations.
+1. Accumulator register (AX): used in arithmetic operations
+2. Counter register (CX): used in shift/rotate instructions and loops.
+3. Data register (DX): used in arithmetic operations and I/O (input/output) operations.
+4. Base register (BX): used as a pointer to data.
+5. Stack Pointer register (SP): pointer to the top of the stack.
+6. Stack Base Pointer register (BP): used to point to the base of the stack.
+7. Source Index register (SI): used as a pointer to a source in stream operations.
+8. Destination Index register (DI): used as a pointer to a destination in stream operations.
 {:style="color:#333; font-size: 150%;"}
 
-The order in which they are listed here is for a reason: it is the same order that is used in a push-to-stack operation.
-All registers can be accessed in 16-bit and 32-bit modes. In 16-bit mode, the register is identified by its two-letter abbreviation from the list above. In 32-bit mode, this two-letter abbreviation is prefixed with an 'E' (extended). For example, 'EAX' is the accumulator register as a 32-bit value.
+The order is important: it is the same order that is used in a push-to-stack operation. These are the registers in 16-bit mode.  In 32-bit mode, the two-letter abbreviations above are prefixed with an 'E' (extended). For example, 'EAX' is the accumulator register as a 32-bit value.
 Similarly, in the 64-bit version, the 'E' is replaced with an 'R' (register), so the 64-bit version of 'EAX' is called 'RAX'.
 
 The **6 Segment Registers** are : 
 
-1. Stack Segment (SS). Pointer to the stack.
-2. Code Segment (CS). Pointer to the code.
-3. Data Segment (DS). Pointer to the data.
-4. Extra Segment (ES). Pointer to extra data ('E' stands for 'Extra').
-5. F Segment (FS). Pointer to more extra data ('F' comes after 'E').
-6. G Segment (GS). Pointer to still more extra data ('G' comes after 'F').
+1. Stack Segment (SS): pointer to the stack.
+2. Code Segment (CS): pointer to the code.
+3. Data Segment (DS): pointer to the data.
+4. Extra Segment (ES): pointer to extra data.
+5. F Segment (FS): pointer to more extra data ('F' comes after 'E').
+6. G Segment (GS): pointer to still more extra data ('G' comes after 'F').
 {:style="color:#333; font-size: 150%;"}
 
-Most applications on most modern operating systems (like FreeBSD, Linux or Microsoft Windows) use a memory model that points nearly all segment registers to the same place (and uses paging instead), effectively disabling their use. Typically the use of FS or GS is an exception to this rule, instead being used to point at thread-specific data.
+Most applications on modern operating systems use a memory model that points nearly all segment registers to the same place. Therefore, their use is not common. However, FS and GS are exceptions to this rule, instead being used to point at thread-specific data.
  
 The EFLAGS is a 32-bit register used as a collection of bits representing Boolean values to store the results of operations and the state of the processor.
 
 The names of **EFLAGS bits** are:
 
-0. CF : Carry Flag. Set if the last arithmetic operation carried (addition) or borrowed (subtraction) a bit beyond the size of the register. This is then checked when the operation is followed with an add-with-carry or subtract-with-borrow to deal with values too large for just one register to contain.
-2. PF : Parity Flag. Set if the number of set bits in the least significant byte is a multiple of 2.
-4. AF : Adjust Flag. Carry of Binary Code Decimal (BCD) numbers arithmetic operations.
-6. ZF : Zero Flag. Set if the result of an operation is Zero (0).
-7. SF : Sign Flag. Set if the result of an operation is negative.
-8. TF : Trap Flag. Set if step by step debugging.
-9. IF : Interruption Flag. Set if interrupts are enabled.
-10. DF : Direction Flag. Stream direction. If set, string operations will decrement their pointer rather than incrementing it, reading memory backwards.
-11. OF : Overflow Flag. Set if signed arithmetic operations result in a value too large for the register to contain.
-12 & 13. IOPL : I/O Privilege Level field (2 bits). I/O Privilege Level of the current process.
-14. NT : Nested Task flag. Controls chaining of interrupts. Set if the current process is linked to the next process.
-16. RF : Resume Flag. Response to debug exceptions.
-17. VM : Virtual-8086 Mode. Set if in 8086 compatibility mode.
-18. AC : Alignment Check. Set if alignment checking of memory references is done.
-19. VIF : Virtual Interrupt Flag. Virtual image of IF.
-20. VIP : Virtual Interrupt Pending flag. Set if an interrupt is pending.
-21. ID : Identification Flag. Support for CPUID instruction if can be set.
+0. CF: Carry Flag. Set if the last arithmetic operation carried (addition) or borrowed (subtraction) a bit beyond the size of the register. This is then checked when the operation is followed with an add-with-carry or subtract-with-borrow to deal with values too large for just one register to contain.
+2. PF: Parity Flag. Set if the number of set bits in the least significant byte is a multiple of 2.
+4. AF: Adjust Flag. Carry of Binary Code Decimal (BCD) numbers arithmetic operations.
+6. ZF: Zero Flag. Set if the result of an operation is Zero (0).
+7. SF: Sign Flag. Set if the result of an operation is negative.
+8. TF: Trap Flag. Set if step by step debugging.
+9. IF: Interruption Flag. Set if interrupts are enabled.
+10. DF: Direction Flag. Stream direction. If set, string operations will decrement their pointer rather than incrementing it, reading memory backwards.
+11. OF: Overflow Flag. Set if signed arithmetic operations result in a value too large for the register to contain.
+12 & 13. IOPL: I/O Privilege Level field (2 bits). I/O Privilege Level of the current process.
+14. NT: Nested Task flag. Controls chaining of interrupts. Set if the current process is linked to the next process.
+16. RF: Resume Flag. Response to debug exceptions.
+17. VM: Virtual-8086 Mode. Set if in 8086 compatibility mode.
+18. AC: Alignment Check. Set if alignment checking of memory references is done.
+19. VIF: Virtual Interrupt Flag. Virtual image of IF.
+20. VIP: Virtual Interrupt Pending flag. Set if an interrupt is pending.
+21. ID: Identification Flag. Support for CPUID instruction if can be set.
 {:style="color:#333; font-size: 150%;"}
  
-Instruction pointer
-The EIP register contains the address of the next instruction to be executed if no branching is done.
+
+Finally, the **Instruction pointer** (EIP) register contains the address of the next instruction to be executed if no branching is done.
 EIP can only be read through the stack after a call instruction.
 
+What is a stack ?
+{:style="color:DarkRed; font-size: 170%;"}
+It's a data structure used to store objects. Items can be added using a **push** operation, and retrieved with a **pop** operation. An object added comes to the top of the stack. Items can be removed from the top (*LIFO -> Last In, First Out*) or from the bottom (*FIFO -> First In, First Out*) of the stack.\\
+If a stack runs out of memory (i.e if it's full, no more object can be pushed), it will cause a **stack overflow**.
+
+How does the processor access data ?
+{:style="color:DarkRed; font-size: 170%;"}
+The ways a processor access data are called **addressing modes**. The **6 most important addressing modes** are:
+
+1. Immediate mode: it's the simplest mode, because the data to access is embedded in the instruction itself. For example, to initialize a register to 0, we give it the number 0 instead of giving an address to read the 0 from.
+
+2. Register addressing mode: the instruction contains a register to access, rather than a memory location.
+
+3. Direct addressing mode: the instruction contains the memory address to access. Example: we can ask the computer to load a register with the data at address 2000. It would go directly to byte 2000 and copy the contents into the register.
+
+4. Indexed addressing mode: the instruction contains the memory address to access, but also specifies an index register to offset that address.\\ 
+Example: we specify address 2000 and an index register. If the index register contains the number 20, the actual address the data is loaded from would be 2020 (useful to cycle between numbers with an index).\\
+On x86 processors, we can also specify a multiplier for the index (allows to access memory a byte at a time, or a word at a time (4 bytes)).\\
+Example : if we want to access the 4th byte from location 2000, we would load our index register with 3 (counting start at 0), and set the multiiplier to 1. This would get us location 2003.
+
+5. Indirect addressing mode: the instruction contains a register that contains a pointer to where the data should be accessed.\\
+Example: if we specify the %eax register, and that this register contains the value 4, the value contained at memory location 4 would be used.
+
+6. Base-pointer addressing mode: similar to indirect addressing, but we also include a number called the *offset* to add to the register's value before using it for lookup. This mode will be widely used in the book.
 
 # Your First Programs
 
