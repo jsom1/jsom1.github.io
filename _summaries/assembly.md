@@ -143,8 +143,8 @@ This number requires 2 bytes of memory. The most significant byte is 07, and the
 {:class="img-responsive"}
 
 <div class="img_container">
-	![test](/_images/endian.png){: height="30px" width = "30px"}
-	</div>
+![test]({{https://jsom1.github.io/}}/_images/endian.png){: height="30px" width = "30px"}
+</div>
 
 
 How can we represent negative numbers in binary ?
