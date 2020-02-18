@@ -2,6 +2,7 @@ name: Netpal
 markdown: kramdown
 permalink: /blog/:year/:month/:day/:title
 include: ['_summaries']
+include: ['_images']
 kramdown:
   parse_block_html: true
 
