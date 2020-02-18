@@ -142,6 +142,11 @@ This number requires 2 bytes of memory. The most significant byte is 07, and the
 ![test](/_images/endian.png)
 {:class="img-responsive"}
 
+<div class="img_container">
+	![test](/_images/endian.png){: height="30px" width = "30px"}
+	</div>
+
+
 How can we represent negative numbers in binary ?
 {:style="color:DarkRed; font-size: 170%;"}
 We can use the method “2’s complement” : the sign is changed by inverting all the bits and adding one. Example :\\
