@@ -53,5 +53,10 @@ ul li {
 }
 
 code {
-    background-color: black
+    background-color: black;
+}
+
+table {
+    font-size: 1.5em; 
+    color:red;
 }
