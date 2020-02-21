@@ -56,8 +56,13 @@ code {
     background-color: black;
 }
 
-table, th, td {
+table {
     font-size: 1.5em; 
     color:#333;
     font-weight: normal;
+}
+
+th, td {
+    border-bottom: 1px solid #ddd;
+    color:red;
 }
