@@ -51,3 +51,7 @@ ul li {
 .img_container{
     text-align: center;
 }
+
+code {
+    background-color: black
+}
