@@ -42,8 +42,7 @@ pre { /* Code block - determines code spacing between lines */
 # Programming from the ground up
 {:.no_toc}
 
-This is a resumee of the book “Programming from the ground up”. For this resumee, I asked myself different questions and used
-the book as well as other resources to answer them.
+This is a resumee of the book “Programming from the ground up”. For this resumee, I asked myself different questions and used the book as well as other resources to answer them. Also, the book uses the *AT&T* syntax, whereas I'll be using the official syntax for x86, which is the Intel syntax.
 
 The chapters are the following :
 
@@ -60,7 +59,7 @@ There are 3 kinds of languages :
 - Assembly language : same as machine language (also specific to the processor), but the numbers are replaced by letters. Easier to use for humans
 - High-level language : closer to natural language. The purpose is to make programming easier. Not specific to the computer (portable across multiple systems).
 
-The syntax of assembly instructions is the following:\\
+The Intel syntax of assembly instructions is the following:\\
 Operation destination, source\\
 Example :
 
@@ -251,6 +250,22 @@ Example: if we specify the %eax register, and that this register contains the va
 6. Base-pointer addressing mode: similar to indirect addressing, but we also include a number called the *offset* to add to the register's value before using it for lookup. This mode will be widely used in the book.
 
 # Your First Programs
+
+Where do we write the program ?
+{:style="color:DarkRed; font-size: 170%;"}
+We can write the program in an editor, like nano for example.
+
+What is the structure of an assembly program ?
+{:style="color:DarkRed; font-size: 170%;"}
+An assembly program can be divided into 3 sections :
+
+- The data section: declared with **section.data** and is used for declaring initialized data or constants that will not change at runtime (file names, buffer size, constants, ...).
+
+- The bss section: declared with **section.bss** and is used for declaring variables that are not explicitly initialized to any value.
+
+- The text section: declared with **section.text** must begin with the declaration **global_start** and it's where the actual code is written.
+
+Before the data section, it is a good practice to explain what the program does. A comment in assembly must start with a semicolon (;).
 
 # All about functions
 
