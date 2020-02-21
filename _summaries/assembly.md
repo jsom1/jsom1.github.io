@@ -268,6 +268,21 @@ An assembly program can be divided into 3 sections :
 
 Before the data section, it is a good practice to explain what the program does. A comment in assembly must start with a semicolon (;).
 
+
+How do we write Hello world in assembly ?
+{:style="color:DarkRed; font-size: 170%;"}
+Install nasm on mac : first install homebrew with :\\
+
+~~~
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+~~~
+
+Then, we install nasm :
+
+~~~
+brew install nasm
+~~~
+
 # All about functions
 
 # Dealing with Files
