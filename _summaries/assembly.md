@@ -68,7 +68,6 @@ Example :
 | ---: | ---:|
 | mov epb, esp | 89 e5 |
 | sub esp, 0x8 | 83 ec 08 |
-{:.table-striped}
 		
 → This example transfers the value of esp into ebp, and subtracts 8 (0x8) to esp. The result is stored into esp. We will soon see what esp and ebp are.
 
