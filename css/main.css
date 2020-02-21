@@ -57,10 +57,11 @@ code {
 }
 
 table {
-    width: 40%;
+    width: 25%;
 }
 
 th, td {
     border-bottom: 1px solid #ddd;
-    color:#333;
+    font-size: 1.5em;
+    color: #333;
 }
