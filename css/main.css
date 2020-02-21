@@ -58,5 +58,6 @@ code {
 
 table {
     font-size: 1.5em; 
-    color:red;
+    color:#333;
+    font-weight: normal;
 }
