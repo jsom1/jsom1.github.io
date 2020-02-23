@@ -252,9 +252,11 @@ Example: if we specify the %eax register, and that this register contains the va
 
 # Your First Programs
 
-Where do we write the program ?
+How do we write a program ?
 {:style="color:DarkRed; font-size: 170%;"}
-We can write the program in an editor, like nano for example.
+We need 3 things to write a program.
+First, we need a place to write the program. It can be any text editor, like nano for example.
+Then, we need an assembler. There are many possibilities, here we will use nasm (Netwide Assembler) 
 
 What is the structure of an assembly program ?
 {:style="color:DarkRed; font-size: 170%;"}
