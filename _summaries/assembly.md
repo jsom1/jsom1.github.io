@@ -140,10 +140,11 @@ This number requires 2 bytes of memory. The most significant byte is 07, and the
 
 ![test](../_images/endian.png)
 {:class="img-responsive"}
+{:/comment}
 
 ![test](/_images/endian.png)
 {:class="img-responsive"}
-
+{:/comment}
 
 <div class="img_container">
 ![test]({{https://jsom1.github.io/}}/_images/endian.png){: height="180px" width = "180px"}
