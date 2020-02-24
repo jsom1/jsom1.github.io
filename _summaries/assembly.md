@@ -52,7 +52,7 @@ The chapters are the following :
 
 # Introduction
 
-What is assembly language ?
+**What is assembly language ?**
 {:style="color:DarkRed; font-size: 170%;"}
 There are 3 kinds of languages :
 - Machine language : what the computer sees and uses (sequence of numbers) → Specific to the processor.
