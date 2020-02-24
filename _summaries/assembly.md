@@ -259,9 +259,13 @@ Example: if we specify the %eax register, and that this register contains the va
 
 How do we write a program ?
 {:style="color:DarkRed; font-size: 170%;"}
-We need 3 things to write a program.
-First, we need a place to write the program. It can be any text editor, like nano for example.
-Then, we need an assembler. There are many possibilities, here we will use nasm (Netwide Assembler) 
+We need 3 things to write a program:
+
+1. A **text editor** (like nano for example)
+
+2. An **assembler**: it's a program that converts assembly language into machine code. The output of an assembler is called an object file. There are many assemblers, here we will use nasm (Netwide Assembler)
+
+3. A **linker**: it's a program that links various object files together to make an executable file.
 
 What is the structure of an assembly program ?
 {:style="color:DarkRed; font-size: 170%;"}
