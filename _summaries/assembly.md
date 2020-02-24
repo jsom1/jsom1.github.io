@@ -19,7 +19,7 @@ h1.title {
 }
 h1 { /* Header 1 */
   font-size: 28px;
-  color: DarkRed;
+  color: #333;
 }
 h2 { /* Header 2 */
     font-size: 22px;
@@ -146,7 +146,7 @@ This number requires 2 bytes of memory. The most significant byte is 07, and the
 
 
 <div class="img_container">
-![test]({{https://jsom1.github.io/}}/_images/endian.png){: height="150px" width = "150px"}
+![test]({{https://jsom1.github.io/}}/_images/endian.png){: height="180px" width = "180px"}
 </div>
 
 
