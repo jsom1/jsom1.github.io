@@ -138,6 +138,21 @@ The x86 architecture is “little endian” → multi-bytes values are written l
 Example: let's consider the hexadecimal number 0725 (= 1829 in decimal: 0\*16^3 + 7\*16^2 + 2\*16^1 + 5\*16^0).
 This number requires 2 bytes of memory. The most significant byte is 07, and the least significant is 25. If the processor brings the value 0725 from register to memory, it will transfer 25 first to the lower memory address and 07 to the next address.
 
+![test](endian.png)
+{:class="img-responsive"}
+
+![test](../_images/endian.png)
+{:class="img-responsive"}
+
+![test](/_images/endian.png)
+{:class="img-responsive"}
+
+![test](github.com/jsom1/jsom1.github.io/_images/endian.png)
+{:class="img-responsive"}
+
+![test](jsom1.github.io/_images/endian)
+{:class="img-responsive"}
+
 ![test](jsom1.github.io/_images/endian.png)
 {:class="img-responsive"}
 
