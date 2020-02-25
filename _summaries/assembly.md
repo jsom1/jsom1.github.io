@@ -233,7 +233,7 @@ We need 3 things to write a program:
 
 2. An **assembler**: it's a program that converts assembly language into machine code. The output of an assembler is called an object file. There are many assemblers, here we will use nasm (Netwide Assembler)
 
-3. A **linker**: it's a program that links various object files together to make an executable file.
+3. A **linker**: it's a program that links various object files together to make an executable file. The linker will not be the same on Mac and on Linux, for example.
 
 **What is the structure of an assembly program ?**
 {:style="color:DarkRed; font-size: 170%;"}
@@ -248,16 +248,73 @@ Before the data section, it is a good practice to explain what the program does.
 
 **How do we write Hello world in assembly ?**
 {:style="color:DarkRed; font-size: 170%;"}
-Install nasm on mac : first install homebrew with :\\
+Writing and executing a program is different and Mac and Linux. Let's start with Hello World on Mac :\\
+We install homebrew with :
 
 ~~~
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
 ~~~
 
-Then, we install nasm :
+We install nasm :
 
 ~~~
 brew install nasm
+~~~
+
+Then, we add the path to our paths :
+
+~~~
+sudo nano /etc/paths
+~~~
+
+and we add
+
+~~~
+/usr/bin/nasm
+~~~
+
+at the end of the file. Now, we can write our program :
+
+~~~
+nano hello.asm
+~~~
+
+creates a file called hello, with the extension asm (assembly). In this file, we write our program :
+
+~~~
+    global    start
+    section   .text
+start:
+    mov       rax, 0x02000004
+    mov       rdi, 1
+    mov       rsi, message
+    mov       rdx, 13
+    syscall
+    mov       rax, 0x02000001
+    xor       rdi, rdi
+    syscall 
+    section   .data
+message:  
+    db        "Hello, World", 10
+~~~
+
+Now, we need to **assemble** this file (convert it to machine language). This is done by typing
+
+
+~~~
+nasm -f macho64 hello.asm
+~~~
+
+This creates the new file *hello.o*, or more precisely the object hello.o. Finally, we have to **link** it to make an executable :
+
+~~~
+ld -macosx_version_min 10.7.0 -o hello hello.o
+~~~
+
+We can now run the program with
+
+~~~
+./hello
 ~~~
 
 # All about functions
