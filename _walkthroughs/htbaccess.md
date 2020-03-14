@@ -17,31 +17,33 @@ Without surprise, it didn't work. The next thing to do was to have a look at wha
 and click on *inspect*. Then, go in the *Network* tab.  
 
 <div class="img_container">
-![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png)
+![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="500px" width = "550px"}
 </div>
 
 We see a script called *inviteapi.min.js*: at the end of the script, there are
 a few commands and among them, we see *makeInviteCode*. So, let's check what this function does by typing it in the *Console* tab.
 
 <div class="img_container">
-![htb make inv]({{https://jsom1.github.io/}}/_images/htb_makeinv.png)
+![htb make inv]({{https://jsom1.github.io/}}/_images/htb_makeinv.png){: height="500px" width = "550px"}
 </div>
 
 There is an encrypted (BASE64) string that we can decipher with Cryptii for example:
 
 <div class="img_container">
-![htb cryptii]({{https://jsom1.github.io/}}/_images/htb_cryptii.png)
+![htb cryptii]({{https://jsom1.github.io/}}/_images/htb_cryptii.png){: height="500px" width = "550px"}
 </div>
 
 The message tells us to do a POST request to generate an invite code. We could do it within a terminal, but I downloaded Postman
 a while ago and used it instead. We just send an empty POST request to the given address:
 
 <div class="img_container">
-![htb postman]({{https://jsom1.github.io/}}/_images/htb_postman.png)
+![htb postman]({{https://jsom1.github.io/}}/_images/htb_postman.png){: height="500px" width = "550px"}
 </div>
 
 In return, we got another encrypter string. Once again, I used Cryptii to decipher it:
 
 <div class="img_container">
-![htb code]({{https://jsom1.github.io/}}/_images/htb_code.png)
+![htb code]({{https://jsom1.github.io/}}/_images/htb_code.png){: height="500px" width = "550px"}
 </div>
+
+And this is it, we have our invite code!
