@@ -30,7 +30,7 @@ a few commands and among them, we see *makeInviteCode*. So, let's check what thi
 There is an encrypted (BASE64) string that we can decipher with Cryptii for example:
 
 <div class="img_container">
-![htb cryptii]({{https://jsom1.github.io/}}/_images/htb_cryptii.png){: height="500px" width = "550px"}
+![htb cryptii]({{https://jsom1.github.io/}}/_images/htb_cryptii.png){: height="250px" width = "250px"}
 </div>
 
 The message tells us to do a POST request to generate an invite code. We could do it within a terminal, but I downloaded Postman
@@ -43,7 +43,7 @@ a while ago and used it instead. We just send an empty POST request to the given
 In return, we got another encrypter string. Once again, I used Cryptii to decipher it:
 
 <div class="img_container">
-![htb code]({{https://jsom1.github.io/}}/_images/htb_code.png){: height="500px" width = "550px"}
+![htb code]({{https://jsom1.github.io/}}/_images/htb_code.png){: height="250px" width = "250px"}
 </div>
 
 And this is it, we have our invite code!
