@@ -7,9 +7,6 @@ output: html_document
 
 # Hack the Box invite code
 
-**!!Spoiler!!**
-{:style="color:Red; font-size: 200%;"}
-
 <span style="background-color:red">&nbsp;&nbsp;&nbsp;&nbsp;Spoiler&nbsp;&nbsp;&nbsp;&nbsp;</span>
 {:style="color:Black; font-size: 200%;"}
 
