@@ -98,5 +98,8 @@ code {
 #bckgd {
    background-color: red;
     text-align: center;
+}
 
+#boxinfo {
+   background-color: #580808;
 }
