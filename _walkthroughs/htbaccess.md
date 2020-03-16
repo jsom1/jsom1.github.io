@@ -5,10 +5,10 @@ date: "March 14, 2020"
 output: html_document
 ---
 
+# Hack the Box invite code
+
 **!!Spoiler!!**
 {:style="color:Red; font-size: 200%;"}
-
-# Hack the Box invite code
 
 Note: It is not necessary to use Kali to get the invite code. I got mine from my Mac.
 
@@ -17,7 +17,7 @@ Without surprise, it didn't work. The next thing to do was to have a look at wha
 and click on *inspect*. Then, go in the *Network* tab.  
 
 <div class="img_container">
-![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="30%" width = "30%"}
+![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="10%" width = "10%"}
 </div>
 
 We immediately see a bunch of scripts, and there is one called *inviteapi.min.js*: at the end of the script, there are
