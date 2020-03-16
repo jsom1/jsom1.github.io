@@ -18,7 +18,7 @@ Without surprise, it didn't work. The next thing to do was to have a look at wha
 and click on *inspect*. Then, go in the *Network* tab.  
 
 <div class="img_container">
-![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="590px" width = "640px"}
+![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="600px" width = "650px"}
 </div>
 
 We immediately see a bunch of scripts, and there is one called *inviteapi.min.js*: at the end of the script, there are
@@ -38,7 +38,7 @@ The message tells us to do a POST request to generate an invite code. We could d
 a while ago and used it instead. We just send an empty POST request to the given address:
 
 <div class="img_container">
-![htb postman]({{https://jsom1.github.io/}}/_images/htb_postman.png){: height="550px" width = "600px"}
+![htb postman]({{https://jsom1.github.io/}}/_images/htb_postman.png){: height="540px" width = "580px"}
 </div>
 
 In return, we got another encrypter string. Once again, I used Cryptii to decipher it:
