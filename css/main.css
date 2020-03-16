@@ -108,6 +108,7 @@ code {
   float: left;
   width:33.33333%;
   text-align:left;
+  padding-right: 10px;
 }
 .aligncenter {
   float: left;
@@ -118,4 +119,5 @@ code {
  float: left;
  width:33.33333%;
  text-align:right;
-}​
+ padding-left: 10px;
+}
