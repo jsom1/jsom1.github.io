@@ -17,7 +17,7 @@ Without surprise, it didn't work. The next thing to do was to have a look at wha
 and click on *inspect*. Then, go in the *Network* tab.  
 
 <div class="img_container">
-![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="60%" width = "50%"}
+![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="30%" width = "30%"}
 </div>
 
 We immediately see a bunch of scripts, and there is one called *inviteapi.min.js*: at the end of the script, there are
@@ -27,7 +27,7 @@ a few commands and among them, *makeInviteCode* looks interesting. So, let's che
 ![htb make inv]({{https://jsom1.github.io/}}/_images/htb_makeinv.png){: height="500px" width = "550px"}
 </div>
 
-It returns an object containing an encrypted (BASE64) string that we can decipher with Cryptii ([https://cryptii.com/](cryptii)) for example:
+It returns an object containing an encrypted (BASE64) string that we can decipher with Cryptii ([https://cryptii.com/](https://cryptii.com/)) for example:
 
 <div class="img_container">
 ![htb cryptii]({{https://jsom1.github.io/}}/_images/htb_cryptii.png){: height="250px" width = "250px"}
