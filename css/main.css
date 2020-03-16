@@ -103,3 +103,10 @@ code {
 #boxinfo {
    background-color: #9e9e0e;
 }
+
+.alignleft {
+	float: left;
+}
+.alignright {
+	float: right;
+}
