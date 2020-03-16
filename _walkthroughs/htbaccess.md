@@ -10,24 +10,24 @@ output: html_document
 
 # Hack the Box invite code
 
-Note: I got my invite code from my Mac, so there is no need to use Kali.
+Note: It is not necessary to use Kali to get the invite code. I got mine from my Mac.
 
 Go to [https://www.hackthebox.eu/invite](https://www.hackthebox.eu/invite): it says "Feel free to hack your way in". First, I naively tried a few classic passwords such as *admin*, *1234*, *root*, *toor*, and more.
 Without surprise, it didn't work. The next thing to do was to have a look at what happens when we submit a password: right click anywhere on the page,
 and click on *inspect*. Then, go in the *Network* tab.  
 
 <div class="img_container">
-![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="500px" width = "550px"}
+![htb inspect]({{https://jsom1.github.io/}}/_images/htb_inspect.png){: height="60%" width = "50%"}
 </div>
 
-We see a bunch of scripts, and there is one called *inviteapi.min.js*: at the end of the script, there are
+We immediately see a bunch of scripts, and there is one called *inviteapi.min.js*: at the end of the script, there are
 a few commands and among them, *makeInviteCode* looks interesting. So, let's check what this function does by typing it in the *Console* tab.
 
 <div class="img_container">
 ![htb make inv]({{https://jsom1.github.io/}}/_images/htb_makeinv.png){: height="500px" width = "550px"}
 </div>
 
-It returns an object containing an encrypted (BASE64) string that we can decipher with Cryptii ([cryptii](https://cryptii.com/)) for example:
+It returns an object containing an encrypted (BASE64) string that we can decipher with Cryptii ([https://cryptii.com/](cryptii)) for example:
 
 <div class="img_container">
 ![htb cryptii]({{https://jsom1.github.io/}}/_images/htb_cryptii.png){: height="250px" width = "250px"}
