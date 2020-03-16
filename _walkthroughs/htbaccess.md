@@ -10,7 +10,9 @@ output: html_document
 **!!Spoiler!!**
 {:style="color:Red; font-size: 200%;"}
 
-<pre><span style="background-color:orange"></span>
+<pre><span style="background-color:orange"></span></pre>
+
+<mark>Warning !</mark>
 
 Note: It is not necessary to use Kali to get the invite code. I got mine from my Mac.
 
