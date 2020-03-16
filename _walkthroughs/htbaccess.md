@@ -10,6 +10,8 @@ output: html_document
 **!!Spoiler!!**
 {:style="color:Red; font-size: 200%;"}
 
+<pre><span style="background-color:orange"></span>
+
 Note: It is not necessary to use Kali to get the invite code. I got mine from my Mac.
 
 Go to [https://www.hackthebox.eu/invite](https://www.hackthebox.eu/invite): it says "Feel free to hack your way in". First, I naively tried a few classic passwords such as *admin*, *1234*, *root*, *toor*, and more.
