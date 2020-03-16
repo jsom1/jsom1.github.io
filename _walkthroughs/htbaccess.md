@@ -10,7 +10,7 @@ output: html_document
 **!!Spoiler!!**
 {:style="color:Red; font-size: 200%;"}
 
-<pre><span style="background-color:orange"></span></pre>
+<pre><span style="background-color:orange">teeeeest</span></pre>
 
 <mark>Warning !</mark>
 
