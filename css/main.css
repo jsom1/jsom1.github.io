@@ -103,3 +103,13 @@ code {
 #boxinfo {
    background-color: #580808;
 }
+
+.left {
+    float: left;
+}
+.center {
+    float: center;
+}
+.right {
+    float: right;
+}
