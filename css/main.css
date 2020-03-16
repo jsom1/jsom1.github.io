@@ -83,6 +83,7 @@ pre {
     background: #f4f4f4;
     border: solid 1px #e1e1e1
 } 
+
 code { 
     font-size: 90%;
     line-height: 1.2em;
@@ -92,4 +93,10 @@ code {
     color: #555555;
     padding: 1em 1em;
     background: #f4f4f4;
+}
+
+#bckgd {
+   background-color: red;
+    text-align: center;
+
 }
