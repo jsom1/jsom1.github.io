@@ -105,8 +105,17 @@ code {
 }
 
 .alignleft {
-	float: left;
+  float: left;
+  width:33.33333%;
+  text-align:left;
+}
+.aligncenter {
+  float: left;
+  width:33.33333%;
+  text-align:center;
 }
 .alignright {
-	float: right;
-}
+ float: left;
+ width:33.33333%;
+ text-align:right;
+}​
