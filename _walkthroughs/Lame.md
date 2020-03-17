@@ -55,4 +55,21 @@ In Metasploit, the line starts with *msf5*. Now, we can search more information 
 We see 4 different exploits. We could try some of these, but there's one that seems to be what we're looking for: the 4th one, *exploit/unix/ftp/proftpd_133c_backdoor*. It's rated excellent, it's the right version, and it's a backdoor command execution.\\
 Let's launch this exploit and see what parameters it requires (with the *options* command):
 
+<div class="img_container">
+![msfsearch]({{https://jsom1.github.io/}}/_images/htb_lame_exploit.png)
+</div>
 
+
+<div class="img_container">
+![msfsearch]({{https://jsom1.github.io/}}/_images/htb_lame_samba.png)
+</div>
+
+
+<div class="img_container">
+![msfsearch]({{https://jsom1.github.io/}}/_images/htb_lame_samba_exp.png)
+</div>
+
+
+<div class="img_container">
+![msfsearch]({{https://jsom1.github.io/}}/_images/htb_lame_pwn.png)
+</div>
