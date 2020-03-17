@@ -19,6 +19,7 @@ output: html_document
 **Lab configuration**
 
 WIP
+This is a retired box of Hack The Box, and it is necessary to get a VIP access in order to do it.
 
 ## 1. Scan the ports of the target
 {:style="color:DarkRed; font-size: 170%;"}
