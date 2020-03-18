@@ -94,14 +94,14 @@ Cons : lasts way longer than a white box test and require more skills.
 If possible, this should be the prefered over a white box test.
 
 
-# Metasploit basics : introoduction to the tools of Metasploit
+# Metasploit basics : introduction to the tools of Metasploit
 
 ## Terminology
 
-<ins>**Exploit**</ins>
+<ins>**Exploit**</ins>\\
 An exploit is the mean by which an attacker take advantage of a vulnerability in a system, an application or a service. **buffer overflows** and **SQL injections** are examples of exploits.
 
-<ins>**Payload**</ins>
+<ins>**Payload**</ins>\\
 A payload is a piece of code that we want to be executed by the tarhet system. For example, a **reverse shell** is a payload that creates a connection from the target to the attacker, whereas a **bind shell** is a payload that binds a listener on a port of the target machine so that the attacker can connect to it.
 
 <ins>**Shellcode**</ins>
@@ -132,6 +132,41 @@ Msfencode is used to encode the payload in a way that avoids those undesired cha
 Useful to analyze assembly code, especially if we want to identify **opcodes** of an assembly instruction. For example, we can start the tool with *./nasm_shell.rb* and then ask for the code of *jmp esp*; it would return 00000000 FFE4.
 
 # Information gathering : how to use Metasploit to gather intelligence in the early stages of a pentest
+
+Information gathering is the second phase of the PTES and maybe the most important. It is the basis of all the work that will come after it.
+
+## Passive information gathering
+
+We collect information without touching the target systems. We can identidy the architecture, the network admins, what OS is used and what web server is used on the target network. **OSINT** (Open Source Intelligence) is a form of information gathering during which we use free free or easily obtainable information to chose and acquire information on the target.
+
+A few examples are **whois** lookups (for example, *whois google.com* in a terminal gives a lot of information), **Netcraft** (a web tool to find the IP of a server hosting a website) and  **NSLookup** (gives more information on the server.)\\
+Passive information gathering is useful to define what systems should be included in the pentest (in a legal point of view).
+
+## Active information gathering
+
+In active information gathering, we interact directly with a system to learn more about it. **Port scanning** is an example of active information gathering. **Nmap** is one of the most popular port scanner.
+
+In a complex pentest, where there are multiple targets to scan, it is very important to keep a trace of what we do. Fortunately, Metasploit has its own databases (MySQL and PostgreSQL), PostgreSQL being used by default.
+
+**Pivoting** is the process by which we can access and attack systems that would be out of reach by using interconnected systems to route traffic.\\
+Example: let's suppose we compromised a system behind a Firewall using NAT (Network Address Translation). This system uses private IP addresses that we can't access from the internet. We can use this compromised system to avoid the firewall and access the internal network of the target.
+
+
+## Targeted scans
+It is sometimes useful to perform **targeted scans** to find specific services and/or versions that we know are vulnerable. Some examples are:
+
+- Scan a target network to find the vulnerability **ms08-067**, because it is a very common vulnerability that gives access to SYSTEM.
+
+- Detect the versions of Microsoft Windows with the module **smb_version** (*use scanner/smb/smb_version*). In the options, we can chose the number of threads; 1 (default) is enough if we scan a single system, but we could use more if we scan a subnet for example.
+
+- Look for misconfigured Microsoft SQL servers (**MS SQL**), known to be an easy entry door in a network. This is due to the fact that many system admins don't even know that their machines use MS SQL, because it is preinstalled on the system. It is often misconfigured or outdated.\\
+When installed, MS SQL listens on the TCP port 1433 by default (see the module *mssql_ping*). 
+
+- Scan of **SSH** (Secure Shell) servers. If we find any, we have to determine its version. Many vulnerabilities have been identified in its implementations, and we could be lucky and find an old machine that hasn't been updated. To determine the version, we can use the modulee *ssh_version**. 
+
+- Scan of **FTP** (File Transfer Protocol). FTP is a complicated and vulnerable protocol. FTP servers are often the easiest way in a target network. We can use the module *ftp_version*. If there is a FTP server, we can see if it allows anonymous connection with scanner *anonymous* (*use auxiliary/scanner/ftp/anonymous*). 
+
+- **SNMP** (Simple Network Management Protocol) scan. Usually, this protocol is used by network devices. However, some OS have SNMP servers that provide information about the CPU usage, available memory and other details of the system. If there is such a server, it's a gold mine for a pentester because it gives a ton of information. We can use the auxiliary module *snmp_enum* for SNMP enumerations.
 
 # Vulnerability scanning : how to identify vulnerabilities and scanning techniques
 
