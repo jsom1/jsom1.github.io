@@ -28,7 +28,7 @@ openvpn yourname.ovpn
 ~~~~~
 
 Where *yourname* is your username on Hack The Box. 
-If you're using Kali 2020, make sure to add **sudo** to the command.
+If you're using **Kali 2020**, make sure to add **sudo** to the previous command.
 
 When this is done, just look at the IP of the machine on HTB (Hack the Box). *Lame* is given the IP 10.10.10.3.
 We're ready to start !
@@ -36,7 +36,7 @@ We're ready to start !
 ## 1. Scan the ports of the target
 {:style="color:DarkRed; font-size: 170%;"}
 
-I use nmap to scan the ports with the options -sV to have a more verbose output (more details), and -oA to store the results in normal, XML and grepable formats at once.
+I use nmap to scan the ports with the options *-sV* to have a more verbose output (more details), *-sC* to run a simple script scan using the default set of scripts, and *-oA* to store the results in normal, XML and grepable formats at once (so that I can easily come back to the scan results later).
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_lame_nmap.png)
@@ -44,24 +44,23 @@ I use nmap to scan the ports with the options -sV to have a more verbose output 
 
 There are 4 open ports and services:
 
-1. **FTP** running on port 21. I know that vsftpd 2.3.4 is vulnerable (from another box), and anonymous login is allowed. It will be interesting to see what we can get with that.
+- **FTP** running on port 21. I know that vsftpd 2.3.4 is vulnerable (from another box), and anonymous login is allowed. It will be interesting to see what we can get with that.
 
-2. **SSH** running on port 22. I have already tried to exploit OpenSSH in another box but didn't succeed. I'll probably leave it out at first.
+- **SSH** running on port 22. I have already tried to exploit OpenSSH in another box but didn't succeed. I'll probably leave it out at first.
 
-3. **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X.
+- **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X.
 
-4. **Netbios-ssn** running on port 445.
+- **Netbios-ssn** running on port 445.
 
 I don't know what Netbios-ssn is, so let's have a look on the internet.\\
-The SMB protocol authorize the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files.\\ 
+The **SMB** protocol authorizes the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files.\\ 
 The dialect **Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.
 In a nutshell, SMB is a protocol used to share files on a network and uses 2 TCP ports: 139 and 445.\\
 **Port 139**: used by SMB to work over **NetBIOS** (NetBIOS is a transport layer that allows Windows machines to communicate on the same network).\\
 **Port 445**: used by more recent versions of SMB (>Windows 2000) on top of a TCP stack, allowing SMB to work on the internet.\\
 It seems that the older and more recent versions of SMB are running on this machine.
 
-
-Finally, we also get information on the target OS, detected as Unix/Linux (although we knew it from HTB). Great, we know where to look for vulnerabilities!
+Finally, we also get information on the target OS, detected as being Unix/Linux (although we knew it from HTB). Great, we know where to look for vulnerabilities!
 
 
 ## 2. Find and exploit vulnerabilities
@@ -77,14 +76,14 @@ First, I tried to connect anonymously to see if there were any interesting files
 ![ftp]({{https://jsom1.github.io/}}/_images/htb_lame_ftp.png)
 </div>
 
-Once connected (I used "guest" for the password, but I think anything would work), I listed files in the present directory (and others) but didn't find anything. I might have had higher chances if there were a web server running.\\
+Once connected (I used "guest" for the password, but I think anything would work), I listed files in the present directory (and others) but didn't find anything. I might have had higher chances if there was a web server running.\\
 I remember exploiting vsftpd 2.3.4, but not in details, so let's look at the existing exploits:
 
 <div class="img_container">
 ![searchsploit]({{https://jsom1.github.io/}}/_images/htb_lame_srchsploit.png)
 </div>
 
-There is only one exploit available, but it looks solid (backdoor command execution). Let's get more informatin on Metasploit. We launch it with the following command:
+There is only one exploit available, but it looks solid (backdoor command execution). Let's get more information on Metasploit. We launch it with the following command:
 
 ~~~
 msfconsole
