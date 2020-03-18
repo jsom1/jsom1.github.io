@@ -50,14 +50,15 @@ There are 4 open ports and services:
 
 3. **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X.
 
-4. **Netbios-ssn** running on port 445. It seems that the older and more recent versions of SMB are running on this machine.
+4. **Netbios-ssn** running on port 445.
 
 I don't know what Netbios-ssn is, so let's have a look on the internet.\\
 The SMB protocol authorize the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files.\\ 
 The dialect **Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.
 In a nutshell, SMB is a protocol used to share files on a network and uses 2 TCP ports: 139 and 445.\\
 **Port 139**: used by SMB to work over **NetBIOS** (NetBIOS is a transport layer that allows Windows machines to communicate on the same network).\\
-**Port 445**: used by more recent versions of SMB (>Windows 2000) on top of a TCP stack, allowing SMB to work on the internet.
+**Port 445**: used by more recent versions of SMB (>Windows 2000) on top of a TCP stack, allowing SMB to work on the internet.\\
+It seems that the older and more recent versions of SMB are running on this machine.
 
 
 Finally, we also get information on the target OS, detected as Unix/Linux (although we knew it from HTB). Great, we know where to look for vulnerabilities!
@@ -128,7 +129,7 @@ There are many exploits available. Although all the exploits that are not for Un
 ![msfsearch]({{https://jsom1.github.io/}}/_images/htb_lame_samba_exp.png)
 </div>
 
-Once again we only have to provide the target's IP and launch the exploit. It worked, we have an opened session! By the way, we see that the reverse TCP handler was made on the right address (10.10.14.9) and on the port 4444. Let's see if we can get a shell:
+Once again we only have to provide the target's IP and launch the exploit. We also see that it used the port 139, so the older version of SMB. It could be interesting to change the port to 445 to see if it also works, but let's keep going with port 139. The exploit worked, we have an opened session! By the way, we see that the reverse TCP handler was made on the right address (10.10.14.9) and on the port 4444. Let's see if we can get a shell:
 
 <div class="img_container">
 ![msfsearch]({{https://jsom1.github.io/}}/_images/htb_lame_pwn.png)
