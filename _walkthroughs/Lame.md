@@ -48,14 +48,17 @@ There are 4 open ports and services:
 
 2. **SSH** running on port 22. I have already tried to exploit OpenSSH in another box but didn't succeed. I'll probably leave it out at first.
 
-3. **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X. I don't know what this service is, so let's have a look on the internet.\\
+3. **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X.
+
+4. **Netbios-ssn** running on port 445. It seems that the older and more recent versions of SMB are running on this machine.
+
+I don't know what Netbios-ssn is, so let's have a look on the internet.\\
 The SMB protocol authorize the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files.\\ 
-**Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.
+The dialect **Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.
 In a nutshell, SMB is a protocol used to share files on a network and uses 2 TCP ports: 139 and 445.\\
 **Port 139**: used by SMB to work over **NetBIOS** (NetBIOS is a transport layer that allows Windows machines to communicate on the same network).\\
 **Port 445**: used by more recent versions of SMB (>Windows 2000) on top of a TCP stack, allowing SMB to work on the internet.
 
-4. **Netbios-ssn** running on port 445. It seems that the older and more recent versions of SMB are running on this machine.
 
 Finally, we also get information on the target OS, detected as Unix/Linux (although we knew it from HTB). Great, we know where to look for vulnerabilities!
 
