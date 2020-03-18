@@ -65,8 +65,7 @@ Finally, we also get information on the target OS, detected as Unix/Linux (altho
 
 Now, let's look at what we can find for FTP and Samba.
 
-**FTP**
-{:.underline}
+<ins>**FTP**</ins>
 
 First, I tried to connect anonymously to see if there were any interesting files I could download on my machine.
 
@@ -112,8 +111,7 @@ We only have to set the RHOSTS parameter, which is the target's IP address (10.1
 
 Unfortunately, I decided to give up on the vulnerability and have a look at Samba.
 
-**Netbios-ssn**
-{:.underline}
+<ins>**Netbios-ssn**</ins>
 
 Let's look at potential exploits for Samba:
 
@@ -135,7 +133,6 @@ Once again we only have to provide the target's IP and launch the exploit. It wo
 
 Perfect, we got one. In HTB boxes, there are 2 flags: on in the root folder, and one in home. I then just had to *cd* to those folders and *cat* the flags.
 
-**My thoughts**
-{:.underline}
+<ins>**My thoughts**</ins>
 
 I liked it because it's the fist time I saw Samba and ports 139/445 and I learned something new. I am not sure wether exploiting vsftpd 2.3.4 was supposed to work or not. Overall, the box was easy and well adapted to my level since I only had to use Metasploit.
