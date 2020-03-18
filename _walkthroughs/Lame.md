@@ -17,10 +17,11 @@ output: html_document
  </div> 
 
 **Lab configuration**
+{:.underline}
 
 First, download VirtualBox and Kali (or Parrot). When the machine is imported in VirtualBox, chose *bridged adapter* in the Network tab to have access to the internet. Start and set up the machine as you like.
 
-*Lame* is a retired box of Hack The Box, and it is necessary to get a **VIP access** in order to do it (10$/month). Then, it's super easy and convenient to connect to it. The first thing to do is to download the connection pack at <https://www.hackthebox.eu/home/htb/access>. Then open a terminal (make sure you're in the same directory as your connection file (*yourname*.ovpn)) and type the following command:
+*Lame* is a retired box of Hack The Box, and it is necessary to get a **VIP access** in order to do it (10$/month). Then, it's super easy and convenient to connect to it. The first thing to do is to download the connection pack at <https://www.hackthebox.eu/home/htb/access>. Then, open a terminal (make sure you're in the same directory as your connection file (*yourname*.ovpn)) and type the following command:
 
 ~~~~
 openvpn yourname.ovpn
@@ -47,8 +48,9 @@ There are 4 open ports and services:
 
 2. **SSH** running on port 22. I have already tried to exploit OpenSSH in another box but didn't succeed. I'll probably leave it out at first.
 
-3. **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X. I don't know what this service is, so let's have a look on the internet. The SMB protocol authorize the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files. **Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.\\br
-In a nutshell, SMB is a protocol used to share files on a network and uses 2 TCP ports: 139 and 445.\\br
+3. **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X. I don't know what this service is, so let's have a look on the internet. 
+The SMB protocol authorize the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files. **Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.
+In a nutshell, SMB is a protocol used to share files on a network and uses 2 TCP ports: 139 and 445.
 **Port 139**: used by SMB to work over **NetBIOS** (NetBIOS is a transport layer that allows Windows machines to communicate on the same network).
 **Port 445**: used by more recent versions of SMB (>Windows 2000) on top of a TCP stack, allowing SMB to work on the internet.
 
@@ -63,6 +65,7 @@ Finally, we also get information on the target OS, detected as Unix/Linux (altho
 Now, let's look at what we can find for FTP and Samba.
 
 **FTP**
+{:.underline}
 
 First, I tried to connect anonymously to see if there were any interesting files I could download on my machine.
 
@@ -109,6 +112,7 @@ We only have to set the RHOSTS parameter, which is the target's IP address (10.1
 Unfortunately, I decided to give up on the vulnerability and have a look at Samba.
 
 **Netbios-ssn**
+{:.underline}
 
 Let's look at potential exploits for Samba:
 
@@ -131,4 +135,6 @@ Once again we only have to provide the target's IP and launch the exploit. It wo
 Perfect, we got one. In HTB boxes, there are 2 flags: on in the root folder, and one in home. I then just had to *cd* to those folders and *cat* the flags.
 
 **My thoughts**
+{:.underline}
+
 I liked it because it's the fist time I saw Samba and ports 139/445 and I learned something new. I am not sure wether exploiting vsftpd 2.3.4 was supposed to work or not. Overall, the box was easy and well adapted to my level since I only had to use Metasploit.
