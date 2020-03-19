@@ -9,6 +9,7 @@ output: html_document
 {:.no_toc}
 
 This is a resumee of the book “Hacking, security and penetration testing with Metasploit”. The book contains many explanations and demos for specific tools; these will not be resumed here. Instead, I will focus on concepts and theory.
+
 The chapters are the following:
 
 1. TOC
@@ -145,7 +146,9 @@ Vulnerability scanners are very noisy on a network. They should not be used if w
 We can use **netcat** to perform a **banner grabbing** on the target. The command would be *nc 192.168.1.293 80*: here we connect to 192.168.1.293 on a web server (port 80), and we can then use the command *GET HTTP* to receive headers information returned by the server. Imagine we receive the information *Server: Microsoft-IIS/5.1*: we could then use a vulnerability scanner to determine if this ISS version has known vulnerabilities and if the server is up to date.\\
 It can be harder in reality, because there are false positives and false negatives.
 
-**NeXpose** and **Nessus** are examples of vulnerability scanners (see the book for more details on their use). NeXpose can either be used from a web interface or diirectly in Metasploit with the plugin NeXpose.
+**NeXpose** and **Nessus** are examples of vulnerability scanners (see the book for more details on their use). NeXpose can either be used from a web interface or directly in Metasploit with the plugin NeXpose. Nessus can also be used in Metasploit with the plugin Nessus, or in a web interface.
+
+
 # Exploitation : introduction to exploitation
 
 # Meterpreter : presentation of the post exploitation swiss knife
