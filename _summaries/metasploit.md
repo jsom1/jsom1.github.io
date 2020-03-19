@@ -48,6 +48,7 @@ The report should contain an abstract, a presentation and a technical part.
 
 
 ## Penetration test types
+{:style="color:DarkRed; font-size: 170%;"}
 
 1. **White box (white hat)**\\
 It is a visible test : we work with the client.
@@ -65,6 +66,7 @@ If possible, this should be the prefered over a white box test.
 # Metasploit basics : introduction to the tools of Metasploit
 
 ## Terminology
+{:style="color:DarkRed; font-size: 170%;"}
 
 <ins>**Exploit**</ins>\\
 An exploit is the mean by which an attacker take advantage of a vulnerability in a system, an application or a service. **buffer overflows** and **SQL injections** are examples of exploits.
@@ -82,6 +84,7 @@ A module is a part of a software that can be used by the Metasploit framework. I
 A listener is a procedure or function that awaits any entering connection. For example, once that target has been exploited, it can communicate with the attacker via internet. The listener handles this connection.
 
 ## The interfaces of Metasploit
+{:style="color:DarkRed; font-size: 170%;"}
 
 There are 3 interfaces: **Msfconsole**, a **CLI** (command line interface) and a **GUI** (graphical user interface, Armitage), and different utilities. We will be using msfconsole only. The utilities are *direct interfaces* that can be useful for exploit development and are the following:
 
@@ -104,6 +107,7 @@ Useful to analyze assembly code, especially if we want to identify **opcodes** o
 Information gathering is the second phase of the PTES and maybe the most important. It is the basis of all the work that will come after it.
 
 ## Passive information gathering
+{:style="color:DarkRed; font-size: 170%;"}
 
 We collect information without touching the target systems. We can identidy the architecture, the network admins, what OS is used and what web server is used on the target network. **OSINT** (Open Source Intelligence) is a form of information gathering during which we use free free or easily obtainable information to chose and acquire information on the target.
 
@@ -111,6 +115,7 @@ A few examples are **whois** lookups (for example, *whois google.com* in a termi
 Passive information gathering is useful to define what systems should be included in the pentest (in a legal point of view).
 
 ## Active information gathering
+{:style="color:DarkRed; font-size: 170%;"}
 
 In active information gathering, we interact directly with a system to learn more about it. **Port scanning** is an example of active information gathering. **Nmap** is one of the most popular port scanner.
 
@@ -121,19 +126,16 @@ Example: let's suppose we compromised a system behind a Firewall using NAT (Netw
 
 
 ## Targeted scans
+{:style="color:DarkRed; font-size: 170%;"}
+
 It is sometimes useful to perform **targeted scans** to find specific services and/or versions that we know are vulnerable. Some examples are:
 
 - Scan a target network to find the vulnerability **ms08-067**, because it is a very common vulnerability that gives access to SYSTEM.
-
 - Detect the versions of Microsoft Windows with the module **smb_version** (*use scanner/smb/smb_version*). In the options, we can chose the number of threads; 1 (default) is enough if we scan a single system, but we could use more if we scan a subnet for example.
-
 - Look for misconfigured Microsoft SQL servers (**MS SQL**), known to be an easy entry door in a network. This is due to the fact that many system admins don't even know that their machines use MS SQL, because it is preinstalled on the system. It is often misconfigured or outdated.\\
 When installed, MS SQL listens on the TCP port 1433 by default (see the module *mssql_ping*). 
-
 - Scan of **SSH** (Secure Shell) servers. If we find any, we have to determine its version. Many vulnerabilities have been identified in its implementations, and we could be lucky and find an old machine that hasn't been updated. To determine the version, we can use the modulee *ssh_version**. 
-
 - Scan of **FTP** (File Transfer Protocol). FTP is a complicated and vulnerable protocol. FTP servers are often the easiest way in a target network. We can use the module *ftp_version*. If there is a FTP server, we can see if it allows anonymous connection with scanner *anonymous* (*use auxiliary/scanner/ftp/anonymous*). 
-
 - **SNMP** (Simple Network Management Protocol) scan. Usually, this protocol is used by network devices. However, some OS have SNMP servers that provide information about the CPU usage, available memory and other details of the system. If there is such a server, it's a gold mine for a pentester because it gives a ton of information. We can use the auxiliary module *snmp_enum* for SNMP enumerations.
 
 # Vulnerability scanning : how to identify vulnerabilities and scanning techniques
@@ -143,12 +145,21 @@ Finding vulnerabilities automatically can be done with the help of a **vulnerabi
 Vulnerability scanners are very noisy on a network. They should not be used if we want to be unnoticed, but can save valuable time if it doesn't matter.
 
 ## Base vulnerability scan
+{:style="color:DarkRed; font-size: 170%;"}
 
 We can use **netcat** to perform a **banner grabbing** on the target. The command would be *nc 192.168.1.293 80*: here we connect to 192.168.1.293 on a web server (port 80), and we can then use the command *GET HTTP* to receive headers information returned by the server. Imagine we receive the information *Server: Microsoft-IIS/5.1*: we could then use a vulnerability scanner to determine if this ISS version has known vulnerabilities and if the server is up to date.\\
 It can be harder in reality, because there are false positives and false negatives.
 
 **NeXpose** and **Nessus** are examples of vulnerability scanners (see the book for more details on their use). NeXpose can either be used from a web interface or directly in Metasploit with the plugin NeXpose. Nessus can also be used in Metasploit with the plugin Nessus, or in a web interface.
 
+
+## Specialized vulnerability scan
+{:style="color:DarkRed; font-size: 170%;"}
+
+Sometimes we want to perform a specific analysis for a vulnerarbility on the network: Metasploit has many auxiliary modules for that. Some examples are:
+
+- Validate **SMB** (Server Message Block) connections: we can use the *SMB Login Check Scanner* to verify the validity of a username/password (brute-forcing it). This scan is very noisy and every attempt will be logged. We start the module with the command *use auxiliary/scanner/smb/smb_login*. We then set the required parameters and can launch the exploit.
+- Open **VNC** (Virtual Network Computing) access research: VNC offers a GUI to remote systems. VNC is common in companies because it gives a graphical view of a server and machines. Then, it is often forgotten and out of date, creating an important  vulnerability. The VNC module *Authentication None* searches in a range of IP addresses VNC servers that don't have any configured password (they accept *None* authentication, i.e an empty password). This analysis is generally not very useful, but every lead can be worth it.
 
 # Exploitation : introduction to exploitation
 
