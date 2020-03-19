@@ -19,6 +19,7 @@ The chapters are the following:
 # Pentesting basics
 
 ## The 7 PTES (Penetration Testing Execution Standard) phases
+{:style="color:DarkRed; font-size: 170%;"}
 
 1. **Pre-Engagement Actions**\\
 Discussion of the test’s scope with the client (what can we do, what methods we can use, which networks and addresses are in range, …).  
