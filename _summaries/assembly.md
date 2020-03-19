@@ -5,8 +5,6 @@ date: "Fbruary 17, 2020"
 output: html_document
 ---
 
-
-
 # Programming from the ground up
 {:.no_toc}
 
@@ -45,7 +43,8 @@ High-level languages are converted to machine language by a compiler.
 **Why learn assembly ?**
 {:style="color:DarkRed; font-size: 170%;"}
 Assembly language is very low level and close to the processor → assembly is great for speed optimization.
-Also, understanding assembly language allows to fully understand what a program does and therefore is very useful for reverse engineering tasks.
+Also, understanding assembly language allows to fully understand what a program does and therefore is very useful for reverse engineering tasks.\\
+Finally, and maybe most importantly, shellcode is typically written in assembly. Therefore, if we want to be able to write our own exploits, it is important to have a good understanding of assembly.
 
 
 # Computer Architecture
