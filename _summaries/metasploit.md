@@ -159,7 +159,13 @@ It can be harder in reality, because there are false positives and false negativ
 Sometimes we want to perform a specific analysis for a vulnerarbility on the network: Metasploit has many auxiliary modules for that. Some examples are:
 
 - Validate **SMB** (Server Message Block) connections: we can use the *SMB Login Check Scanner* to verify the validity of a username/password (brute-forcing it). This scan is very noisy and every attempt will be logged. We start the module with the command *use auxiliary/scanner/smb/smb_login*. We then set the required parameters and can launch the exploit.
-- Open **VNC** (Virtual Network Computing) access research: VNC offers a GUI to remote systems. VNC is common in companies because it gives a graphical view of a server and machines. Then, it is often forgotten and out of date, creating an important  vulnerability. The VNC module *Authentication None* searches in a range of IP addresses VNC servers that don't have any configured password (they accept *None* authentication, i.e an empty password). This analysis is generally not very useful, but every lead can be worth it.
+- Open **VNC** (Virtual Network Computing) access research: VNC offers a GUI to remote systems. VNC is common in companies because it gives a graphical view of a server and machines. Then, it is often forgotten and out of date, creating an important  vulnerability. The VNC module *Authentication None* searches in a range of IP addresses VNC servers that don't have any configured password (they accept *None* authentication, i.e an empty password). This analysis is generally not very useful, but every lead can be worth it (recent VNC servers don't allow empy passwords). We start the module with *use auxiliary/scanner/vnc/vnc_none_auth*. If we find a server that doesn't require a password, we can use *vncviewer* to connect to it.
+- Scan to find open **X11** servers: the scanner looks for X11 severs that allow authentication witout a password. These servers are not common nowadays, but can be found on old systems. We start the module with *use auxiliary/scanner/x11/open_x11*. If we find any, we can for example use a keylogger such as **XSpy**. A user could connect with SSH, we capture the password and have then root access on the system.
+
+## Using scan results for Autopwning
+{:style="color:DarkRed; font-size: 170%;"}
+
+The tool **Autopwn** from Metasploit automatically targets and exploit a system using an open port or the results of a vulnerability scan. We can use it to exploit the results of a Nessus or NeXpose scan, for example.
 
 # Exploitation : introduction to exploitation
 
