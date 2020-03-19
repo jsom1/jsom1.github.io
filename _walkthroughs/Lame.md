@@ -45,11 +45,8 @@ I use nmap to scan the ports with the options *-sV* to have a more verbose outpu
 There are 4 open ports and services:
 
 - **FTP** running on port 21. I know that vsftpd 2.3.4 is vulnerable (from another box), and anonymous login is allowed. It will be interesting to see what we can get with that.
-
 - **SSH** running on port 22. I have already tried to exploit OpenSSH in another box but didn't succeed. I'll probably leave it out at first.
-
 - **Netbios-ssn** running on port 139. Apparently, the version of Samba is between 3.X and 4.X.
-
 - **Netbios-ssn** running on port 445.
 
 I don't know what Netbios-ssn is, so let's have a look on the internet.\\
