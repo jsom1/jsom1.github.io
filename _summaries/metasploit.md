@@ -169,6 +169,23 @@ The tool **Autopwn** from Metasploit automatically targets and exploit a system 
 
 # Exploitation : introduction to exploitation
 
+Systems and networks are generally becoming better protected, and basic exploits are less likely to work. This chapter focuses on more complicated attacks and exploits customization with **msfconsole**, **msfencode** and **msfpayload**.
+
+## Base exploitation
+{:style="color:DarkRed; font-size: 170%;"}
+
+- **Msf> show exploits**: this commands shows all the exploits available in Metasploit.
+- **Msf> show auxiliary**: auxiliary modules can serve different purposes. They can be used as scanners, DoS modules, fuzzers (fuzzing is a technique to test programs: the idea is to inject random data into a program until it fails. It is useed to find vulnerabilities) and more. The command shows the auxiliary modules and their characteristics.
+- **Msf> search**: this command is useful to find a specific attack, an auxiliary module or a payload.
+- **Msf> use**: is the command to use an exploit or module. For example, *use windows/smb/ms08_067_netapi*.
+- **Msf> show options**: when we use this command with a selected module, it shows the options for this specific module. When no module is selected, the command shows global options.
+- **Msf> set and unset**: some parameters shown by the previous command (*show options*) are required. We can use the command *set* to set an option, and *unset* to unset it.
+- **Msf> setg and unsetg**: these commands are used to set/unset a global parameter in msfconsole. It is useful for variables that don't often change, like our IP address for example (LHOST). After setting general options with *setg*, we can use the command **save** to save them for the next time we use msfconsole. This can be done anytime and anywhere in msfconsole (within or outside of a module), and the configuration is saved in *root/.msf3/config*.
+- **Msf> show payloads**: we saw that payloads are pieces of code sent to the target. As for *show options*, when we use this command within a module, it shows the available payloads for that module. For Microsoft Windows exploits, a payload can be as simple as a command prompt on the target, and as complex as a complete GUI on the target system. After selecting a payload (with *set*), we can use the command *show options* again to see the new parameters. In reverse payloads, the connection is done by the target machine to the attacker; we must specify our IP and a port to which it will connect. We can use this technique to bypass a NAT or a firewall.
+- **Msf> show targets**: modules often list potentially vulnerable targets, based on their version, language and security implementations. It is generally a good idea to identify the right exploit instead of using the option *Automatic targetting*. Therefore, it is important to identify the OS of the target.
+- **Msf> info**: called from within a module, this command gives additional on this latter. We can also use this command outside of a module, followed by the name of a module.
+
+
 # Meterpreter : presentation of the post exploitation swiss knife
 
 # Avoid detection : ideas behind AVs evasion
