@@ -235,9 +235,7 @@ Great, the exploit worked and we got a meterpreter shell. We can continue the ex
 <ins>**Meterpreter base commands**</ins>
 
 - **screenshot**: exports an image of the user desktop. A screenshot can provide information on antivirus for example.
-
 - **sysinfo**: reveals the OS of the system.
-
 - **ps**: lists the active processes on the system. Imagine we see a explorer.exe process with the PID 1668. We can migrate our session into it with the command **migrate** (*migrate 1668*), and then record keystrokes with **run post/windows/capture/keylog_recorder**. We can stop the keylogger with ctrl+c and see what it recorded.
 
 ## Usernames and passwords retrieval
@@ -341,7 +339,7 @@ add_user omgcompromised p@55w0rd! -h *Host IP*
 add_group_user "Domain Admins" omgcompromised -h *Domain controller IP*
 ~~~~~
 
-Note that in reality, we have to use \\ between DOMAIN and USERNAME.
+Note that in reality, we would have to use 2 "\" between DOMAIN and USERNAME.
 
 ## Pivoting to other systems
 {:style="color:DarkRed; font-size: 170%;"}
