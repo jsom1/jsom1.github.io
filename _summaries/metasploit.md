@@ -465,10 +465,17 @@ client.railgun.user32.MessageBoxA(0, "Hello", "world", "MB_OK")
 ~~~~~~
 
 On the target Windows XP, we should see a pop-up. We called *user32.dll* and the function *MessageBoxA*.\\
-We can find a list of API calls on <http://msdn.microsoft.com/>.
+A list of API calls can be found on <http://msdn.microsoft.com/>.
 
 # Avoid detection : ideas behind AVs evasion
 
+Obviously, we don't want to be busted when we break into a system. This is why it is important to make a plan for avoiding AV detection. This chapter focuses on situations in which AVs can be a problem, and how we can avoid it.
+
+Most AVs use signatures to identify malicious code. If a matching signature is found within a program, process, or disk memory, most AVs quarantine the binary file or kill the executing process. If we use a common payload, we can expect it to be detected by the AV.
+To avoid AVs, we can create custom payloads that don't contain any known signature. Furthermore, when we use exploits directly against a system, metasploit payloads are conceived to execute in memory and never write data on the disk. So, when we send a payload with an exploit, most AVs do not detect it was executed on the target.
+
+## Creation of autonomous binaries with MSFpayload
+{:style="color:DarkRed; font-size: 170%;"}
 
 # Client side attacks exploitation
 
