@@ -11,7 +11,7 @@ output: html_document
  <div id="textbox">
  <p class="alignleft">**Difficulty**: easy</p>
  <p class="aligncenter">**Type**: CTF</p>
- <p class="alignright">**Objective**: read the flags</p>
+ <p class="alignright">**OS**: Linux</p>
  </div>
  <div style="clear: both;"></div>
  </div> 
