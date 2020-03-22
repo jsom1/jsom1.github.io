@@ -56,38 +56,58 @@ In the *Lame* walkthrough, I used the exploit *usermap_script*. Instead of tryin
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
+The command *searchsploit* looks for potential exploits:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_srch.png)
 </div>
 
+We see the exploit we're looking for, which is a buffer overflow vulnerability triggered by a crafted RPC (Remote Procedure Call). A remote procedure call is when a computer program causes a procedure to execute on another computer.\\
+To be sure that the exploit works properly, let's try to obtain precise information on the target system by using the scanner *smb_version*:
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_smb.png)
 </div>
+
+We see it's running the english version of Windows XP SP3. When we will set up the exploit, we'll be able to set the target. This is a good practice, because running an overflow against a wrong system could cause severe damage.\\
+We are now ready to search and use the exploit.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_msfsrch.png)
 </div>
 
+The command returned the exploit we were looking for. I then use the command *show options* to see which parameters are required: the only parameter we must set here is RHOST. We also see that by default, the target is set to *Automatic Targeting*. We will change that to use the specific version we found earlier with the scanner.
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_targ.png)
 </div>
+
+After setting RHOSTS to 10.10.10.4, I checked potential targets with the command *show targets* (only the first 15 are shown here). Oddly enough, there were many Windows XP SP3 versions, but not the english one... So, I didn't set any target and launched the exploit.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_exploit.png)
 </div>
 
+Great, we got a meterpreter shell! Let's have a look at our privileges with the command *getuid*:
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_perm.png)
 </div>
+
+We are on the SYSTEM account, which is the highest privilege level in the Windows user model. At this point, the only remaining thing to do is to find the flags.\\
+In Hack the Box CTFs on Windows machines, the flags are on the Desktop of the user. So, let's pop a shell and navigate on the system to find the flags.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_shell.png)
 </div>
 
+On windows, the command *dir* lists the directoy content, *cd* is used to change directory, and *type* displays the content of text files.
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_cd.png)
 </div>
+
+Finally, the two flags can be found in the following directories:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_root.png)
@@ -96,3 +116,5 @@ In the *Lame* walkthrough, I used the exploit *usermap_script*. Instead of tryin
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_user.png)
 </div>
+
+
