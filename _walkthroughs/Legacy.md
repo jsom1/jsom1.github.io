@@ -49,9 +49,9 @@ There are 3 open TCP ports and services:
 - **ms-wbt-server** running on port 3389
 
 I don't know what *ms-wbt-server* is, so let's what we find about it on the internet. It appears that *ms-wbt-server* is a protocol that is used by Windows Remote Desktop on the port 3389. This port is vulnerable to DoS attacks against Windows NT Terminal Server. However, this is not the kind of attack we are interested in right now.\\
-Like in the *Lame* walkthrough, we see the ports 139 and 445 which are used by the SMB (Service Message Block) protocol. This protocol allows resources sharing (files and printers) on networks with Windows machines.\\
+Like in the *Lame* walkthrough, we see the ports 139 and 445 which are used by the SMB (Service Message Block) protocol. This protocol allows resource sharing (files and printers) on networks with Windows machines.
 
-In the *Lame* walkthrough, I used the exploit *usermap_script*. Instead of trying this here, let's do something else. Because it's a Windows machine, it might be vulnerable to the well known *ms08-067* vulnerability, which gives SYSTEM permissions. Let's search more information about it.
+In the *Lame* walkthrough, I used the exploit *usermap_script*. Instead of trying this here, let's do something else. Because it's a Windows machine, it might be vulnerable to the well known *ms08-067* vulnerability, which gives SYSTEM level privileges. Let's search more information about it.
 
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
@@ -94,14 +94,21 @@ Great, we got a meterpreter shell! Let's have a look at our privileges with the 
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_perm.png)
 </div>
 
-We are on the SYSTEM account, which is the highest privilege level in the Windows user model. At this point, the only remaining thing to do is to find the flags.\\
-In Hack the Box CTFs on Windows machines, the flags are on the Desktop of the user. So, let's pop a shell and navigate on the system to find the flags.
+We are on the SYSTEM account, which is the highest privilege level in the Windows user model. If we were unlucky and didn't get SYSTEM, we could try to run the command *getsystem*, which elevates the current privileges to SYSTEM.\\
+Forrtunately we were lucky and at this point, the only remaining thing to do is to find the flags.\\
+In Hack the Box CTFs on Windows machines, the flags can be found on the Desktop of the user. So, let's pop a shell and navigate on the system to find the flags.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_shell.png)
 </div>
 
-On windows, the command *dir* lists the directoy content, *cd* is used to change directory, and *type* displays the content of text files.
+Some basic commands on windows are: 
+
+- *dir*: lists the directoy content 
+- *cd*: used to change directory
+- *type*: displays the content of text files
+
+This is all we need to finish this box.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_cd.png)
