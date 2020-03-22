@@ -117,4 +117,7 @@ Finally, the two flags can be found in the following directories:
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_user.png)
 </div>
 
+<ins>**My thoughts**</ins>
 
+Just before trying this box, I was reading a book on Metasploit [a relative link](Metasploit.md), and more precisely on how to attack a Windows system. I liked that this box allowed me to practice exactly what I just learned, exploiting the well known *ms08_067* vulnerability.\\
+Also, I am not used to the Windows command prompt, and eventhough I only used 3 commands here, I got to read a list of them and familiriaze myself with it.
