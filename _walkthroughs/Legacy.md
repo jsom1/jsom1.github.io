@@ -9,7 +9,7 @@ output: html_document
 
  <div id="boxinfo">
  <div id="textbox">
- <p class="alignleft">**  Difficulty**: easy</p>
+ <p class="alignleft">  **Difficulty**: easy</p>
  <p class="aligncenter">**Type**: CTF</p>
  <p class="alignright">**OS**: Windows  </p>
  </div>
