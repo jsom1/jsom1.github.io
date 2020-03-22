@@ -42,7 +42,7 @@ I once again use nmap to scan the ports with the options *-sV* to have a more ve
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_leg_nmap.png)
 </div>
 
-There are 3 open TCP ports and services:
+There are 2 open and 1 closed TCP ports and services:
 
 - **netbios-ssn** running on port 139
 - **microsoft-ds** running on port 445
