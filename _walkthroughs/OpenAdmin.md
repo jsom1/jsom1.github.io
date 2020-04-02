@@ -171,19 +171,31 @@ There is a virtual host listening locally on the port 52846. We probably could u
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_curl.png)
 </div>
 
-As promised, we get joanna's private key. The key is RSA encrypted (we just have the hash), and **JtR** (John the Ripper) can't crack it. First, we have to change the format with **ssh2john**.
+As promised, we get joanna's private key. The key is RSA encrypted (we just have the hash), and **JtR** (John the Ripper) can't crack it. First, we have to change the format with **ssh2john**:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_ssh2.png)
 </div>
 
+And we save the result in a new *.txt* file. We can now use JtR to crack it (I first had to unzip *rockyou.txt*).
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_passphrase.png)
 </div>
 
+This is it, we have the pass phrase for joanna! At this point, I tried to ssh with joanna's credentials:
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_chmod.png)
 </div>
+
+We see an error message. This latter asks us to change the permissions of the *id_rsa* file, which are currently "too open". We can use the command **chmod** to do it:
+
+~~~~~
+chmod 600 id_rsa
+~~~~~~
+
+We can then check the permissions with *ls -al*. Even after changing the permissions, I couldn't make it work... I had an "error with libcrypto". After struggling for a while, I realized my mistake. As we see in the image above, we are in my session on Kali. Instead of doing it in jimmy's session, I did it here to avoid creating files on the shared box. But obviously, it won't work that way: the command has to be passed from jimmy's account, because he has the file with the keys.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_flag1.png)
