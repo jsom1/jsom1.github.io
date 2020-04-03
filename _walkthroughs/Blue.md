@@ -65,9 +65,9 @@ Apparently, ms17-010 is vulnerable to RCE (Remote Code Execution). Let's now sea
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_srchsploit.png)
 </div>
 
-The 4th one should work on Windows 7, and we see **EternalBlue** in the results. The box probably gets its name from it, so it's a hint that we're on the right track. I had never heard of EternalBlue, and this makes me curious.\\ 
+The 4th one should work on Windows 7, and we see **EternalBlue** in the results. The box probably gets its name from it, so it's a hint that we're on the right track. I had never heard of EternalBlue, and this makes me curious.\\
 According to the internet, EternalBlue is an exploit developed by the NSA and revealed by the group of hackers *The Shadow Brokers* in April 2017.\\
-This exploit uses a breach in the first version of SMB (SMBv1). The breach was patched by Microsoft in an update in march 2017 (ms17-010).\\
+This exploit uses a breach in the first version of SMB (SMBv1). The breach was patched in a Microsoft update in march 2017 (ms17-010).\\
 On the one hand nmap says ms17-010 is vulnerable, on the other hand the internet says Microsoft patched the vulnerability in ms17-010... This is weird, but we'll see if it works. Maybe the version detected is wrong.\\
 We start Metasploit with *msfconsole* and look if the exploit we found in Exploit-DB is available:
 
@@ -75,7 +75,7 @@ We start Metasploit with *msfconsole* and look if the exploit we found in Exploi
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_srch.png)
 </div>
 
-Yes, the exploit is here. The description says it's for ms17-010... Let's use it and look at the required options.
+Yes, the exploit is here. The description says it's for ms17-010, so it should work... Let's use it and look at the required options.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_exp.png)
@@ -87,7 +87,7 @@ We have to set RHOSTS to 10.10.10.40, RPORT is already set to 445 and the target
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_win.png)
 </div>
 
-And it's a win! I think the version detected by the script might have been wrong. Anyway, we don't have a nice shell, but we can execute commands (note that we could try to get one with the command *shell*). Let's see who we are:
+And it's a win! We don't have a nice shell, but we can execute commands (note that we could try to get one with the command *shell*). Let's see who we are:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_whoami.png)
