@@ -42,6 +42,8 @@ Let's start by performing a usual nmap scan with the flags *-sV* to have a verbo
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_nmap.png)
 </div>
 
+
+
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
