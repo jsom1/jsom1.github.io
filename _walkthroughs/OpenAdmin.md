@@ -183,7 +183,7 @@ And we save the result in a new *.txt* file. We can now use JtR to crack it (I f
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_passphrase.png)
 </div>
 
-This is it, we have the pass phrase for joanna! At this point, I tried to ssh with joanna's credentials:
+This is it, we have the passphrase for joanna! At this point, I tried to ssh with joanna's credentials:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_chmod.png)
@@ -195,15 +195,20 @@ We see an error message. This latter asks us to change the permissions of the *i
 chmod 600 id_rsa
 ~~~~~~
 
-We can then check the permissions with *ls -al*. Even after changing the permissions, I couldn't make it work... I had an "error with libcrypto". After struggling for a while, I realized my mistake. As we see in the image above, we are in my session on Kali. Instead of doing it in jimmy's session, I did it here to avoid creating files on the shared box. But obviously, it won't work that way: the command has to be passed from jimmy's account, because he has the file with the keys.
+We can then check the permissions with *ls -al*. Even after changing the permissions, I couldn't make it work... I had an "error with libcrypto". After struggling for a while, I realized my mistake. As we see in the image above, I am in my session on Kali. Instead of doing it in jimmy's session, I did it here to avoid creating files on the shared box. But obviously, it won't work that way: the command has to be passed from jimmy's account, because he has the file with the keys. I connected back in jimmy's account, copied the key in a new file (*id_rsa*), modified the permissions with *chmod 600* and ran the command again:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_flag1.png)
 </div>
 
+This time it works, and the passphrase is *bloodninjas*. Once logged in as joanna, the first thing I did was of course to get the user flag in the */home* directory. At this point, I started enumerating directories and files. I was a bit lost and had to look at the forum for hints. Let's have a look at what joanna can do:
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_perm.png)
 </div>
+
+We see that she can run nano as admin. We're now going to use something I didn't know about: **GTFOBins**. From the Github repo, "GTFOBins is a curated list of Unix binaries that can be exploited by an attacker to bypass local security restrictions. The project collects legitimate functions of Unix binaries that can be abused to ~~get the fuck~~ break out restricted shells, escalate or maintain elevated privileges, transfer files, spawn bind and reverse shells, and facilitate the other post-exploitation tasks".\\
+The following images show how we can exploit nano to escalate our privileges:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_gtfo.png)
@@ -213,6 +218,8 @@ We can then check the permissions with *ls -al*. Even after changing the permiss
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_gtfo2.png)
 </div>
 
+So, let's run nano as root from joanna's account, use this command and see if it works:
+
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_nano.png)
 </div>
@@ -221,6 +228,11 @@ We can then check the permissions with *ls -al*. Even after changing the permiss
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_root.png)
 </div>
 
+After executing the previous command, we can pass additional commands. We see we are root with the *whoami* command, and we can then navigate to get the root flag!
+
 <ins>**My thoughts**</ins>
 
-WIP
+This was my firt active machine on Hack The Box, and I really liked it. It was a feelings rollercoaster: every time I found something to get out of the place where I was stuck, I encountered a new difficulty. I spent many hours in there, yoyo-ing between frustration and happiness.\\
+I learned how enumeration is important, and that I should use custom commands to make that part more efficient.\\
+I also learned about **GTFOBins** for Linux, which was inspired by its Windows equivalent **LOLBAS**.
+Overall, this box is perfect for beginners.
