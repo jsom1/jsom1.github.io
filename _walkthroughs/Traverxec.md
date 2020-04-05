@@ -132,8 +132,40 @@ It worked, we can execute commands! We can try to get a shell with the command *
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_shell.png)
 </div>
 
-We see that we're the user *www-data*. This user has limited privileges, and we now need to find a way to escalate them: it is time for **enumeration**.
-Because we're on a Windows machine, we navigate with *cd* to change directory, *dir* to list the content of a directory and *type* to display the content of a file.
+We see that we're the user *www-data*. This user has limited privileges, and we now need to find a way to escalate them: it is time for **enumeration**. We will be searching for any interesting information, be it usernames, passwords, misconfigurations, and so on.
+Because we're on a Windows machine, we navigate with *cd* to change directory, *dir* to list the content of a directory and *type* to display the content of a file.\\
+By going a few directories back with *cd ..*, we quickly find */home*:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_home.png)
+</div>
+
+And we find david (his name was on the webpage). I then tried to look at the passwords file, but we don't have the permission as the following image shows:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_pwd.png)
+</div>
+
+We can use the command *hostname* to get information on the host:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_host.png)
+</div>
+
+The host is traverxec, which is also the name of the box. Maybe it is because of the *directory traversal* RCE exploit, but it's probably not important. After searching a while, we find the following in */var/nostromo/conf*:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_conf.png)
+</div>
+
+We see that the password is in */var/nostromo/conf/.htpasswd*, so let's look at this file:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_passwd.png)
+</div>
+
+We have a hashed password that we can crack with *JtR* (John The Ripper) or *hashcat*. 
+
 
 <ins>**My thoughts**</ins>
 
