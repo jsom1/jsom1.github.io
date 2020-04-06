@@ -133,19 +133,14 @@ It worked, we can execute commands! We can try to get a shell with the command *
 </div>
 
 We see that we're the user *www-data*. This user has limited privileges, and we now need to find a way to escalate them: it is time for **enumeration**. We will be searching for any interesting information, be it usernames, passwords, misconfigurations, and so on.
-Because we're on a Windows machine, we navigate with *cd* to change directory, *dir* to list the content of a directory and *type* to display the content of a file.\\
+Because we're on a Linux machine, we navigate with *cd* to change directory, *ls* to list the content of a directory and *cat* to display the content of a file.\\
 By going a few directories back with *cd ..*, we quickly find */home*:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_home.png)
 </div>
 
-And we find david (his name was on the webpage). I then tried to look at the passwords file, but we don't have the permission as the following image shows:
-
-<div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_pwd.png)
-</div>
-
+And we find david (his name was on the webpage).
 We can use the command *hostname* to get information on the host:
 
 <div class="img_container">
@@ -164,8 +159,48 @@ We see that the password is in */var/nostromo/conf/.htpasswd*, so let's look at 
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_passwd.png)
 </div>
 
-We have a hashed password that we can crack with *JtR* (John The Ripper) or *hashcat*. 
+We have a hashed password that we can crack with *JtR* (John The Ripper). I copied the password, opened a new terminal tab and pasted the password in a new file *pw.txt*. I then used JtR as follows:
 
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_crack.png)
+</div>
+
+and we get the plaintext password (it's a passphrase). So, I tried to connect with SSH with different keys, but it didn't work:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_ssh.png)
+</div>
+
+So, we must find another way. Looking back at the *nhttpd.conf* file, we see the 2 last lines which are:\\
+homedirs /home\\
+homedirs_public public_www\\
+I had no clue what public_www was and checked on the internet. By typing it in Google, the first link is about *public_html*. It's not exactly the same, but maybe the idea is similar.\\
+According to this page, *public_html* (so maybe *public_www* too?) is a **directory** on computers running Apache web servers that stores all HTML files and other web content to be wieved on the internet. Then, the following example is given:
+
+~~~~
+user/public_html/directory/file
+~~~~~~
+
+If we think about our *public_www*, maybe it is a directory in david's directory which contains interesting files. Let's try it:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_hidden.png)
+</div>
+
+Bingo, we get something! Let's look into this *protected file area*:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_hidden2.png)
+</div>
+
+And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, and SSH credentials. We will probably be able to SSH with those latter and with the passphrase we cracked earlier. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. So, we have to transfer this file on our kali machine.
+
+
+
+
+
+
+root : check swagshop, gtfobins
 
 <ins>**My thoughts**</ins>
 
