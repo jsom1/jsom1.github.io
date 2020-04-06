@@ -193,10 +193,80 @@ Bingo, we get something! Let's look into this *protected file area*:
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_hidden2.png)
 </div>
 
-And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, and SSH credentials. We will probably be able to SSH with those latter and with the passphrase we cracked earlier. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. So, we have to transfer this file on our kali machine.
+And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, and SSH credentials. We will probably be able to SSH with those latter and with the passphrase we cracked earlier. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. Let's temporarily copy the file to a directory where we have more permissions, like */tmp*, and unzip it:
 
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_cp.png)
+</div>
 
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_unzip.png)
+</div>
 
+At this point, something weird happened. I think I was not able to *cd* in */home/david/.ssh* and wanted to transfer the file on kali with **netcat**. But when I came back from a break, I actually was able to *cd* there... I then copied the *id_rsa* key, and pasted it in a new file on my kali desktop. From there, I knew I could crack the passphrase.\\
+However, before feeding the key to *JtR*, it has to be transformed into a format that it likes: this can be done with **ssh2john**. Then, we can use *JtR* to crack it. Those steps are presented on the following images:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_rsa.png)
+</div>
+
+We can copy the *id_rsa* key, and go back on our kali to paste it. On the Desktop, I just used the command
+~~~~
+nano id_rsa
+~~~~~
+and pasted the key inside. Then, we transform this format with **ssh2john**:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_ssh2j.png)
+</div>
+
+Now, we can use *JtR* to crack it:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_passphrase.png)
+</div>
+
+Perfect, we should now be able to log in with SSH and those credentials! Let's try:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_sshfin.png)
+</div>
+
+The first thing I did was of course to get my candy! As usual, the user flag is the */home* directory:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_flag.png)
+</div>
+
+Now, we must find a way to get root... Let's see what is in the */bin* directory:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_ls.png)
+</div>
+
+There are 2 interesting files, but one has more open permissions (*server-stats.sh*), so let's look at what it contains:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_sss.png)
+</div>
+
+Let's roughly analyze it line by line:\\
+The first thing it does it displaying the content of *server-stats.head*.\\
+Then, it returns "Load:" followed by some value.\\
+Empty line.\\
+The text "Open nhttpd sockets:" is followed by a value.\\
+It then displays "Files in the docroot:" and shows this number.\\
+Empty line.\\
+It returns "Last 5 journal log lines:"\\
+And finally, it runs */usr/bin/journalctl* as */usr/bin/sudo*. This is interesting, it could be the way to root (because something is executed with high privileges).\\
+
+Let's look at the real output of this script:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_script.png)
+</div>
+
+Apparently, *server-stats.head* draws a nice computer and prints some text.
 
 
 
