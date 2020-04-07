@@ -55,15 +55,15 @@ So, let's have a look at the web server.
 I didn't know the web server *nostromo*, and I found interesting information about it when I googled it:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_nos1.png)
+![web info nostromo]({{https://jsom1.github.io/}}/_images/htb_tx_nos1.png)
 </div>
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_nos2.png)
+![web info nostromo]({{https://jsom1.github.io/}}/_images/htb_tx_nos2.png)
 </div>
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_nos3.png)
+![web info nostromo]({{https://jsom1.github.io/}}/_images/htb_tx_nos3.png)
 </div>
 
 One of the first thing returned by Google is the fact that this web server is vulnerable to RCE.
@@ -71,14 +71,14 @@ There is a reference and link (*CVE-2019-16278*) where more information is given
 This might be something we could exploit. But before looking for this potential exploit, let's have a look at the website.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_web.png)
+![page web]({{https://jsom1.github.io/}}/_images/htb_tx_web.png)
 </div>
 
 There is a page with content, and we see "David White". This could be useful at some point, who knows.
 If we scroll all the way down, we see the following:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_basic.png)
+![page web]({{https://jsom1.github.io/}}/_images/htb_tx_basic.png)
 </div>
 
 Apparently, the website is using the template *Basic* from *TemplateMag*. 
@@ -87,7 +87,7 @@ But once again, it could be a track for later.\\
 The website doesn't seem to have any other useful information, so let's use **dirbuster** to look for directories.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_dirb.png)
+![dirb]({{https://jsom1.github.io/}}/_images/htb_tx_dirb.png)
 </div>
 
 There are a few directories, but a first quick search didn't give anything. I let it run a moment to search inside those directories, but stopped as it was taking a lot of time.
@@ -95,7 +95,7 @@ If I had nothing else to try, I would have waited until the end of the search, b
 It this doesn't work, we will come back to dirbuster.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_srchsploit.png)
+![searchsploit]({{https://jsom1.github.io/}}/_images/htb_tx_srchsploit.png)
 </div>
 
 The 4th one is the one we are interested in. It's written version 1.9.3 and the web server is running 1.9.6, but we saw earlier that this latter is also vulnerable.\\
@@ -105,16 +105,16 @@ According to the internet, a *directory traversal* consists in exploiting insuff
 Let's start Metasploit and look if it contains the exploit.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_srch.png)
+![search msf]({{https://jsom1.github.io/}}/_images/htb_tx_srch.png)
 </div>
 
 Perfect, the exploit is here. We can use it and look at the required options.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_options.png)
+![Exploit options]({{https://jsom1.github.io/}}/_images/htb_tx_options.png)
 </div>
 
-We only have to set RHOSTS (remote host, here 10.10.10.161) and LHOST (local host, here 10.10.14.18. This value is my VPN IP that can be found with *ifconfig* command, under *tun0*).\\
+We only have to set RHOSTS (remote host, here 10.10.10.161) and LHOST (local host, here 10.10.14.18. This value is my VPN IP that can be found with *ifconfig tun0* command).\\
 The default payload is *cmd/unix/reverse_perl*. A reverse shell is when a target machine initiates a connection to a user (the attacker), and the attacker listens on a specified port.\\
 Usually, it's the opposite. A user initiates a shell connection with a remote machine (a server). However, this is often not possible because of firewalls and this is why we use reverse shells.\\
 Indeed, attacked servers usually only allow connections on specific ports (a web server accepts coonnections on ports 80 and 443).\\
@@ -123,13 +123,13 @@ Here, the reverse shell used is written in Perl.\\
 Let's try the exploit without changing the payload.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_exploit.png)
+![Exploit]({{https://jsom1.github.io/}}/_images/htb_tx_exploit.png)
 </div>
 
 It worked, we can execute commands! We can try to get a shell with the command *shell*:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_shell.png)
+![whoami]({{https://jsom1.github.io/}}/_images/htb_tx_shell.png)
 </div>
 
 We see that we're the user *www-data*. This user has limited privileges, and we now need to find a way to escalate them: it is time for **enumeration**. We will be searching for any interesting information, be it usernames, passwords, misconfigurations, and so on.
@@ -137,38 +137,38 @@ Because we're on a Linux machine, we navigate with *cd* to change directory, *ls
 By going a few directories back with *cd ..*, we quickly find */home*:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_home.png)
+![home dir]({{https://jsom1.github.io/}}/_images/htb_tx_home.png)
 </div>
 
-And we find david (his name was on the webpage).
+And we find david (whose name was on the webpage).
 We can use the command *hostname* to get information on the host:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_host.png)
+![host]({{https://jsom1.github.io/}}/_images/htb_tx_host.png)
 </div>
 
 The host is traverxec, which is also the name of the box. Maybe it is because of the *directory traversal* RCE exploit, but it's probably not important. After searching a while, we find the following in */var/nostromo/conf*:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_conf.png)
+![interesting config]({{https://jsom1.github.io/}}/_images/htb_tx_conf.png)
 </div>
 
 We see that the password is in */var/nostromo/conf/.htpasswd*, so let's look at this file:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_passwd.png)
+![password hash]({{https://jsom1.github.io/}}/_images/htb_tx_passwd.png)
 </div>
 
 We have a hashed password that we can crack with *JtR* (John The Ripper). I copied the password, opened a new terminal tab and pasted the password in a new file *pw.txt*. I then used JtR as follows:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_crack.png)
+![JtR]({{https://jsom1.github.io/}}/_images/htb_tx_crack.png)
 </div>
 
-and we get the plaintext password (it's a passphrase). So, I tried to connect with SSH with different keys, but it didn't work:
+and we get the plaintext password. So, I tried to connect with SSH but it didn't work:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_ssh.png)
+![Try SSH]({{https://jsom1.github.io/}}/_images/htb_tx_ssh.png)
 </div>
 
 So, we must find another way. Looking back at the *nhttpd.conf* file, we see the 2 last lines which are:\\
@@ -184,70 +184,74 @@ user/public_html/directory/file
 If we think about our *public_www*, maybe it is a directory in david's directory which contains interesting files. Let's try it:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_hidden.png)
+![Hidden dir]({{https://jsom1.github.io/}}/_images/htb_tx_hidden.png)
 </div>
 
 Bingo, we get something! Let's look into this *protected file area*:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_hidden2.png)
+![Hidden dir]({{https://jsom1.github.io/}}/_images/htb_tx_hidden2.png)
 </div>
 
-And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, and SSH credentials. We will probably be able to SSH with those latter and with the passphrase we cracked earlier. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. Let's temporarily copy the file to a directory where we have more permissions, like */tmp*, and unzip it:
+And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, and SSH credentials. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. Let's temporarily copy the file to a directory where we have more permissions, like */tmp*, and transfer it on our kali machine (don't forget to remove the file in */tmp* with *rm* once you're done, otherwise it would spoil other people!):
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_cp.png)
+![copy file]({{https://jsom1.github.io/}}/_images/htb_tx_cp.png)
 </div>
+
+Now, we *cd* in */tmp*. On our kali machine, we execute the following command:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_unzip.png)
+![netcat file]({{https://jsom1.github.io/}}/_images/htb_tx_nc1.png)
 </div>
 
-At this point, something weird happened. I think I was not able to *cd* in */home/david/.ssh* and wanted to transfer the file on kali with **netcat**. But when I came back from a break, I actually was able to *cd* there... I then copied the *id_rsa* key, and pasted it in a new file on my kali desktop. From there, I knew I could crack the passphrase.\\
-However, before feeding the key to *JtR*, it has to be transformed into a format that it likes: this can be done with **ssh2john**. Then, we can use *JtR* to crack it. Those steps are presented on the following images:
+Which creates an empty file called "keys" (here on the Desktop). Then, from the target machine, we execute:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_rsa.png)
+![netcat file]({{https://jsom1.github.io/}}/_images/htb_tx_nc2.png)
 </div>
 
-We can copy the *id_rsa* key, and go back on our kali to paste it. On the Desktop, I just used the command
-~~~~
-nano id_rsa
-~~~~~
-and pasted the key inside. Then, we transform this format with **ssh2john**:
+Which transfers the file *backup-ssh-identity-files.tgz* on our kali. We see that the previous empty "keys" file is now a compressed file (gzip), that we can unzip with the following command:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_ssh2j.png)
+![unzip]({{https://jsom1.github.io/}}/_images/htb_tx_unzip.png)
 </div>
 
-Now, we can use *JtR* to crack it:
+It creates a new folder on the Desktop called *home*, in which there is a another folder, *david*. The keys were unzipped in this latter. We can see them by *cd*ing into it. At this point, we just have to crack the *id_rsa* key. However, before feeding the key to *JtR*, it has to be transformed into a format that it likes: this can be done with **ssh2john**. Then, we can use *JtR* to crack it. Those steps are presented below:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_passphrase.png)
+![ssh2john]({{https://jsom1.github.io/}}/_images/htb_tx_rsa2j.png)
 </div>
 
-Perfect, we should now be able to log in with SSH and those credentials! Let's try:
+This created a new file *id_rsa_hash.txt* that we can give to *JtR*:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_sshfin.png)
+![passphrase crack]({{https://jsom1.github.io/}}/_images/htb_tx_passphrase.png)
 </div>
 
+Perfect, it found the password **hunter** and we should now be able to log in with SSH! Let's try:
+
+<div class="img_container">
+![ssh david]({{https://jsom1.github.io/}}/_images/htb_tx_sshfin.png)
+</div>
+
+Note that we have to SSH from Kali. Technically, we could unzip the file on the target, but the keys would go in */home/david/.ssh* and we cannot access them there.\\
 The first thing I did was of course to get my candy! As usual, the user flag is the */home* directory:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_flag.png)
+![first flag]({{https://jsom1.github.io/}}/_images/htb_tx_flag.png)
 </div>
 
 Now, we must find a way to get root... Let's see what is in the */bin* directory:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_ls.png)
+![interesting files]({{https://jsom1.github.io/}}/_images/htb_tx_ls.png)
 </div>
 
 There are 2 interesting files, but one has more open permissions (*server-stats.sh*), so let's look at what it contains:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_sss.png)
+![script]({{https://jsom1.github.io/}}/_images/htb_tx_sss.png)
 </div>
 
 Let's roughly analyze it line by line:\\
@@ -263,15 +267,37 @@ And finally, it runs */usr/bin/journalctl* as */usr/bin/sudo*. This is interesti
 Let's look at the real output of this script:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_script.png)
+![script exec]({{https://jsom1.github.io/}}/_images/htb_tx_script.png)
 </div>
 
-Apparently, *server-stats.head* draws a nice computer and prints some text.
+Apparently, *server-stats.head* draws a nice computer and prints some text. Then, we see the information listed above and the last 5 journal log lines...\\
+Since *journalctl* is run as sudo, let's have a look at **GTFOBins** (this is what we did in OpenAdmin with a similar situation):
 
+<div class="img_container">
+![GTFOBins journalctl]({{https://jsom1.github.io/}}/_images/htb_tx_gtfo1.png)
+</div>
 
+We see that *journalctl* invokes the default pager, which is likely *less* (confirmed by a quick search on the internet). Logs are collected by a daemon called *journald*, and can be seen with the command *journalctl*. By looking at *less* in GTFO bins, we see interesting commands.\\
+The thing is, we must find a way to execute them. To do so, we can copy and modify *server-stats.sh*. I created a new file (*.mod-script*) and copied the code inside. Then, we remove the pipe and what follows:
 
-root : check swagshop, gtfobins
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_modscript.png)
+</div>
+
+doing so, we actually have an instance of the pager *less* running as root, and we can enter the command found on GTFOBins to read files:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_cmd.png)
+</div>
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_root.png)
+</div>
+
+And this is it, we have the root flag!
 
 <ins>**My thoughts**</ins>
 
-WIP
+Another great machine! This box was similar to OpenAdmin in the sense that user flag required enumeration and root flag required to use GTFOBins. Furthermore, the steps from the initial shell to user via SSH was exactly the same than in OpenAdmin. Despite the resemblance, I really liked it because it reinforced what I had learned, and the box was funny.
+
+We found a password for david (Nowonly4me) that we didn't use anywhere. Maybe there is another way to get the flags ?! I didn't try it, but it's something interesting!
