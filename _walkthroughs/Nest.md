@@ -94,8 +94,8 @@ Great, we found something else. So, we have 2 leads: SMB and an unknown service 
 
 **Port 4386**\\
 Here, I've been lucky. I didn't really know what to do with this port, so I tried to use **Telnet** (Terminal Network), a protocol allowing to communicate with a remote server.
-At first, I wanted to use it to have more information about the target OS (this is what I did in Basic pentesting): by starting a telnet session on the wrong port (here 4386, Telnet is usualyl porrt 23), the target sends an error message with information on its OS.
-Surprinsingly, it worked here!
+At first, I wanted to use it to have more information about the target OS (this is what I did in Basic pentesting): by starting a telnet session on the wrong port (here 4386, Telnet is usually on port 23), the target sends an error message with information on its OS.
+Surprinsingly, it didn't generate an error here.
 
 <div class="img_container">
 ![telnet]({{https://jsom1.github.io/}}/_images/htb_nest_telnet.png)
