@@ -102,10 +102,14 @@ Surprinsingly, it didn't generate an error here.
 </div>
 
 Every command I tried returned an "Unrecognised command" error. We see something interesting though: "HQK Reporting Service V1.2". I have no idea what this is, and as usual, let's look at the internet!\\
-Although I can't find what HQK stands for, all the links returned by Google are about "SQL Server Reporting Services RCE" (Remote Code Execution).
-If we could get a working RCE, this would be our foothold into this box!
+Although I can't find what HQK stands for, all the links returned by Google are about "SQL Server Reporting Services RCE" (Remote Code Execution).\\
+After searching Metasploit for SQL server related exploits, I was stuck here and had to ask for help on the forum.\\
+My problem was that we only have vague information; there might be a SQL server, there is an unknown version of SMB, we can't precisely detect the OS, ... I tried some exploits related to SMB, Samba, *ms10-054* and *ms10-061*, to no avail. I even crashed the box once and had to restart the machine.\\
+Someone advised me to do "SMB enumeration".
 
 
+
+R jusqu'à la p.12
 
 <ins>**My thoughts**</ins>
 
