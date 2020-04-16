@@ -9,16 +9,15 @@ output: html_document
 
  <div id="boxinfo">
  <div id="textbox">
- <p class="alignleft">  **Difficulty**: easy</p>
+ <p class="alignleft">  **Difficulty**: easy (2.4/10)</p>
  <p class="aligncenter">**Type**: CTF</p>
  <p class="alignright">**OS**: Windows  </p>
  </div>
  <div style="clear: both;"></div>
  </div> 
  
- 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_leg_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_leg_desc.png){: height="250px" width = "280px"}
 </div>
 
 <ins>**Lab configuration**</ins>
