@@ -16,6 +16,10 @@ output: html_document
  <div style="clear: both;"></div>
  </div> 
 
+<div class="img_container">
+![desc]({{https://jsom1.github.io/}}/_images/htb_blue_desc.png)
+</div>
+
 <ins>**Lab configuration**</ins>
 
 First, download VirtualBox and Kali (or Parrot). When the machine is imported in VirtualBox, chose *bridged adapter* in the Network tab to have access to the internet. Start and set up the machine as you like.
