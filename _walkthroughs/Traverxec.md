@@ -9,7 +9,7 @@ output: html_document
 
  <div id="boxinfo">
  <div id="textbox">
- <p class="alignleft">**Difficulty**: easy</p>
+ <p class="alignleft">**Difficulty**: easy (4.7/10)</p>
  <p class="aligncenter">**Type**: CTF</p>
  <p class="alignright">**OS**: Linux</p>
  </div>
@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_tx_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_tx_desc.png){: height="250px" width = "280px"}
 </div>
 
 <ins>**Lab configuration**</ins>
