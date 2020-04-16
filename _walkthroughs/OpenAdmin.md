@@ -9,20 +9,18 @@ output: html_document
 
  <div id="boxinfo">
  <div id="textbox">
- <p class="alignleft">**Difficulty**: easy</p>
+ <p class="alignleft">**Difficulty**: easy (4.3/10)</p>
  <p class="aligncenter">**Type**: CTF</p>
  <p class="alignright">**OS**: Linux</p>
  </div>
  <div style="clear: both;"></div>
  </div> 
  
- 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_oa_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_oa_desc.png){: height="250px" width = "280px"}
 </div>
 
 <ins>**Lab configuration**</ins>
-
 
 First, download VirtualBox and Kali (or Parrot). When the machine is imported in VirtualBox, chose *bridged adapter* in the Network tab to have access to the internet. Start and set up the machine as you like.
 
