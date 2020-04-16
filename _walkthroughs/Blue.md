@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_blue_desc.png){: height="150px" width = "180px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_blue_desc.png){: height="250px" width = "280px"}
 </div>
 
 <ins>**Lab configuration**</ins>
