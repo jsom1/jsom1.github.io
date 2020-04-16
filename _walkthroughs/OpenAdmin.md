@@ -15,6 +15,11 @@ output: html_document
  </div>
  <div style="clear: both;"></div>
  </div> 
+ 
+ 
+<div class="img_container">
+![desc]({{https://jsom1.github.io/}}/_images/htb_oa_desc.png)
+</div>
 
 <ins>**Lab configuration**</ins>
 
