@@ -302,6 +302,6 @@ And this is it, we have the root flag!
 
 <ins>**My thoughts**</ins>
 
-Another great machine! This box was similar to OpenAdmin in the sense that user flag required enumeration and root flag required to use GTFOBins. Furthermore, the steps from the initial shell to user via SSH was exactly the same than in [OpenAdmin](../_walkthroughs/OpenAdmin.md). Despite the resemblance, I really liked it because it reinforced what I had learned, and the box was funny.
+Another great machine! This box was similar to [OpenAdmin](../_walkthroughs/OpenAdmin.md) in the sense that user flag required enumeration and root flag required to use GTFOBins. Furthermore, the steps from the initial shell to user via SSH was exactly the same than in [OpenAdmin](../_walkthroughs/OpenAdmin.md). Despite the resemblance, I really liked it because it reinforced what I had learned, and the box was funny.
 
 We found a password for david (Nowonly4me) that we didn't use anywhere. Maybe there is another way to get the flags ?! I didn't try it, but it's something interesting!
