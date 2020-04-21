@@ -53,7 +53,7 @@ There are 4 open ports and services:
 - **Netbios-ssn** running on port 445.
 
 I don't know what Netbios-ssn is, so let's have a look on the internet.\\
-The **SMB** protocol authorizes the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files.\\ 
+The **SMB** protocol authorizes the communication between processes; it's the protocol that allows applications and services of computers on a network to communicate. The protocol *speaks different dialects*: for example, Common Internet File System (CIFS) is a specific implementation of SMB that allows to share files.\\
 The dialect **Samba** is an implementation of Microsoft Active Directory that allows non-Windows machines to communicate with a Windows network.
 In a nutshell, SMB is a protocol used to share files on a network and uses 2 TCP ports: 139 and 445.\\
 **Port 139**: used by SMB to work over **NetBIOS** (NetBIOS is a transport layer that allows Windows machines to communicate on the same network).\\
