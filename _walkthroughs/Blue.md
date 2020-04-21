@@ -51,7 +51,7 @@ We see many open ports and interesting information: we have a host name (HARIS-P
 - Port 139 running **netbios-ssn**: this port is used by old versions of SMB (file sharing) to work over NetBios.
 - Port 445 running **microsoft-ds**: this port is used by recent versions of SMB.
 
-Port 139 and 445 were also opened in **Lame**, where I provided more details about SMB. In *Lame*, I used an exploit against *Samba*, a *dialect* spoken by the SMB protocol. It was *exploit/multi/samba/usermap_script*. However, nmap didn't indicate that netbios-ssn is using Samba, so this exploit will likely fail.\\
+Port 139 and 445 were also opened in [Lame](../_walkthroughs/Lame.md), where I provided more details about SMB. In *Lame*, I used an exploit against *Samba*, a *dialect* spoken by the SMB protocol. It was *exploit/multi/samba/usermap_script*. However, nmap didn't indicate that netbios-ssn is using Samba, so this exploit will likely fail.\\
 Let's look at other possibilites we have.
 
 ## 2. Find and exploit vulnerabilities
