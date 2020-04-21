@@ -52,7 +52,7 @@ There are 2 open and 1 closed TCP ports and services:
 - **microsoft-ds** running on port 445
 - **ms-wbt-server** running on port 3389
 
-I don't know what *ms-wbt-server* is, so let's what we find about it on the internet. It appears that *ms-wbt-server* is a protocol that is used by Windows Remote Desktop on the port 3389. This port is vulnerable to DoS attacks against Windows NT Terminal Server. However, this is not the kind of attack we are interested in right now.\\
+I don't know what *ms-wbt-server* is, so let's what we find about it on the internet. It appears that *ms-wbt-server* is a protocol that is used by Windows Remote Desktop on the port 3389. This port is vulnerable to DoS attacks against Windows NT Terminal Server. However, this is not the kind of attack we are interested in here.\\
 Like in the *Lame* walkthrough, we see the ports 139 and 445 which are used by the SMB (Service Message Block) protocol. This protocol allows resource sharing (files and printers) on networks with Windows machines.
 
 In the *Lame* walkthrough, I used the exploit *usermap_script*. Instead of trying this here, let's do something else. Because it's a Windows machine, it might be vulnerable to the well known *ms08-067* vulnerability, which gives SYSTEM level privileges. Let's search more information about it.
