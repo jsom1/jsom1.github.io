@@ -164,7 +164,31 @@ We can use a scanner to see if we can find any vulnerability:
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_vuln.png)
 </div>
 
-Nothing. 
+Nothing. Let's look deeper into SMB by performing **SMB enumeration**. According to the internet, this is a must-have skill for any pentester. SMB is a protocol that stands for Server Message Block; it's used for sharing resources such as files, printers, and anything retreivable/made available by a server. SMB is natively installed on Windows, but not on Linux. To have it on Linux, it is necessary to install a Samba server.\\
+Some sort of authentication will be in place, and there are some security flaws. First, the default credentials, easily guessable ones or even no authentication.
+Then, the Samba server in itself is known to be vulnerable, especially if it is not patched.\\
+
+There are many tools and techniques in SMB enumeration: nmblookup, nbtscan, SMBMap, Smbclient, Rpcclient, Nmap, Enum4linux, etc. We will try a few oof those here.
+
+Since we're attacking a Windows machine, there is no Samba Server. If it was the case, we would have to determine its version. In the following commands, we use the Nmap scripting engine (NSE):
+
+<div class="img_container">
+![SMB enumeration]({{https://jsom1.github.io/}}/_images/htb_servmon_SMBE1.png)
+</div>
+
+<div class="img_container">
+![SMB enumeration]({{https://jsom1.github.io/}}/_images/htb_servmon_SMBE2.png)
+</div>
+
+There is some information that might be useful later. We can go further with **smbmap**.
+
+<div class="img_container">
+![smbmap]({{https://jsom1.github.io/}}/_images/htb_servmon_smbmap.png)
+</div>
+
+That might work if anonymous login is allowed, but it is not the case here.
+
+
 NEXT TIME :
 - Retry exploit NRPE
 - Chercher exploit SMB
