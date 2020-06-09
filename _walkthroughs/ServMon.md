@@ -86,7 +86,7 @@ As we saw in the result of the nmap scan, anonymous login is allowed, so let's s
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp.png)
 </div>
 
-Note that I just pressed *enter* when I was asked for the password. Once loged in, we see the folder Users, and within it, the two userss Nadine and Nathan.
+Note that I just pressed *enter* when I was asked for the password. Once loged in, we see the folder Users, and within it, the two users Nadine and Nathan.
 Great, we already have two usernames. Let's look into those folders:
 
 <div class="img_container">
@@ -140,7 +140,7 @@ Let's use **dirbuster** to see if there is any other interesting page.
 If it is not the case, we might try to bruteforce the password for Nathan or Nadine.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_nmap2.png)
+![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_dirb.png)
 </div>
 
 Dirbuster found 2 directories... One is just for an icon, and the other one redirects us on the NVMS login screen.
@@ -153,45 +153,78 @@ I used **Burpsuite** to intercept the request and look at its parameters:
 </div>
 
 However, it says that the connection is closed and the only parameter is the cookie...
-Maybe this is related to the *public access to NVMS* removal, and we can't access it anymore ? Let's try another port for the moment.
+Maybe this is related to the *public access to NVMS* removal, and we can't access it anymore ?
 
-<u>**Microsoft-ds**</u>
-
-The port 445 is used by recent versions of SMB (older versions used port 139, where SMB was running over NetBios).
-We can use a scanner to see if we can find any vulnerability:
+Let's look for any NVMS exploit.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_vuln.png)
+![searchsploit nvms]({{https://jsom1.github.io/}}/_images/htb_servmon_searchnvms.png)
 </div>
 
-Nothing. Let's look deeper into SMB by performing **SMB enumeration**. According to the internet, this is a must-have skill for any pentester. SMB is a protocol that stands for Server Message Block; it's used for sharing resources such as files, printers, and anything retreivable/made available by a server. SMB is natively installed on Windows, but not on Linux. To have it on Linux, it is necessary to install a Samba server.\\
-Some sort of authentication will be in place, and there are some security flaws. First, the default credentials, easily guessable ones or even no authentication.
-Then, the Samba server in itself is known to be vulnerable, especially if it is not patched.\\
+There is only one exploit for NVMS, and it's a directory traversal attack. We can look at the exploit on exploit-db (<https://www.exploit-db.com/exploits/47774>). We see that if we sent a GET request to the server, it should answer with:
 
-There are many tools and techniques in SMB enumeration: nmblookup, nbtscan, SMBMap, Smbclient, Rpcclient, Nmap, Enum4linux, etc. We will try a few oof those here.
+; for 16-bit app support\\
+[fonts]\\
+[extensions]\\
+[mci extensions]\\
+[files]\\
+[Mail]\\
+MAPI=1\\
 
-Since we're attacking a Windows machine, there is no Samba Server. If it was the case, we would have to determine its version. In the following commands, we use the Nmap scripting engine (NSE):
+So, let's launch Metasploit with the command *msfconsole*, and use the exploit. The options are the following:
 
 <div class="img_container">
-![SMB enumeration]({{https://jsom1.github.io/}}/_images/htb_servmon_SMBE1.png)
+![exploit options]({{https://jsom1.github.io/}}/_images/htb_servmon_options.png)
 </div>
+
+Here, I set RHOSTS as 10.10.10.184, which is the IP of the target. We see that FILEPATH is set by default to /windows/win.ini, which is what was given in the description. Hence, we should get the expected response. Let's launch the exploit and see.
 
 <div class="img_container">
-![SMB enumeration]({{https://jsom1.github.io/}}/_images/htb_servmon_SMBE2.png)
+![exploit launch]({{https://jsom1.github.io/}}/_images/htb_servmon_exploit.png)
 </div>
 
-There is some information that might be useful later. We can go further with **smbmap**.
+The exploit worked and saved a file in */home/kali/.msf4/loot/*. We go there and inspect it:
 
 <div class="img_container">
-![smbmap]({{https://jsom1.github.io/}}/_images/htb_servmon_smbmap.png)
+![Directoy trav answer]({{https://jsom1.github.io/}}/_images/htb_servmon_answer.png)
 </div>
 
-That might work if anonymous login is allowed, but it is not the case here.
+Great, we get the answer we expected. So, now we want to customize the request to get another file. We saw in Nadine's note that she left the *Passwords.txt* file on Nathan's Desktop, and that's what we're going to grab. We modify the request:
 
+<div class="img_container">
+![modified request]({{https://jsom1.github.io/}}/_images/htb_servmon_modreq.png)
+</div>
 
-NEXT TIME :
-- Retry exploit NRPE
-- Chercher exploit SMB
+And we see that a file got saved in the same directory as before. Let's inspect it.
 
+<div class="img_container">
+![passwords]({{https://jsom1.github.io/}}/_images/htb_servmon_pwd.png)
+</div>
+
+There are 7 passwords, among which one probably grants access to the server. Here, I copied those passwords, and pasted them in a file *pass.txt* I created on my Kali desktop with nano. I also created a file called *users.txt*, containing the users Nadine, nadine, Nathan and Nathan.
+
+<div class="img_container">
+![Creation of files]({{https://jsom1.github.io/}}/_images/htb_servmon_filescreation.png)
+</div>
+
+I did it to use those usernames and passwords as lists in Hydra to bruteforce credentials. The command is the following:
+
+<div class="img_container">
+![pw cracking with hydra]({{https://jsom1.github.io/}}/_images/htb_servmon_hydra.png)
+</div>
+
+We see that both usernames nadine and Nadine work. Now that we've got the password, we can SSH:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_ssh.png)
+</div>
+
+Once in, we use the commands *dir* to list the content of directories, *cd* to change directory, and *type* to see the content of files. The user flag is on the desktop, so let's get there.
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_userflag.png)
+</div>
+
+That's it for the user flag !
 
 <ins>**My thoughts**</ins>
