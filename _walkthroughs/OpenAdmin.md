@@ -39,7 +39,7 @@ We're ready to start !
 ## 1. Scan the ports of the target
 {:style="color:DarkRed; font-size: 170%;"}
 
-After making sure we can communicate with the target, let's perform a usual nmap scan with the flags *-sV* to have a verbose output and *-sC* to enable the most common scripts scan (by default). If we wanted, we could choose our own scripts to execute.
+After making sure we can communicate with the target with a *ping -c 2 10.10.10.171*, let's perform a usual nmap scan with the flags *-sV* to have a verbose output and *-sC* to enable the most common scripts scan (by default). If we wanted, we could choose our own scripts to execute.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_nmap.png)
@@ -55,7 +55,7 @@ We also have information on the OS (Linux), and apparently the scan didn't find 
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
-We start by opening a browser and navigate to http://10.10.10.171. I'm not displaying it here, but this leads to the default index page of Apache. After trying a few directories manually (such as */robots.txt*), I used **dirbuster** to find interesting ones:
+We start by opening a browser and navigating to http://10.10.10.171. This leads to the default index page of Apache. After trying a few directories manually (such as */robots.txt*), I used **dirbuster** to find interesting ones:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_dirb.png)
@@ -94,14 +94,14 @@ There are 2 exploits for the version 18.1.1:
 - A remote code execution (or **RCE**): here, we send malicious code via the network. The result is pretty much the same as a command injection.
 
 Apparently, both exploits work. The command injection is a ruby script that requires Metasploit (we see it by inspecting it), while the code execution is a shell script that can be sent directly to the server. I chose to use the command injection with Metasploit, eventhough it is a little bit more tedious.\\
-After starting Metasploit with *msfconsole*, I searched the exploit with *msfseach* but didn't find it. We first have to add the exploit to Metasploit.\\
-First, we have to create a directory that matches the path of the exploit. In our case, it's */php/webapps*. Then, we copy the exploit in this new directory:
+After starting Metasploit with *msfconsole*, I searched the exploit with *msfsearch* but didn't find it. We first have to add the exploit to Metasploit.\\
+To do this, we have to create a directory that matches the path of the exploit. In our case, it's */php/webapps*. Then, we copy the exploit in this new directory:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_import.png)
 </div>
 
-Once done, we have to use the command *updatedb* (preceeded by sudo if you're using Kali 2020) to update Metasploit's databas. If you had an opened *msfconsole*, you might have to restart it. We can then search for the exploit:
+Once done, we have to use the command *updatedb* (preceeded by sudo if you're using Kali 2020) to update Metasploit's database. If you had an opened *msfconsole*, you might have to restart it. We can then search for the exploit:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_srch2.png)
@@ -111,7 +111,7 @@ This time, Metasploit found it. We can then *use* it and *show* the required opt
 The decription tells us that it is a **ping command injection**: it basically sends a ping and add a command (it could be *ping ; ls* for example).\\
 We see we have to set RHOSTS,and LHOST. The other required options already have default values.
 
-- RHOSTS is the remote host. Here, we set it to 10.10.10.171.
+- RHOSTS is the remote host. Here, we set it to 10.10.10.171, the IP of the target.
 - LHOST is the local host. To get the IP address, we can use the command *ifconfig*: the IP is given under **tun0**, which is the VPN interface. In other words, it's the IP of our machine in the lab. Mine is 10.10.14.9, so I set LHOST to this value.
 
 Then, I launched the exploit but it failed with the common error "Exploit completed, but no session was created". After double checking my parameters, there were 2 things that could potentially work: changing the payload and the target.\\
@@ -128,8 +128,8 @@ We can now launch the exploit:
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_exp.png)
 </div>
 
-This time it worked, and we have a *kind of* terminal where we can execute commands. Here, the command *whoami* says we are logged in as the user *www-data*. This user probably has limited privileges, but it is enough to navigate through directories with *cd* and list files with *ls*.\\
-This is where **enumeration** begins: we're looking for any usefull information such as usernames, passwords and configuration files. After a while, I found 2 usernames in the */home* directory:
+This time it worked, and we have a *kind of* terminal in which we can execute commands. Here, the command *whoami* says we are logged in as the user *www-data*. This user probably has limited privileges, but it is enough to navigate through directories with *cd* and list files with *ls*.\\
+This is where **enumeration** begins: we're looking for any useful information such as usernames, passwords and configuration files. After a while, I found 2 usernames in the */home* directory:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_usr.png)
@@ -210,7 +210,7 @@ This time it works, and the passphrase is *bloodninjas*. Once logged in as joann
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_oa_perm.png)
 </div>
 
-We see that she can run nano as admin. We're now going to use something I didn't know about: **GTFOBins**. From the Github repo, "GTFOBins is a curated list of Unix binaries that can be exploited by an attacker to bypass local security restrictions. The project collects legitimate functions of Unix binaries that can be abused to ~~get the fuck~~ break out restricted shells, escalate or maintain elevated privileges, transfer files, spawn bind and reverse shells, and facilitate the other post-exploitation tasks".\\
+We see that she can run nano as admin. We're now going to use something I didn't know about: **GTFOBins**. According to the Github repo, "GTFOBins is a curated list of Unix binaries that can be exploited by an attacker to bypass local security restrictions. The project collects legitimate functions of Unix binaries that can be abused to ~~get the fuck~~ break out restricted shells, escalate or maintain elevated privileges, transfer files, spawn bind and reverse shells, and facilitate the other post-exploitation tasks".\\
 The following images show how we can exploit nano to escalate our privileges:
 
 <div class="img_container">
@@ -235,7 +235,7 @@ After executing the previous command, we can pass additional commands. We see we
 
 <ins>**My thoughts**</ins>
 
-This was my firt active machine on Hack The Box, and I really liked it. It was a feelings rollercoaster: every time I found something to get out of the place where I was stuck, I encountered a new difficulty. I spent many hours in there, yoyo-ing between frustration and happiness.\\
+This was my first active machine on Hack The Box, and I really liked it. It was a feelings rollercoaster: every time I found something to get out of the place where I was stuck, I encountered a new difficulty. I spent many hours in there, yoyo-ing between frustration and happiness.\\
 I learned how enumeration is important, and that I should use custom commands to make that part more efficient.\\
 I also learned about **GTFOBins** for Linux, which was inspired by its Windows equivalent **LOLBAS**.
-Overall, this box is perfect for beginners.
+Overall, I think this box is perfect for beginners.
