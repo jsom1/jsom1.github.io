@@ -48,7 +48,7 @@ Let's start by performing the usual nmap scan with the flags *-sV* to have a ver
 There's not a lot going on here, only 2 opened TCP ports and services:
 
 - **SSH** on port 22 (OpenSSH 7.9p1): we will maybe be able to connect via SSH at some point.
-- **HTTP** on port 80, with nostromo web server version 1.9.6 (also called *nhttpd*): nhttpd is an open-source web server.
+- **HTTP** on port 80, with nostromo web server version 1.9.6 (also called *nhttpd*, it's an open-source web server).
 
 Based on my little experience, I don't see how we could exploit SSH at this point (we could maybe try to brute-force it if we had a username, but it is not the case here).
 So, let's have a look at the web server.
@@ -95,14 +95,14 @@ The website doesn't seem to have any other useful information, so let's use **di
 </div>
 
 There are a few directories, but a first quick search didn't give anything. I let it run a moment to search inside those directories, but stopped as it was taking a lot of time.
-If I had nothing else to try, I would have waited until the end of the search, but can also search Exploit-DB for a *nhttpd* exploit.
+If I had nothing else to try, I would have waited until the end of the search, but we can also search Exploit-DB for a *nhttpd* exploit.
 It this doesn't work, we will come back to dirbuster.
 
 <div class="img_container">
 ![searchsploit]({{https://jsom1.github.io/}}/_images/htb_tx_srchsploit.png)
 </div>
 
-The 4th one is the one we are interested in. It's written version 1.9.3 and the web server is running 1.9.6, but we saw earlier that this latter is also vulnerable.\\
+The 4th one looks promising. It's written version 1.9.3 and the web server is running 1.9.6, but we saw earlier that this latter is also vulnerable.\\
 The exploit is a **directory traversal remote command**: I don't know what it is, and as usual, I will search for it on the web.\\
 According to the internet, a *directory traversal* consists in exploiting insufficient security validation of user-supplied input file names, such that characters representing *traverse to parent directory* are passed through to the file APIs.
 
@@ -197,7 +197,7 @@ Bingo, we get something! Let's look into this *protected file area*:
 ![Hidden dir]({{https://jsom1.github.io/}}/_images/htb_tx_hidden2.png)
 </div>
 
-And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, and SSH credentials. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. Let's temporarily copy the file to a directory where we have more permissions, like */tmp*, and transfer it on our kali machine (don't forget to remove the file in */tmp* with *rm* once you're done, otherwise it would spoil other people!):
+And we find the *.htaccess* file that we saw in the *nhttpd.conf* file, as well as SSH credentials. We don't have the permission to unzip the file here, and it wouldn't be nice to other people hacking this box. Let's temporarily copy the file to a directory where we have more permissions, like */tmp*, and transfer it on our kali machine (don't forget to remove the file in */tmp* with *rm* once you're done, otherwise it would spoil other people!):
 
 <div class="img_container">
 ![copy file]({{https://jsom1.github.io/}}/_images/htb_tx_cp.png)
@@ -246,7 +246,7 @@ The first thing I did was of course to get my candy! As usual, the user flag is 
 ![first flag]({{https://jsom1.github.io/}}/_images/htb_tx_flag.png)
 </div>
 
-Now, we must find a way to get root... Let's see what is in the */bin* directory:
+Now, we must find a way to get root... During eunumeration, we look into the */bin* directory:
 
 <div class="img_container">
 ![interesting files]({{https://jsom1.github.io/}}/_images/htb_tx_ls.png)
@@ -302,6 +302,6 @@ And this is it, we have the root flag!
 
 <ins>**My thoughts**</ins>
 
-Another great machine! This box was similar to [OpenAdmin](../_walkthroughs/OpenAdmin.md) in the sense that user flag required enumeration and root flag required to use GTFOBins. Furthermore, the steps from the initial shell to user via SSH was exactly the same than in [OpenAdmin](../_walkthroughs/OpenAdmin.md). Despite the resemblance, I really liked it because it reinforced what I had learned, and the box was funny.
+Another great machine! This box was similar to [OpenAdmin](../_walkthroughs/OpenAdmin.md) in the sense that user flag required enumeration and root flag required to use GTFOBins. Furthermore, the steps from the initial shell to user via SSH were exactly the same as in [OpenAdmin](../_walkthroughs/OpenAdmin.md). Despite the resemblance, I really liked it because it reinforced what I had learned, and the box was funny.
 
 We found a password for david (Nowonly4me) that we didn't use anywhere. Maybe there is another way to get the flags ?! I didn't try it, but it's something interesting!
