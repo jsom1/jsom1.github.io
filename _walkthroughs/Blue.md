@@ -47,23 +47,22 @@ Let's start by performing a usual nmap scan with the flags *-sV* to have a verbo
 
 We see many open ports and interesting information: we have a host name (HARIS-PC) and an OS (Windows 7 Pro SP1). A script detected *smb-os*, running on port 445. Let's go through the open ports quickly:
 
-- Port 135 and 4915? running **msrpc**: usually, msrpc is indeed on port 135. It's also called Microsoft EPMAP (End Point Mapper), and it's used to remotely manage services including DHCP server, DNS server and WINS. Apparently it's also running on ports 49152, 49153, 49154, 49155, 49156 and 49157.
-- Port 139 running **netbios-ssn**: this port is used by old versions of SMB (file sharing) to work over NetBios.
-- Port 445 running **microsoft-ds**: this port is used by recent versions of SMB.
+- Port 135 running **msrpc**: usually, msrpc is indeed on port 135. It's also called Microsoft EPMAP (End Point Mapper), and it's used to remotely manage services including DHCP server, DNS server and WINS. Apparently it's also running on ports 49152, 49153, 49154, 49155, 49156 and 49157.
+- Port 139 running **netbios-ssn** (SMB): this port is used by old versions of SMB (file sharing) that work over NetBios.
+- Port 445 running **microsoft-ds** (SMB): this port is used by recent versions of SMB.
 
-Port 139 and 445 were also opened in [Lame](../_walkthroughs/Lame.md), where I provided more details about SMB. In *Lame*, I used an exploit against *Samba*, a *dialect* spoken by the SMB protocol. It was *exploit/multi/samba/usermap_script*. However, nmap didn't indicate that netbios-ssn is using Samba, so this exploit will likely fail.\\
-Let's look at other possibilites we have.
+Port 139 and 445 were also opened in [Lame](../_walkthroughs/Lame.md), where I provided more details about SMB. In *Lame*, I used an exploit against *Samba*, a *dialect* spoken by the SMB protocol (*exploit/multi/samba/usermap_script*). In fact, SMB is natively installed on Windows machines, whereas it isn't the case on Linux. To install SMB on Linux, we must install a Samba server. This is why we found a Samba related exploit in *Lame*, but it is not the case here because it is a Windows machine. We have to find another way to exploit it.
 
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
-We know SMB is running on Windows 7 Pro SP1 on port 445, so let's see if we find any vulnerability:
+We know SMB is running on Windows 7 Pro SP1 on port 445, so let's see if we find any vulnerability by performing **SMB enumeration**. Here is a useful link explaining it and giving some tools and techniques: <https://www.hackingarticles.in/a-little-guide-to-smb-enumeration/>. One of those techniques simply consists of using a specific nmap script, and this is what we're doing below:
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_nmap2.png)
 </div>
 
-Apparently, ms17-010 is vulnerable to RCE (Remote Code Execution). Let's now search in Exploit-DB to see if there is any known exploit for this vulnerability.
+Apparently, ms17-010 is vulnerable to RCE (Remote Code Execution). If we didn't find anything with this nmap script, we would continue the search with other tools. Let's now search in Exploit-DB to see if there is any known exploit for this vulnerability.
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blue_srchsploit.png)
