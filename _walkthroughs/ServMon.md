@@ -261,9 +261,22 @@ We see that it would be useless to import it into Metasploit, because it's not a
 The first step is to get a web administrator password:
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_enum3.png)
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step1.png)
 </div>
 
-Then, we have to login and enable some modules:
+We see a plaintext password, as well as allowed hosts.
+Then, we have to login and enable some modules. However, if we look further in the previous file, we see the following information:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step1_2.png)
+</div>
+
+The scripts are already enabled. We're going to login anyway to check for the "enable at startup" option. 
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step2.png)
+</div>
+
+Reco. Depuis Nadine, refaire ssh -L 8443:127.0.0.1:8443 nadineat10.10.10.184 et use mdp hydra
 
 <ins>**My thoughts**</ins>
