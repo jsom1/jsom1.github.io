@@ -227,4 +227,43 @@ Once in, we use the commands *dir* to list the content of directories, *cd* to c
 
 That's it for the user flag !
 
+From there, we keep on enumerating to find something that would help us getting root. We see there's a NSClient++ directory. Note that we saw this service in the initial nmap scan: it was on TCP port 8443 (service ssl/https-alt). It can be found here:
+
+<div class="img_container">
+![enumeration]({{https://jsom1.github.io/}}/_images/htb_servmon_enum1.png)
+</div>
+
+<div class="img_container">
+![more enumeration]({{https://jsom1.github.io/}}/_images/htb_servmon_enum2.png)
+</div>
+
+NSClient is an agent designed originally to work with Nagios, but it's now a monitoring agent that can be used with numerous monitoring tools. We saw in the scan that Nagios is using a plugin on port 5666. We can look in Exploit-DB if there is an exploit for NSClient:
+
+<div class="img_container">
+![search nsclient exploit]({{https://jsom1.github.io/}}/_images/htb_servmon_nsclientsearch.png)
+</div>
+
+There is something, but after launching Metasploit with *msfconsole* and looking for the exploit with *search nsclient*, it doesn't find it. We could add the exploit to Metasploit (as we did in OpenAdmin <https://jsom1.github.io/_walkthroughs/OpenAdmin>), but first, let's look at the content of the file:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_ex1.png)
+</div>
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_ex2.png)
+</div>
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_ex3.png)
+</div>
+
+We see that it would be useless to import it into Metasploit, because it's not an exploit per se: it describes steps on how to exploit it. So, let's go through them and get root!\\
+The first step is to get a web administrator password:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_enum3.png)
+</div>
+
+Then, we have to login and enable some modules:
+
 <ins>**My thoughts**</ins>
