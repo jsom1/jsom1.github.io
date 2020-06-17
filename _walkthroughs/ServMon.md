@@ -246,53 +246,69 @@ NSClient is an agent designed originally to work with Nagios, but it's now a mon
 There is something, but after launching Metasploit with *msfconsole* and looking for the exploit with *search nsclient*, it doesn't find it. We could add the exploit to Metasploit (as we did in OpenAdmin <https://jsom1.github.io/_walkthroughs/OpenAdmin>), but first, let's look at the content of the file:
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_ex1.png)
+![doc exploit1]({{https://jsom1.github.io/}}/_images/htb_servmon_ex1.png)
 </div>
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_ex2.png)
+![doc exploit2]({{https://jsom1.github.io/}}/_images/htb_servmon_ex2.png)
 </div>
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_ex3.png)
+![doc exploit3]({{https://jsom1.github.io/}}/_images/htb_servmon_ex3.png)
 </div>
 
 We see that it would be useless to import it into Metasploit, because it's not an exploit per se: it describes steps on how to exploit it. So, let's go through them and get root!\\
 The first step is to get a web administrator password:
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step1.png)
+![Exploit step1]({{https://jsom1.github.io/}}/_images/htb_servmon_step1.png)
 </div>
 
 We see a plaintext password, as well as allowed hosts.
 Then, we have to login and enable some modules. However, if we look further in the previous file, we see the following information:
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step1_2.png)
+![Exploit step1_2]({{https://jsom1.github.io/}}/_images/htb_servmon_step1_2.png)
 </div>
 
 The scripts are already enabled. We're going to login anyway to check for the "enable at startup" option. 
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step2.png)
+![Exploit step2]({{https://jsom1.github.io/}}/_images/htb_servmon_step2.png)
 </div>
 
 We can now access NSClient from the browser:
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_auth.png)
+![Web gui authentication fail]({{https://jsom1.github.io/}}/_images/htb_servmon_auth.png)
 </div>
 
 The page is here but we can't authenticate. This is because we saw in the allowed hosts that we have to request the page from 127.0.0.1 (localhost). I tried to replace 10.10.10.184 in the address but it didn't work (error *unable to connect*). So, I looked at the API and saw we can authenticate from the terminal:
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_api.png)
+![NSClient API]({{https://jsom1.github.io/}}/_images/htb_servmon_api.png)
 </div>
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_authok.png)
+![API authentication]({{https://jsom1.github.io/}}/_images/htb_servmon_authok.png)
 </div>
 
-We get a 200 code, meaning it worked. 
+We get a 200 code, meaning it worked. I don't know why the web interface doesn't work, so we will use the API and the terminal. Let's look at the third point: we have to upload *nc.exe* and *evil.bat* from the attacking machine on the target in *C:\Temp*. We can use a *curl* command to do that. First, let's find *nc.exe*, create *evil.bat* and regroup them on our desktop:
+
+<div class="img_container">
+![cp nc.exe]({{https://jsom1.github.io/}}/_images/htb_servmon_filescr.png)
+</div>
+
+We create *evil.bat* with nano and copy the code given in the exploit's documentation:
+
+<div class="img_container">
+![nano with exploit code]({{https://jsom1.github.io/}}/_images/htb_servmon_nano.png)
+</div>
+
+<div class="img_container">
+![files on desktop]({{https://jsom1.github.io/}}/_images/htb_servmon_files.png)
+</div>
+
+The 2 files are here and ready to be uploaded on the server.
 
 <ins>**My thoughts**</ins>
