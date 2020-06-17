@@ -277,6 +277,22 @@ The scripts are already enabled. We're going to login anyway to check for the "e
 ![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_step2.png)
 </div>
 
-Reco. Depuis Nadine, refaire ssh -L 8443:127.0.0.1:8443 nadineat10.10.10.184 et use mdp hydra
+We can now access NSClient from the browser:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_auth.png)
+</div>
+
+The page is here but we can't authenticate. This is because we saw in the allowed hosts that we have to request the page from 127.0.0.1 (localhost). I tried to replace 10.10.10.184 in the address but it didn't work (error *unable to connect*). So, I looked at the API and saw we can authenticate from the terminal:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_api.png)
+</div>
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_servmon_authok.png)
+</div>
+
+We get a 200 code, meaning it worked. 
 
 <ins>**My thoughts**</ins>
