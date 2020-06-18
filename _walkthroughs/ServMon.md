@@ -83,28 +83,28 @@ Let's go!
 As we saw in the result of the nmap scan, anonymous login is allowed, so let's see if we can find interesting files:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp.png)
+![ftp]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp.png)
 </div>
 
 Note that I just pressed *enter* when I was asked for the password. Once loged in, we see the folder Users, and within it, the two users Nadine and Nathan.
 Great, we already have two usernames. Let's look into those folders:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp2.png)
+![ftp]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp2.png)
 </div>
 
 Nadine has a *Confidential.txt* file that can be downloaded on our Kali machine with the command *get*. 
 The file will be saved in the folder in which we launched FTP. Let's also see if Nathan has interesting files:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp3.png)
+![ftp]({{https://jsom1.github.io/}}/_images/htb_servmon_ftp3.png)
 </div>
 
 He has a "Notes to do.txt" file, which we download the same way we did for the previous one.
 Now, let's look at what they contain.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_files.png)
+![file content]({{https://jsom1.github.io/}}/_images/htb_servmon_files.png)
 </div>
 
 In Nadine's note, we see that she left the Passwords.txt file on Nathan's Desktop. This might be interesting if we can access it at some point.\\
@@ -130,7 +130,7 @@ Unfortunately, I couln't get in this way (I tried a few passwords such as admin,
 We saw there is a web server running, so let's check what's there!
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_web.png)
+![web server]({{https://jsom1.github.io/}}/_images/htb_servmon_web.png)
 </div>
 
 Well, it looks like *NVMS* is the platform we talked about earlier.
@@ -140,7 +140,7 @@ Let's use **dirbuster** to see if there is any other interesting page.
 If it is not the case, we might try to bruteforce the password for Nathan or Nadine.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_dirb.png)
+![dirb]({{https://jsom1.github.io/}}/_images/htb_servmon_dirb.png)
 </div>
 
 Dirbuster found 2 directories... One is just for an icon, and the other one redirects us on the NVMS login screen.
@@ -149,7 +149,7 @@ Once again, it didn't find anything. To bruteforce a password, we would need to 
 I used **Burpsuite** to intercept the request and look at its parameters:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_servmon_burp.png)
+![burp]({{https://jsom1.github.io/}}/_images/htb_servmon_burp.png)
 </div>
 
 However, it says that the connection is closed and the only parameter is the cookie...
