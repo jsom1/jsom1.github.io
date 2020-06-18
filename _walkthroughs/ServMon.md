@@ -286,7 +286,7 @@ We can now access NSClient from the browser:
 The page is here but we can't authenticate. This is because we saw in the allowed hosts that we have to request the page from 127.0.0.1 (localhost). I tried to replace 10.10.10.184 in the address but it didn't work for some reason (error *unable to connect*). So, I looked at the API and saw we can authenticate from the terminal:
 
 <div class="img_container">
-![NSClient API]({{https://jsom1.github.io/}}/_images/htb_servmon_api.png){: height="200px" width = "390px"}
+![NSClient API]({{https://jsom1.github.io/}}/_images/htb_servmon_api.png){: height="230px" width = "390px"}
 </div>
 
 <div class="img_container">
