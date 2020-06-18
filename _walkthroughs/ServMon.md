@@ -306,7 +306,7 @@ We create *evil.bat* with nano and copy the code given in the exploit's document
 </div>
 
 <div class="img_container">
-![files on desktop]({{https://jsom1.github.io/}}/_images/htb_servmon_files.png)
+![files on desktop]({{https://jsom1.github.io/}}/_images/htb_servmon_files2.png)
 </div>
 
 The 2 files are here and ready to be uploaded on the server. To do this, we start a web server on our Kali machine:
