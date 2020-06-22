@@ -70,7 +70,7 @@ Unlike HTTPS on port 443, it is necessary to specify the port with Tomcat.
 
 It looks like we have a lot of possibilities! However, I don't think we could go anywhere with SSH at this point.
 I will start by looking at FTP and HTTP, but I suspect we will have to exploit SMB on port 445...
-However, I don't want to start Metasploit two minutes after starting this box... There are many things to explor, so let's go through them and learn some stuff!
+However, I don't want to start Metasploit two minutes after starting this box... There are many things to explore, so let's go through them and learn some stuff!
 We will also search Exploit-DB for any exploit for Nagios, NRPE and Napster.
 
 Let's go!
@@ -78,7 +78,7 @@ Let's go!
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
-<u>**FTP**</u>
+**<u>FTP</u>**
 
 As we saw in the result of the nmap scan, anonymous login is allowed, so let's see if we can find interesting files:
 
@@ -110,22 +110,19 @@ Now, let's look at what they contain.
 In Nadine's note, we see that she left the Passwords.txt file on Nathan's Desktop. This might be interesting if we can access it at some point.\\
 In Nathan's note, there is a todo list showing that he still hasn't uploaded the passwords, removed public access to NVMS and placed the secret files in SharePoint.
 
-I don't know what NVMS and SharePoint are, so let's search on the internet. I found 2 things for **NVMS**, which could be:
-
-- *Non-critical Virtual Machines*
-- *Latitude NVMS*, a network based video management software platform that allows for streamlined provisioning of client software wiith automatic updates.
+I don't know what NVMS and SharePoint are, so let's search on the internet. NVMS could be *Latitude NVMS*, a network based video management software platform that allows for streamlined provisioning of client software with automatic updates.
 
 Microsoft **SharePoint** allows the creation of websites and to stock, organize and share information. It only requires a web browser.
 
 Let's keep this iformation in mind, but not focus on it at the moment. We already have interesting information, so let's move to another port!
 
 
-<u>**SSH**</u>
+**<u>SSH</u>**
 
 We found two usernames with FTP, and it's worth trying to SSH with them. 
 Unfortunately, I couln't get in this way (I tried a few passwords such as admin, Nadine, Nathan, 1234, etc...)
 
-<u>**HTTP**</u>
+**<u>HTTP</u>**
 
 We saw there is a web server running, so let's check what's there!
 
@@ -143,7 +140,7 @@ If it is not the case, we might try to bruteforce the password for Nathan or Nad
 ![dirb]({{https://jsom1.github.io/}}/_images/htb_servmon_dirb.png)
 </div>
 
-Dirbuster found 2 directories... One is just for an icon, and the other one redirects us on the NVMS login screen.
+Dirbuster found 2 pages, but nothing interesting... One is just for an icon, and the other one redirects us on the NVMS login screen.
 It didn't find */Pages* though, because it is not in the *common.txt* wordlist. Let's run another dirbuster against *10.10.10.184/Pages* then.
 Once again, it didn't find anything. To bruteforce a password, we would need to know the type of request being sent to the server.
 I used **Burpsuite** to intercept the request and look at its parameters:
@@ -152,7 +149,7 @@ I used **Burpsuite** to intercept the request and look at its parameters:
 ![burp]({{https://jsom1.github.io/}}/_images/htb_servmon_burp.png)
 </div>
 
-However, it says that the connection is closed and the only parameter is the cookie...
+We see the POST request, however, it says that the connection is closed and the only parameter is the cookie...
 Maybe this is related to the *public access to NVMS* removal, and we can't access it anymore ?
 
 Let's look for any NVMS exploit.
@@ -271,13 +268,13 @@ Then, we have to login and enable some modules. However, if we look further in t
 ![Exploit step1_2]({{https://jsom1.github.io/}}/_images/htb_servmon_step1_2.png)
 </div>
 
-The scripts are already enabled. We're going to login anyway to check for the "enable at startup" option. 
+The scripts are already enabled. We're going to login anyway to check for the "enable at startup" option. We're going to forward port: we listen on kali's port 8443, and send a request to 127.0.0.1:8443.
 
 <div class="img_container">
 ![Exploit step2]({{https://jsom1.github.io/}}/_images/htb_servmon_step2.png)
 </div>
 
-We can now access NSClient from the browser:
+We should now be able to access NSClient from the browser:
 
 <div class="img_container">
 ![Web gui authentication fail]({{https://jsom1.github.io/}}/_images/htb_servmon_auth.png)
@@ -328,13 +325,13 @@ We can now use Powershell to transfer the files from Kali to SerMon (I tried to 
 </div>
 
 We can see the files in C:\\Temp, so we know the transfer worked.\\
-The 4th step is t setup a listener on our Kali machine. We can use netcat to do that:
+The 4th step consists in setting up a listener on our Kali machine. We can use netcat to do that:
 
 <div class="img_container">
 ![setup listener]({{https://jsom1.github.io/}}/_images/htb_servmon_listener.png)
 </div>
 
-In the 5th and 6th steps, we have to add a scheduler that call the script every minute:
+In the 5th and 6th steps, we have to add a scheduler that calls the script every minute:
 
 <div class="img_container">
 ![scheduler]({{https://jsom1.github.io/}}/_images/htb_servmon_sched.png)
@@ -355,3 +352,5 @@ We're *nt authority\system*. The last thing to do is navigate to the administrat
 That's it !
 
 <ins>**My thoughts**</ins>
+
+That was a cool box, although I found the steps for getting root were badly explained. I spent a lot of time getting it to work. I particularly liked the way we get the user's flag. It was also great to learn about NVMS and NSClient. I still don't know why we couldn't login via thw webpage, but I think it would have been easier if it worked.\\
