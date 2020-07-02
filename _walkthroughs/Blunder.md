@@ -113,6 +113,27 @@ Back in the browser, we find the file by adding the *.txt* extension:
 ![todo]({{https://jsom1.github.io/}}/_images/htb_blunder_todo.png)
 </div>
 
-We see that FTP was effectively turned off, but we also get a potential username. Also on the forums, people were talking about creating a custom wordlist to brute force the login. I then discovered another tool I didn't know about, **cewl**. This allows to generate a wordlist from a web page.
+We see that FTP was effectively turned off, but we also get a potential username. Also on the forums, people were talking about creating a custom wordlist to brute force the login. I then discovered another tool I didn't know about, **cewl**. This allows to generate a wordlist from a web page. So let's use it and create a custom wordlist that we'll call *wordlist.txt*:
+
+<div class="img_container">
+![cewl]({{https://jsom1.github.io/}}/_images/htb_blunder_cewl.png)
+</div>
+
+The flag *-d* represents the depth to spider to, and *-m* the minimum word length (the default is 3). The output is the following:
+
+<div class="img_container">
+![cewl2]({{https://jsom1.github.io/}}/_images/htb_blunder_cewl2.png)
+</div>
+
+Finally, let's create a *user.txt* file containing some variations of *fergus* (uppercase, lowercase, ...). We can just *nano user.txt* and enter the words. We have a user and a password list, so we can try a bruteforce attack. However, Hydra doesn't seem to work, and after looking at the forum, this might be the reason why:
+
+<div class="img_container">
+![bludit documentation]({{https://jsom1.github.io/}}/_images/htb_blunder_bluditdoc.png)
+</div>
+
+Apparently, the CMS prevents bruteforce attacks. The versions affected are <= 3.9.2. Although we don't know what version this one is running, we saw in the todo note that the version had to be updated, and apparently, it hasn't been done yet.\\
+The way to bypass this anti bruteforce mechanism is given in the following proof of concept (available at <https://rastating.github.io/bludit-brute-force-mitigation-bypass/>):
+
+
 
 <ins>**My thoughts**</ins>
