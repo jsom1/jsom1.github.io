@@ -45,18 +45,53 @@ Let's start by performing the usual nmap scan with the flags *-sV* to have a ver
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_blunder_nmap.png)
 </div>
 
+We see that FTP is closed, so our only possibility is port 80.
 
 
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
-**<u>FTP</u>**
-
-
 **<u>HTTP</u>**
 
-We saw there is a web server running, so let's check what's there!
+We saw there is a web server running, so let's check what's there:
 
+<div class="img_container">
+![website]({{https://jsom1.github.io/}}/_images/htb_blunder_web.png)
+</div>
 
+The page talks about Stephen King, Stadia and USB. A quick look through these articles doesn't reveal anything interesting. We can use Gobuster to search for interesting directories.
+
+<div class="img_container">
+![Gobuster]({{https://jsom1.github.io/}}/_images/htb_blunder_gobuster.png)
+</div>
+
+The first 3 files look interesting, but we see a 403 error message, meaning we can't access them. Then, there's */admin* and */robots.txt*. This latter is a text file with instructions for search engine crawlers. The file says what directories crawlers cannot search, and it is the first file opened by crawlers when they visit the site. Here, the file contains the following instructions:
+
+<div class="img_container">
+![robots.txt]({{https://jsom1.github.io/}}/_images/htb_blunder_robots.png)
+</div>
+
+*User-agent* denotes the name of the crawler (which can be found in the Robots Database). Here, \* means that any crawler can access the site.\\
+*Allow:* is used to specify what areas of the website can be visited by the crawler. Here, it can go anywhere. This file isn't particularly interesting in this case, but sometimes it lists juicy directories and files that we can inspect to gather information.\\
+We also saw */admin*, so let's head there and see it:
+
+<div class="img_container">
+![login]({{https://jsom1.github.io/}}/_images/htb_blunder_login.png)
+</div>
+
+After trying a few obvious and common credentials, I thought I would use Hydra and try to bruteforce credentials. First, we must know how the request is sent and processed by the server. To do so, we can either use the web developer mode in Firefox and look at the parameters when we submit credentials, or we can use Burp suite.\\
+To use Burp, first have to configure the Proxy correctly. In Firefox, go to *Preferences* and search for *proxy*. Open the *Settings...* and make sure that *Manual proxy configuration is selected*. Change *HTTP Proxy* to 127.0.0.1 and port to 80. The settings should look like the following:
+
+<div class="img_container">
+![Proxy settings]({{https://jsom1.github.io/}}/_images/htb_blunder_proxy.png)
+</div>
+
+When this is done, we can open Burp suite. In the tab *Proxy* and *Intercept*, make sure that *intercept is on*. We're ready to submit random credentials on the login screen and analyze what happens:
+
+<div class="img_container">
+![Burp]({{https://jsom1.github.io/}}/_images/htb_blunder_burp.png)
+</div>
+
+We see it's a POST request (no surprise), and we see the syntax for the username and password. Note that we also have information on the User-agent (for robots.txt). There is also a cookie and a tokenCSRF. At this point, we should be able to write the Hydra command.
 
 <ins>**My thoughts**</ins>
