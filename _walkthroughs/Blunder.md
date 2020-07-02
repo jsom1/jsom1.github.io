@@ -94,4 +94,25 @@ When this is done, we can open Burp suite. In the tab *Proxy* and *Intercept*, m
 
 We see it's a POST request (no surprise), and we see the syntax for the username and password. Note that we also have information on the User-agent (for robots.txt). There is also a cookie and a tokenCSRF. At this point, we should be able to write the Hydra command.
 
+<div class="img_container">
+![Hydra]({{https://jsom1.github.io/}}/_images/htb_blunder_hydra.png)
+</div>
+
+It found something, but after trying the credentials on the login page, I was sad to see it didn't work. I tried many different commands with different wordlists for username and password (here we see we're not specifying the cookie), and Hydra always found wrong credentials (false positives).\\
+
+I had to look at the forum to get some hints. Many people were talking about **fuzzing**, and I finally understood they were refering to **wfuzz**. Wfuzz is a tool I didn't know about, and is used to bruteforce web applications. After looking at the help (*wfuzz --help*), I fired the following command:
+
+<div class="img_container">
+![wfuzz]({{https://jsom1.github.io/}}/_images/htb_blunder_hydra.png)
+</div>
+
+Note that I had to try with different wordlists, and filtered the results so that it doesn't show 404 errors. We see some files that Gobuster found, but this time we get a new one: *todo*.\\
+Back in the browser, we find the file by adding the *.txt* extension:
+
+<div class="img_container">
+![todo]({{https://jsom1.github.io/}}/_images/htb_blunder_todo.png)
+</div>
+
+We see that FTP was effectively turned off, but we also get a potential username. Also on the forums, people were talking about creating a custom wordlist to brute force the login. I then discovered another tool I didn't know about, **cewl**. This allows to generate a wordlist from a web page.
+
 <ins>**My thoughts**</ins>
