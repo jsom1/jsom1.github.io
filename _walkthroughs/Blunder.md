@@ -20,6 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_blunder_desc.png){: height="250px" width = "280px"}
 </div>
 
+**Tools:** gobuster, wfuzz, cewl, Burp\\
+**Techniques:** fuzzing, brute force, "custom" exploitation (script modification)\\
+**Keywords:** Bludit CMS\\
+
 <ins>**Lab configuration**</ins>
 
 First, download VirtualBox and Kali (or Parrot). When the machine is imported in VirtualBox, chose *bridged adapter* in the Network tab to have access to the internet. Start and set up the machine as you like.
@@ -188,6 +192,20 @@ for password in wordlist:
             break
 ~~~~~
 
-So we're going to copy this script and try to adapt it to fit our case. Let's create a script called *bruteforce.py* on the Desktop, and adapt it to our needs.
+So we're going to copy this script and adapt it to fit our case. Let's create a script called *bruteforce.py* on the Desktop, paste the POC above and modify it. To do so we can just *touch bruteforce.py* and double click on it to open it in Mousepad.
+
+<div class="img_container">
+![bludit version]({{https://jsom1.github.io/}}/_images/htb_blunder_script.png)
+</div>
+
+We only had to modify the host and provide a list of usernames and passwords. Once we're done, we can execute it with *python bruteforce.py*:
 
 <ins>**My thoughts**</ins>
+I didn't except that... Based on the rating, this box was supposed to be super easy. However, I encountered quite a lot of difficulties.\\
+First of all, and even if it might sound obvious, I dind't think about using different tools for the same task. For example, the basic use of Gobuster didn't reveal the todo file. So, I didn't know what to do and had to look at the forums. People suggested to use another tool, wfuzz.\\
+Then, just using wfuzz isn't enough. My first attempt didn't give anything, because I wasn't using the right wordlist. Fortunately I knew I had to use wfuzz, so I obviously tried with different wordlists.\\
+Lesson learned: try different tools.\\
+
+The foothold was really the best part because I learned 2 new tool, wfuzz and cewl. I feel like the scenario where the password is hidden on the webpage is very CTF-like and not very intuitive. Although it was funny, I had to look on the forum for this part as well.
+
+So, I really liked that box because there was only 1 port to attack, but it wasn't that easy. I learned a lot of things and had fun!
