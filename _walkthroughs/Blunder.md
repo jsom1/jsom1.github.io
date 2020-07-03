@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Tools:** gobuster, wfuzz, cewl, Burp\\
-**Techniques:** fuzzing, brute force, "custom" exploitation (script modification)\\
+**Techniques:** fuzzing, brute force, "custom" exploitation (script modification), wordlist generation\\
 **Keywords:** Bludit CMS\\
 
 <ins>**Lab configuration**</ins>
