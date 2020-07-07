@@ -195,10 +195,47 @@ for password in wordlist:
 So we're going to copy this script and adapt it to fit our case. Let's create a script called *bruteforce.py* on the Desktop, paste the POC above and modify it. To do so we can just *touch bruteforce.py* and double click on it to open it in Mousepad.
 
 <div class="img_container">
-![bludit version]({{https://jsom1.github.io/}}/_images/htb_blunder_script.png)
+![Script bruteforce]({{https://jsom1.github.io/}}/_images/htb_blunder_script.png)
 </div>
 
-We only had to modify the host and provide a list of usernames and passwords. Once we're done, we can execute it with *python bruteforce.py*:
+We only had to modify the host and provide a list of passwords. Once we're done, we can execute it with *python bruteforce.py*:
+
+<div class="img_container">
+![password found !]({{https://jsom1.github.io/}}/_images/htb_blunder_pwfound.png)
+</div>
+
+We can now login in the Bludit CMS.
+
+<div class="img_container">
+![CMS login]({{https://jsom1.github.io/}}/_images/htb_blunder_cmsco.png)
+</div>
+
+After browsing the website for a while, we see there's not much to do. Let's check for any exploit on Metasploit.
+
+<div class="img_container">
+![Searchsploit]({{https://jsom1.github.io/}}/_images/htb_blunder_srchsploit.png)
+</div>
+
+I don't know if these exploit could be useful, so let's look at their content:
+
+<div class="img_container">
+![Exploit]({{https://jsom1.github.io/}}/_images/htb_blunder_exploit.png)
+</div>
+
+Well, that sounds interesting and we probably don't even have to look at the second exploit. We should be good if we can get that RCE. So, let's start Metasploit with *msfconsole*, search the exploit with *search bludit* and select it with *use exploit/linux/http/bludit_upload_images_exec*. We can look at the required parameters with the command *options*.\\
+We see we need a username for Bludit, a password and the target host. We have everyting, and we can set those parameters with the commands *SET <parameter> <value>*. After doing so, the options shoud look like the following:
+ 
+ <div class="img_container">
+![Exploit options]({{https://jsom1.github.io/}}/_images/htb_blunder_options.png)
+</div>
+
+We can launch it
+
+<div class="img_container">
+![meterpreter]({{https://jsom1.github.io/}}/_images/htb_blunder_options.png)
+</div>
+
+And we get a Meterpreter session ! We see that 
 
 <ins>**My thoughts**</ins>
 I didn't except that... Based on the rating, this box was supposed to be super easy. However, I encountered quite a lot of difficulties.\\
