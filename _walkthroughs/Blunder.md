@@ -235,7 +235,62 @@ We can launch it
 ![meterpreter]({{https://jsom1.github.io/}}/_images/htb_blunder_options.png)
 </div>
 
-And we get a Meterpreter session ! We see that 
+And we get a Meterpreter session ! We see that the exploit loged us a fergus, retrieved the UUID, uploaded an image by abusing the UUID which allowed it to save a payload somewhere on the server. Then, it uploaded a custom .htaccess file, and that gave us a RCE and finally a meterpreter session.\\
+The command *getuid* shows we're www-data, a user with limited privileges. We now have to find a way to escalate those privileges, starting by enumerating everything. As usual on Linux, we change directories with *cd*, list files and directories with *ls*, and inspect a file with *cat*. There is something interesing in */ftp*: 
+
+<div class="img_container">
+![ftp note]({{https://jsom1.github.io/}}/_images/htb_blunder_ftpnote.png)
+</div>
+
+We see 2 usernames, Sophie and Shaun, as well as other information about something, somewhere. If we go back 1 directory and go in */home*, we see another user, Hugo. After searching for a while, I found something interesting in the CMS database:
+
+<div class="img_container">
+![interesting directory]({{https://jsom1.github.io/}}/_images/htb_blunder_interesting.png)
+</div>
+
+The file *users.php* contains a password for Hugo:
+
+<div class="img_container">
+![Hugo password]({{https://jsom1.github.io/}}/_images/htb_blunder_catusers.png)
+</div>
+
+There is a hashed password, and we can use a tool to analyze what kind of hash it is. Here, I used one from tunnelsup that detected it as SHA1.
+
+<div class="img_container">
+![Hash analyzer]({{https://jsom1.github.io/}}/_images/htb_blunder_hash.png)
+</div>
+
+Then, we can use another tool to decipher the password. I used one on <https://md5decrypt.net/Sha1/>, which returned the password **Password120**. Now, we can pop a shell with the command below, and switch user to become Hugo:
+
+<div class="img_container">
+![su hugo]({{https://jsom1.github.io/}}/_images/htb_blunder_su.png)
+</div>
+
+We saw there are several users (Hugo, Shaun, Sophie), so the flag might be on another user. But fortunately, it was on this one:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_blunder_user.png)
+</div>
+
+That's it for the user flag ! Now, we must find a way to escalate our privileges. I didn't really know what to do and sadly I had to check on the forum once again. People said it takes 30 seconds, "just look at what that user can do". So, I ran the command *sudo -l* and saw the following:
+
+<div class="img_container">
+![check permissions]({{https://jsom1.github.io/}}/_images/htb_blunder_sudol.png)
+</div>
+
+It turns out that Hugo can run *(ALL, !root) /bin/bash*. After googling this command, we quickly find a vulnerability. We can then use the following command to escalate our privileges:
+
+<div class="img_container">
+![privesc]({{https://jsom1.github.io/}}/_images/htb_blunder_privesc.png)
+</div>
+
+We see that the command *whoami* returns root ! We just have to get the flag:
+
+<div class="img_container">
+![root flag]({{https://jsom1.github.io/}}/_images/htb_blunder_root.png)
+</div>
+
+And this is it for the box!
 
 <ins>**My thoughts**</ins>
 I didn't except that... Based on the rating, this box was supposed to be super easy. However, I encountered quite a lot of difficulties.\\
