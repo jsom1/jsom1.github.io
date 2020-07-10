@@ -229,7 +229,7 @@ We see we need a username for Bludit, a password and the target host. We have ev
 ![Exploit options]({{https://jsom1.github.io/}}/_images/htb_blunder_options.png)
 </div>
 
-We can launch it
+And we can launch it
 
 <div class="img_container">
 ![meterpreter]({{https://jsom1.github.io/}}/_images/htb_blunder_options.png)
@@ -242,7 +242,7 @@ The command *getuid* shows we're www-data, a user with limited privileges. We no
 ![ftp note]({{https://jsom1.github.io/}}/_images/htb_blunder_ftpnote.png)
 </div>
 
-We see 2 usernames, Sophie and Shaun, as well as other information about something, somewhere. If we go back 1 directory and go in */home*, we see another user, Hugo. After searching for a while, I found something interesting in the CMS database:
+We see 2 usernames, Sophie and Shaun, as well as other information about something, somewhere. If we go back 1 directory and go in */home*, we see another user, Hugo. After searching for a while for the thing mentionned in Sophie's note, I found something interesting in the CMS database:
 
 <div class="img_container">
 ![interesting directory]({{https://jsom1.github.io/}}/_images/htb_blunder_interesting.png)
@@ -272,13 +272,13 @@ We saw there are several users (Hugo, Shaun, Sophie), so the flag might be on an
 ![user flag]({{https://jsom1.github.io/}}/_images/htb_blunder_user.png)
 </div>
 
-That's it for the user flag ! Now, we must find a way to escalate our privileges. I didn't really know what to do and sadly I had to check on the forum once again. People said it takes 30 seconds, "just look at what that user can do". So, I ran the command *sudo -l* and saw the following:
+That's it for the user flag ! Now, we must find a way to escalate our privileges. I didn't really know what to do and sadly I had to check on the forum once again. People said "it takes 30 seconds, just look at what that user can do". So, I ran the command *sudo -l* and saw the following:
 
 <div class="img_container">
 ![check permissions]({{https://jsom1.github.io/}}/_images/htb_blunder_sudol.png)
 </div>
 
-It turns out that Hugo can run *(ALL, !root) /bin/bash*. After googling this command, we quickly find a vulnerability. We can then use the following command to escalate our privileges:
+It turns out that Hugo can run *(ALL, !root) /bin/bash*. After googling this command, we quickly find a vulnerability and how to exploit it. We can then use the following command to escalate our privileges:
 
 <div class="img_container">
 ![privesc]({{https://jsom1.github.io/}}/_images/htb_blunder_privesc.png)
