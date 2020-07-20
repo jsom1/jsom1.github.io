@@ -120,7 +120,7 @@ code {
  text-align:right;
 }
 
-#particles canvas{
+#particles-js canvas{
     position: absolute;
     width: 100%;
     height: 100%;
