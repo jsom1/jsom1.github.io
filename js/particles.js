@@ -47,21 +47,6 @@ particlesJS("particles-js", {
       "color": "#e8dad5",
       "opacity": 0.5,
       "width": 1
-    },
-  },
-    "move": {
-    "enable": true,
-    "speed": 1,
-    "direction": "none",
-    "random": true,
-    "straight": false,
-    "out_mode": "bounce",
-    "bounce": false,
-    "attract": {
-      "enable": false,
-      "rotateX": 600,
-      "rotateY": 600
-      }
     }
   },
   "interactivity": {
