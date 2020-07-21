@@ -42,15 +42,16 @@ We're ready to start !
 Let's start by performing the usual nmap scan with the flags *-sV* to have a verbose output and *-sC* to enable the most common scripts scan.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_tx_nmap.png)
+![nmap]({{https://jsom1.github.io/}}/_images/htb_buff_nmap.png)
 </div>
-
 
 
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
 
-
+<div class="img_container">
+![site web]({{https://jsom1.github.io/}}/_images/htb_buff_site.png)
+</div>
 
 <ins>**My thoughts**</ins>
 
