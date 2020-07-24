@@ -71,7 +71,15 @@ In fact, Ethernet is the language used by the machines to communicate. Because w
 We need at least 3 things in a message: the address of the sender, the one of the receiver, and the message itself. For example, we could say that the first 48 digits represent the MAC address of the sender, the 48 next the one of the receiver, and then the message (it's not the real format).\\
 The protocol defines the format of messages sent over the network. More precisely, we call the message a **packet**. 
 
-So, what's the real format of a packet ? Which MAC address comes first, sender or receiver ? We can answer this question by imagining we're the receiver: it's more interesting to know the addresss of the receiver first, because we immediately know if the packet is for us or not. We read it if it's for us, discard it otherwise.
+So, what's the real format of a packet ? Which MAC address comes first, sender or receiver ? We can answer this question by imagining we're the receiver: it's more interesting to know the addresss of the receiver first, because we immediately know if the packet is for us or not. We read it if it's for us, discard it otherwise.\\
+What's next ? After the receiver comes the sender address. And then the message ? No. Let's imagine we're sending information. If we think about the OSI model, we go through all the layers from the top (7) to the bottom (1). We went through layer 3 before layer 2: layer 3 can indicate to layer 2 what protocol was used in layer 3.\\
+But why does that matter ? Because when the information is received by the layer 2 of the receiver, it must send the packet further to the right protocol of layer 3. So when we send information, it goes from layer 7 to 1. When we receive information, it goes from layer 1 to 7.
+
+At this point, the structure of the packet is: DST MAC address, SRC MAC address, Layer 3 protocol, Message. We saw that layer 2 can also detect errors, so we are going to add that after the message and name it **CRC** (cyclic redundancy check). The CRC is a number (hash) that is specific to each message: when a machine sends information, it computes the CRC and append it to the packet. The receiver performs the same computation and compares the value. If it's the same, the message is the same. If it's different, there was an error during transmission.
+
+The packet is now complete and looks like the following:
+
+
 
 
 ## rdm
