@@ -82,7 +82,7 @@ At this point, the structure of the frame is: DST MAC address, SRC MAC address, 
 The ethernet frame is now complete and its structure looks like the following:
 
 <div class="img_container">
-![Layer 2 packet structure]({{https://jsom1.github.io/}}/_images/endian.png){: height="250px" width = "180px"}
+![Layer 2 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_L2packet.png){: height="250px" width = "180px"}
 </div>
 
 The size of the bold elements never changes and constitute the **header** (here, the ethernet header). Its size is always 18 bytes. Only tee size of the data part varies. What's the minimum and maximum size of a frame ?\\
@@ -90,6 +90,39 @@ The minimum size for an ethernet frame is **64 bytes**, the maximum is **1518 by
 
 # Layer 2 hardware: the switch
 
+The switch allows us to interconnect several machines. We sometimes hear about a *bridge*, which is simply a switch with 2 ports. A switch is a box containing different ports in which we can plug cables. We plug our machines (computers, printers, ...) to the switch, and can also plug other switches to ours.\\
+How does the switch know where to send a frame ? It simply uses the DST MAC address found in the frame's header.\\
 
+## The CAM table
+{:style="color:DarkRed; font-size: 170%;"}
 
+The switch contains a **CAM** table (Content Addressable Memory) that links the switch ports with the MAC addresses of the machines connected to it. So, the switch reads the DST MAC address in the frame's header and looks up in its table to know on which port to forward it.
 
+The CAM table is dynamically updated: the switch "learns" to which port is plugged each machine by seeing frames pass. For example, let's imagine 3 computers (21, 22, 23) freshly connected to a switch whose CAM table is empty.\\
+Computer 21 (plugged on port 1) sends a frame to computer 23 (plugged on port 3): the frame arrives at the switch. This latter now knows that computer 21 is linked to port 1, so it updates the table. However, it doesn't know where to forward the frame at this point (it doesn't have the destination address in its CAM table). So, it sends it to all the computers (it's not broadcast, because the destination address isn't the broadcast one!). Computer 23 will receive it and be able to reply to computer 21. The switch can update its CAM table (it now knows that computer 23 is on port 3). The table is updated this way each time the switch sees a frame pass. 
+
+Is the CAM table going to grow indefinitely ? No, thanks to the **TTL** (Time to live). The idea is that an information is valid for a certain amount of time, and then get removed from the table. Below is a representation of the CAM table for the previous example:
+
+<div class="img_container">
+![CAM table]({{https://jsom1.github.io/}}/_images/tcpip_cam.png){: height="250px" width = "180px"}
+</div>
+
+The switch has 2 entries in its table and the second one is more recent (higher TTL). The first entry will be removed in 91 seconds if computer 21 remains silent (as well as 23). If it speaks, the TTL will be resetted to 120s.\\
+
+Knowing how a switch works, we can imagine how we could compromise it. There are 2 cases:
+
+- Send a ton of frames to non-existing MAC addresses: because the switch doesn't know where to send them, it will send them to all the active ports, resulting in its saturation.
+- Send a ton of frames with different source MAC addresses: the switch will update its table progressively. The bigger it gets, the slower the switch reads it, resulting in an increase of the latency. When the switch is saturated and doesn't have time to read the CAM table, it will send frames on all ports, revealing all its traffic (enventhough we'll see better techniques to analyze the traffic of a switch).
+
+Compared to a hub (bus topology), a switch can isolate conversations. It can also store one or many frames. This could happen if computers 21 and 23 send a frame to computer 22 at the same time, because computer 22 only has 1 receiving pair of wires. This way of working allows what is called **full-duplex**: data can be transmitted in both directions on a signal carrier at the same time (one machine sends data, another receives data -> this doubles to debit). We say that the network cards are in full-duplex mode. In half-duplex, only one machine talks at a time. A network card can determine automatically if it has to work in full- or half-duplex. In short, it will work in half-duplex if it's connected to a hub, and in full-duplex when connected to a switch. If we plug a hub in a switch, the switch has to adapt (a hub only does half-duplex). But not the whole switch, only the port to which the hub is connected.
+
+## VLANs
+{:style="color:DarkRed; font-size: 170%;"}
+
+A switch can do more than forwarding frames on the right ports; it can create **VLANs** (Virtual Local Area Network). This is done by separating the ports of the switch. After that, they can't communicate anymore (like if we had several switches). Imagine 6 computers (1-6) and a switch with 10 ports. We can create a VLAN for computers 1-3 on ports 1-3, and another for computers 4-6 on ports 8-10. Computers 1-3 can communicate together, but they can't reach computers 4-6 (and vice-versa).\\
+What's the point ? It can be useful to separate networks (for example the student network, the teachers network and the administration network). This is more secure, and we can install big switches (256 ports) instead of many small ones.\\
+Note that it is possible to pass from a VLAN to another. It's called **VLAN hopping**, but we're not supposed to do it!
+
+# In practice
+
+65
