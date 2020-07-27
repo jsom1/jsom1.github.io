@@ -82,7 +82,7 @@ At this point, the structure of the frame is: DST MAC address, SRC MAC address, 
 The ethernet frame is now complete and its structure looks like the following:
 
 <div class="img_container">
-![Layer 2 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_L2packet.png){: height="250px" width = "180px"}
+![Layer 2 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_L2packet.png)
 </div>
 
 The size of the bold elements never changes and constitute the **header** (here, the ethernet header). Its size is always 18 bytes. Only tee size of the data part varies. What's the minimum and maximum size of a frame ?\\
