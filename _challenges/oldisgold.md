@@ -16,6 +16,8 @@ output: html_document
  <div style="clear: both;"></div>
  </div> 
 
+**Description**: Old algorithms are not a waste, but are really precious...
+
 This challenge is rather easy and straightforward. The first thing to do is of course to download the file and unzip it with the given password *hackthebox*: 
 
 <div class="img_container">
