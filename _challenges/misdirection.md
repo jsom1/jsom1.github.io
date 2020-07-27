@@ -48,7 +48,7 @@ By listing the directories in the right order, we get the following string: SFRC
 I used a website (<https://www.tunnelsup.com/hash-analyzer/>) to detect the encryption, which appears to be Base64. Then, I used Cryptii to decode it:
 
 <div class="img_container">
-![Flag!]({{https://jsom1.github.io/}}/_images/challenge_misd_flag.png)
+![Flag!]({{https://jsom1.github.io/}}/_images/challenge_misd_flag.png){: height="250px" width = "180px"}
 </div>
 
 I obtained the string manually by writing down the directories in the order given by the values 1-27. However, it is possible to do it with a command.
