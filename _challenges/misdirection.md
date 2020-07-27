@@ -45,7 +45,7 @@ At this point, it took me a while to figure out what to do. Every time I had a s
 None of those strings returned somehing that looked like a flag... I had to look at the forums to understand that it wasn't hex code (it should have been obvious).
 However, one of my idea was correct: every number appear only once (for example, 1 is in directory S, 2 is in F, and so on).
 By listing the directories in the right order, we get the following string: SFRCe0RJUjNjdEx5XzFuX1BsNDFuX1NpN2V9.
-I used Ctyptii to find the right decoder (which turned out to be Base64) and got the flag:
+I used a website (<https://www.tunnelsup.com/hash-analyzer/>) to detect the encryption, which appears to be Base64. Then, I used Cryptii to decode it:
 
 <div class="img_container">
 ![Flag!]({{https://jsom1.github.io/}}/_images/challenge_misd_flag.png)
