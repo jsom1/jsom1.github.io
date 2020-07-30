@@ -77,7 +77,31 @@ I then tried to launch it with something like *python exploit.py*, and we get a 
 ![exploit launch]({{https://jsom1.github.io/}}/_images/htb_buff_launch.png)
 </div>
 
-It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using get requests.
+It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using get requests. At this point, I thought I had to upload something on but didn't know what and how (there wasn't anything else to do). I had to ask for help...
+We indeed have to upload 2 executables (maybe there are other ways to do it): **nc.exe** and **plink.exe**. I had already seen nc.exe somewhere but didn't know what it was, and had nevear heard of plink. So, let's look at those executables.
+
+- **nc.exe**: is a software component of NetCat Netwoork Control Program. It's a tool for testing TCP/IP connections and ports. Some features are port scanning, port listening, file transferring, proxying and requesting HTTTP. Apparently, this file is often used by attackers as a backdoor. Its name can also be used to disguise malwares (the amount of CPU used by nc.exe is a good indicator; high numbers are suspicious).
+- **plink**: is a command line application, similar to ssh in Linux. It can be used too make an interactive connection to a remote server.
+
+We start by finding those files on our system with the command *locate*:
+
+<div class="img_container">
+![locate nc.exe and plink.exe]({{https://jsom1.github.io/}}/_images/htb_buff_locate.png)
+</div>
+
+Then, we copy those files on the server:
+
+<div class="img_container">
+![Copy files]({{https://jsom1.github.io/}}/_images/htb_buff_cp.png)
+</div>
+
+Note that the "." copies the files in the present directory. Typing *dir* doesn't display the files. Finally, we start a HTTP server:
+
+<div class="img_container">
+![HTTP server]({{https://jsom1.github.io/}}/_images/htb_buff_server.png)
+</div>
+
+We're going to try to get a reverse shell. We will need our listening address, which we can get with the command *sudo ifconfig tun0*.
 
 <ins>**My thoughts**</ins>
 
