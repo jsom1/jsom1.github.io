@@ -135,6 +135,7 @@ Where can we find the information we just saw, that is the information about the
 - Linux: there's only the command line, and the command is **ifconfig**. The MAC address is written after the *HWaddr*. If the network card supports it, it is also possible to change it with a command like *ifconfig eth0 hw ether 00:01:02:03:04:05*. 
 
 ### Exercise 1: switching loop
+{:style="color:DarkRed; font-size: 170%;"}
 
 There's nothing to do in the exercise, it's just about understanding what a switching loop is. Let's imagine the following situation: there are 3 switches connected together, and a few machines connected to each of them. The setup looks like the following:
 
@@ -150,6 +151,7 @@ This phenomenon is very powerful and can take down the biggest networks. So, how
 **Solution**: we must use the Spanning Tree Protocol (STP), a layer 2 network protocol. In short, it builds a loop-free logical topology for ethernet networks by following a few steps: election of the root switch, determination of the root port of each switch, determination of the designated port on each segment, blocking of other ports.
 
 ### Exercise 2: The network simulator
+{:style="color:DarkRed; font-size: 170%;"}
 
 The simulator can be downloaded at <http://www.sopireminfo.com/indexEn.html> (15 days trial version). It's a good idea to look at the documentation before starting.
 
@@ -171,3 +173,33 @@ In this part, we see the layer 3 of the OSI model and everything that allows to 
 ## Layer 3: interconnect networks
 
 We now know how machines communicate on a local network. We'll see how they can communicate with machines outside of that network. This is the flagship chapter of the course because it concerns **THE internet protocol, IP**.
+
+Layer 3 is the network layer, allowing us to communicate between networks. Thus, its role is to interconnect networks. 
+
+How can we send a message to a network to which we aren't directly connected, and across the world?\\
+All networks are linked together, as a chain. The internet is a huge set of networks linked together. For example if we want to reach Google's network, our messsage goes through several intermediate networks. Also, there are many different possible paths to reach it. The layer 3 allows us to reach any other network on the internet.
+
+This can be seen on Linux with the command **traceroute**: for example, *traceroute www.google.com* shows through which machines our message pass to reach Google's network. In the output, each line represents a machine that we met on the internet. We also see the time required to reach that machine. In other words, we see how many networks we went through (each line is a machine which is part of a network).
+
+### An identifier, the IP address
+{:style="color:DarkRed; font-size: 170%;"}
+
+So far, we only know the MAC address, which is used on our local network.
+The questions that arise with the interconnection of networks is: how can our network be recognised?  How can we identify networks? Do they have a name or an address? If we need an address for the network and one for my machine, do we need 2 addresses in layer 3?\\
+The IP address is the answer to all those questions.
+
+In fact, the IP address is the **address of the network and the one of the machine**. A part of the address represents the network, and the other represent the machine on that network.\\
+An IP address is coded on **32 bits** (4 bytes). To facilitate the reading and writing for humans, we chose to write addresses with decimal notation. This latter splits the 4 bytes in 4 decimal digits going from 0 to 255. Example: 192.168.0.1.\\
+So, the "smallest" address is 0.0.0.0 (when all bits are set to 0), and the "biggest" is 255.255.255.255. (all bits to 1). Note that hardware manipulate IP addresses in binary notation.
+
+We know that a part of the address represents the network, and the other the machine. How can we know which part represents what? We need the **subnet mask**. The subnet mask is added to the IP address (it's always the case), and it's that mask that indicates which part is what.\\
+The **bits set to 1 in the mask represent the network part of the IP addresss**. So, the bits set to 0 represent the machine part. Let's look at the following example: we have the IP addresss 192.168.0.1 with the mask 255.255.0.0.\\
+In binary, those addresses are written:\\
+255.255.0.0       11111111.11111111.00000000.00000000\\
+192.168.0.1       11000000.10101000.00000000.00000001\\
+The network part of the address is 11000000.10101000 (192.168), and the machine part is 00000000.00000001 (0.1).\\
+In this example, the separation occurs in the middle of 2 bytes, but it's not always the case. Let's look at another, more complicated example: 192.168.0.1 with the mask 255.255.240.0. In binaries, we get:\\
+255.255.240.0     11111111.11111111.11110000.00000000\\
+192.168.0.1       11000000.10101000.00000000.00000001\\
+We see the split occurs within the 3rd byte (11110000).
+p.86
