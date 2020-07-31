@@ -16,7 +16,11 @@ The chapters are the following:
 {:toc}
 {:style="color:black; font-size: 150%;"}
 
-# The OSI model
+# First part: communication on a local network
+
+In this part, we see the different elements that make up a network and how the machines can communicate.
+
+## The OSI model
 
 The OSI model was born in 1984 and is a standard for how computers should communicate with each other. For example, if we wanted to make a toaster communicate with a dishwasher, we would have to follow the OSI model. One of the most important concept is that the communication requires several layers (so the OSI model consists of different layers, where each of them is responsible for a specific task).
 
@@ -40,7 +44,7 @@ There are 2 very important rules in the OSI model:
 
 Let's see those layers in more details.
 
-# Layer 1: connecting machines
+## Layer 1: connecting machines
 
 A medium is required to communicate. For example, we need an **ethernet cable** or air (for Wi-Fi) to connect to the internet. So, layer 1 transmits electrical signals (0's and 1's). Nowadays, the optical fibre is common and transmits light instead of electrical signals. Those 0's and 1's are carried by the different transmission media (described in the book).
 To interconnect several machines on a network, we need a connection device: the hub. The hub has a weird way of working. Imagine 5 machines (A B C D E) connected to a hub: if A wants to talk to C, it will send data to the hub. However, this latter can't read and will forward it to all the machines, supposing that one of them is the right one. The machines B, D and E will detect the data isn't for them and will discard it, whereas C will read it. So, the hub isn't the best tool when it comes to data privacy.
@@ -48,11 +52,11 @@ To interconnect several machines on a network, we need a connection device: the 
 There are different network topologies: bus, ring, mesh, star and hybrid. The pros and cons of each are not discussed here, and let's focus on the star topology since bus and ring are rare nowadays. In this setup, all the communications go through a central point. A machine sends information with the recipient's name to the central point, which redirects it to the right machine.\\
 The number of machines on this topology depends on the capacity of the central point to manage information. Nowadays, switches can manage thousands of machines. Also, we can link many central points together to create an almost infinite network. 
 
-# Layer 2: allow communications between machines
+## Layer 2: allow communications between machines
 
 The role of the second layer is to connect machines on a local network, and allow them to communicate. It also detects transmission errors (it detects but doesn't correct them!).
 
-## An identifier, the MAC address
+### An identifier, the MAC address
 {:style="color:DarkRed; font-size: 170%;"}
 
 In order to communicate with a specific machine on a network, we must be able to identify it precisely. The **MAC** address is a unique identifier that corresponds to the address of the network card. Each machine on earth has it own unique MAC address. It is written in hexadecimal, for example 00:23:5e:bf:45:6a.
@@ -65,7 +69,7 @@ There is one special MAC addresss, where all the bits are set to 1 (ff:ff:ff:ff:
 
 Now that we can identify machines, we need a language.
 
-## A protocol, Ethernet
+### A protocol, Ethernet
 {:style="color:DarkRed; font-size: 170%;"}
 
 In fact, Ethernet is the language used by the machines to communicate. Because we communicate with different machines (which have different OS such as Mac OS, Windows, Linux, ...), we need a common language to understand each other. We will call it a **protocol**. We know that 0's and 1's are transmitted, and information look like 00110010111100011001000... Without a protocol defining the meaning of this information (the order of bits, ...), it doesn't mean anything.
@@ -88,12 +92,12 @@ The ethernet frame is now complete and its structure looks like the following:
 The size of the bold elements never changes and constitute the **header** (here, the ethernet header). Its size is always 18 bytes. Only tee size of the data part varies. What's the minimum and maximum size of a frame ?\\
 The minimum size for an ethernet frame is **64 bytes**, the maximum is **1518 bytes**.
 
-# Layer 2 hardware: the switch
+## Layer 2 hardware: the switch
 
 The switch allows us to interconnect several machines. We sometimes hear about a *bridge*, which is simply a switch with 2 ports. A switch is a box containing different ports in which we can plug cables. We plug our machines (computers, printers, ...) to the switch, and can also plug other switches to ours.\\
 How does the switch know where to send a frame ? It simply uses the DST MAC address found in the frame's header.\\
 
-## The CAM table
+### The CAM table
 {:style="color:DarkRed; font-size: 170%;"}
 
 The switch contains a **CAM** table (Content Addressable Memory) that links the switch ports with the MAC addresses of the machines connected to it. So, the switch reads the DST MAC address in the frame's header and looks up in its table to know on which port to forward it.
@@ -116,13 +120,54 @@ Knowing how a switch works, we can imagine how we could compromise it. There are
 
 Compared to a hub (bus topology), a switch can isolate conversations. It can also store one or many frames. This could happen if computers 21 and 23 send a frame to computer 22 at the same time, because computer 22 only has 1 receiving pair of wires. This way of working allows what is called **full-duplex**: data can be transmitted in both directions on a signal carrier at the same time (one machine sends data, another receives data -> this doubles to debit). We say that the network cards are in full-duplex mode. In half-duplex, only one machine talks at a time. A network card can determine automatically if it has to work in full- or half-duplex. In short, it will work in half-duplex if it's connected to a hub, and in full-duplex when connected to a switch. If we plug a hub in a switch, the switch has to adapt (a hub only does half-duplex). But not the whole switch, only the port to which the hub is connected.
 
-## VLANs
+### VLANs
 {:style="color:DarkRed; font-size: 170%;"}
 
 A switch can do more than forwarding frames on the right ports; it can create **VLANs** (Virtual Local Area Network). This is done by separating the ports of the switch. After that, they can't communicate anymore (like if we had several switches). Imagine 6 computers (1-6) and a switch with 10 ports. We can create a VLAN for computers 1-3 on ports 1-3, and another for computers 4-6 on ports 8-10. Computers 1-3 can communicate together, but they can't reach computers 4-6 (and vice-versa).\\
 What's the point ? It can be useful to separate networks (for example the student network, the teachers network and the administration network). This is more secure, and we can install big switches (256 ports) instead of many small ones.\\
 Note that it is possible to pass from a VLAN to another. It's called **VLAN hopping**, but we're not supposed to do it!
 
-# In practice
+## Layer 2 in practice
 
-65
+Where can we find the information we just saw, that is the information about the network card? It depends on the OS, and we'll see how to find it on Windows and Linux.
+
+- Windows: there are 2 ways to access it, via the command line or the GUI. For the command line, we get a prompt by searching *cmd*. Then, the command is **ipconfig /all**. Among all the information, we see the MAC address (on 6 bytes). We can also access a GUI menu via the settings -> network. Then local network -> properties -> configuration -> advanced. Here we find all the information regarding the network card. It is usually possible to **modify the MAC address**.
+- Linux: there's only the command line, and the command is **ifconfig**. The MAC address is written after the *HWaddr*. If the network card supports it, it is also possible to change it with a command like *ifconfig eth0 hw ether 00:01:02:03:04:05*. 
+
+### Exercise 1: switching loop
+
+There's nothing to do in the exercise, it's just about understanding what a switching loop is. Let's imagine the following situation: there are 3 switches connected together, and a few machines connected to each of them. The setup looks like the following:
+
+<div class="img_container">
+![CAM table]({{https://jsom1.github.io/}}/_images/tcpip_lan.png){: height="250px" width = "200px"}
+</div>
+
+**Problem**: switch 5 broke down, so the machines of switches 1 and 9 can't communicate. How can we repair it, and how can we get a working network, even if a switch breaks down?\\
+The instinctive answer would be to link the switches 1 and 9. It works, but one hour later, nobody can reach the internet or communicate with each other anymore.\\
+What happened? We just created a switching loop, which offers 2 ways to reach a destination. When we send a frame to a machine, the switch will use both ways and the frame will arrive twice at the destination. This becomes a problem when broadcasting: our broadcast will be sent on both ways, and when it arrives at the next switch, it will be sent on the 2 possibles ways again, and the same at the next switch, and so on... This happens until a point where the switches have too many broadcasts to treat and get saturated. This is what we call a **broadcasts storm**.\\
+This phenomenon is very powerful and can take down the biggest networks. So, how can we solve the initial problem?!
+
+**Solution**: we must use the Spanning Tree Protocol (STP), a layer 2 network protocol. In short, it builds a loop-free logical topology for ethernet networks by following a few steps: election of the root switch, determination of the root port of each switch, determination of the designated port on each segment, blocking of other ports.
+
+### Exercise 2: The network simulator
+
+The simulator can be downloaded at <http://www.sopireminfo.com/indexEn.html> (15 days trial version). It's a good idea to look at the documentation before starting.
+
+**Hubs**\\
+We'll start by creating a network with 3 hubs connected together, without using the rightmost port (similar to the previous image, but with hubs instead of switches). We then add one machine on each hub. Red ports mean that our cables are not configured as they should.\\
+Now, we connect the 2 hubs that weren't connected, right click on a network card and select *send a frame* (broadcast). What happens? There's an error message indicating the presence of a loop.\\
+Remove a cable, and try sending a frame again in broadcast and then in **unicast** (send a frame to a unique destination. It's the classical use of networks). What's the difference between broadcast and unicast ? There is no visible difference. Why? Because we're using a hub, and frames are inevitably sent to everyone, like in broadcast. 
+
+**Switch**\\
+Let's now create a network with a single switch and 3 machines. Right click on the switch and empty the MAC/port table (CAM). We then send a frame from machine 1 to another. What will happen? The switch will send the frames to all the machines, because its CAM table is empty.\\
+If we resend the same frame, what will happen? The same thing. The switch knows the machine 1 is on port 1, but it still doesn't know on what port is the destination machine.\\
+We'll now see how the switch works by following what's happening: click on *no traced node*, select sw1, that we pass in the traced nodes. Send a frame from a machine to another and observe the operating steps of the switch.\\
+Now we get into manual mode and send a frame from a machine to another. We must decide what the switch has to do. That's it for the exercises.
+
+# Second part: communication between networks
+
+In this part, we see the layer 3 of the OSI model and everything that allows to identify networks and communicate between them.
+
+## Layer 3: interconnect networks
+
+We now know how machines communicate on a local network. We'll see how they can communicate with machines outside of that network. This is the flagship chapter of the course because it concerns **THE internet protocol, IP**.
