@@ -202,4 +202,93 @@ In this example, the separation occurs in the middle of 2 bytes, but it's not al
 255.255.240.0     11111111.11111111.11110000.00000000\\
 192.168.0.1       11000000.10101000.00000000.00000001\\
 We see the split occurs within the 3rd byte (11110000).
-p.86
+So, the network part is 11000000.101010000.0000 and the machine part is 0000.00000001. Note that because the split occurs in the middle of a byte, we can't write it in decimal and have to keep it in binary.\\
+In a binary mask, 1's must be on the left and 0's on the right; they cannot mix. This way, we always find the same values for the bytes of a mask:\\
+00000000 -> 0\\
+10000000 -> 128\\
+11000000 -> 192\\
+11100000 -> 224\\
+11110000 -> 240\\
+11111000 -> 248\\
+11111100 -> 252\\
+11111110 -> 254\\
+11111111 -> 255\\
+With this is mind, we immediately see that the mask 255.255.128.0 is correct, whereas 255.255.173.0 isn't. The mask 255.128.255.0 is also wrong because it mixes 0's and 1's.
+
+Now that we know how the mask works, we can use to find the address range associated to it, from the lowest to the largest. Let's see how we calculate the range for the address 192.168.0.1 with the mask 255.255.240.0.\\
+The first thing to do is to transform those addresses into binary:\\
+255.255.240.0     11111111.11111111.11110000.00000000\\
+192.168.0.1       11000000.10101000.00000000.00000001\\
+At this point, we know that 11000000.10101000.0000 represents the network part, and 0000.00000001 the machine part.\\
+**Every machine belonging to the same network have something in common: all the bits of the network part are identical**. If two machines have addresses with different networking part, they are not on the same network.\\
+In our case, all the machines on our network will have the same network part, which is 11000000.10101000.0000. However, the bits of the machine part of the address can vary. We see here that we have many possibilities, such as:\\
+11000000.10101000.00000000.00000000\\
+11000000.10101000.00000000.00000001\\
+11000000.10101000.00000000.00000002\\
+11000000.10101000.00000000.00000003\\
+...\\
+11000000.10101000.00001111.11111110\\
+11000000.10101000.00001111.11111111\\
+We can find all the possibles addresses of the network by varying the bits of the machine part.\\
+**Definition**: the 1st address of the network is the one that has all bits set to 0 in the machine part. The last address is the one that has all bits set to 1 in the machine part.\\
+How many addresses are there in our network ? To answer this question, we only need to know the number of bits of the machine part. In our case, we see that 12 bits can vary. But it's even simpler: since the machine part is defined by the mask, **the number of machines available in a network depends on the mask**.\\
+Nb. of addresses in a network = 2^Nb. of zeros in the mask.\\
+In our case, we have 2^12 = 4096 possible addresses.
+
+There are 2 particular addresses in the available address range: the first and the last:
+
+- The first address of a range is the address of the network itself. Therefore, it cannot be used for a machine.
+- The last address of a range is the broadcast address and cannot be used for a machine either. It is used to identify all the machines on the network: when we send a message to the broadcast address, the message will be received by every machine on the network.
+
+So far, we've seen that one IP address with a given mask gives information on both the network AND a machine. A few interesting facts for a given IP address and mask:
+
+- An address ending with 255 isn't necessarily a broadcast address (example: 10.0.0.255/255.255.254.0 -> machine address)
+- An address ending with 0 isn't necessarily a network address (example: 192.168.1.0/255.255.254.0 -> machine address)
+- All the broadcast addresses are odd, all the network addresses are even.
+
+There are some particulars addresses that are reserved and can't be used on the internet. Those addresses are listed in the RFC 1918 (Request For Comment) at <https://tools.ietf.org/html/rfc1918>. RFCs describe how everyting on the internet work. For example, RFC 791 describes the IP protocol, and RFC 1149 proposes standard for the transmission of IP datagrams on avian carries (it was an April fools joke).
+
+The RFC 1918 lists address ranges that have a particular use. Those addresses are reserved for a private use. If we create a network (at home or work), we have to use those addresses.\\
+This is done to make sure that we don't use a network (let's say 92.243.25.0/255.255.255.0) that already exists. One could think that it doesn't matter if it's a private network, but this is not the case. Let's imagine that we want to go on Facebook, and that this latter uses the address 92.243.25.239. We see that the address belongs to our network: when our machine tries to reach that address, it thinks that the machine is on our network and can't reach it.\\
+
+So, what address can we chose? By looking at the RFC 1918, we see that the ranges are:
+
+- 10.0.0.0/255.0.0.0
+- 172.16.0.0/255.240.0.0
+- 192.168.0.0/255.255.0.0
+
+For example, we could chose 10.0.0.0/255.255.255.0 or 192.168.0.0/255.255.255.0: those addresses are free and we'll be able to reach any website.
+
+We're now going to see how to split address ranges.
+
+## Split an address range
+
+Be able to split an address range correctly is important to quickly identify a network.\\
+But what does splitting an address range mean? Let's imagine we're admin of a network in an IT school, where students learn how networks work and how to exploit their vulnerabilities. We configured the machines so that they all belong to the same large network 10.0.0.0/255.255.0.0. The problem is that on this network, there are students, teachers and the administration... And we suddenly realize that some students were able to access a teacher's machine and change their grades.\\
+What could we do to prevent that ? We can split the large address range in different smaller subnetworks. We'll have one for the students, one for the teachers and one for the administration. 
+
+So far, we have written the masks on 4 bytes (in decimal notation). This quickly becomes annoying when we have many masks to write. Thankfully, some people "created" the **CIDR notation**. We will see later what CIDR is, but now let's see how to use it. Recall that a masks is written on 32 bits, and 0's and 1's aren't mixed within a mask. This means that if we know the number of 1 in a mask, we know it completely.\\
+Example: the mask 255.255.255.0 is written /24 iin CIDR notation (because 255.255.255.0 is 11111111.11111111.11111111.00000000 in binary, and there are 24 bits set to 1). Instead of writing 192.168.0.1/255.255.255.0, we can write 192.168.0.1/24.
+
+**Example - exercise**: let's imagine a company owning the address range 10.0.0.0/16. The company consists of 1000 technicians, 200 sale people and 20 bosses. We're going to split the original range into 3 smaller subnets.
+
+First, we check if our original range contains enough addresses for 1220 people. The mask has 16 bits to 1, therefore it also has 16 bits to 0. The number of available addresses is 2^16 = 65536, which is more than enough.
+
+### Determine the masks
+
+We know how many addresses we want in the smaller subnets, and the previous formula gives us the relationship between the number of addresses and the number of zeros in the mask.\\
+For the 1000 technicians, we need a subnet with at least 1000 addresses (in fact 1002 since the first and last addresses cannt be used!). We can deduce the required number of 0's in the mask with the formula. 1000 < 2^10, so if we set 10 bits to 0 in the mask, we can identify 2^10 = 1024 addresses. Also, the mask can be noted /22 in CIDR notation.\\
+We proceed with the same logic for the 200 sales people. 200 < 2^8, so the mask will be /24.\\
+Finally, the mask for the bosses will be /27.
+
+What do we do with those masks now? We must find the associated address ranges, and we have many possibilities given the large range we started with...
+
+### Chose address ranges
+
+We have our large range 10.0.0.0/16 consisting of 65536 addresses, and we would like to find a range of 1024 addresses within it for our technicians. The simplest choice is to start with the lowest address (but not the only one). So, we start the range at the address 10.0.0.0. We can already identify the technician network with the pair 10.0.0.0/22, but we also need to know the last address of the range... We know how to it. We usually started by transforming the pair into binary, but we see here that only one of the four bytes interests us: the one where the split occurs (3rd byte, 252 because we the mask is /22, that is 11111111.11111111.11111100.00000000, or 255.255.252.0). Therefore, we can focus on the 3rd byte.\\
+Mask: 252 -> 11111100\\
+Address: 0 -> 00000000\\
+p. 100
+
+p. 97
+
