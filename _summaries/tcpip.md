@@ -362,7 +362,7 @@ We have 2 IP addresses so far, that we will call **source IP address** and **des
 As the ethernet frame of layer 2, the IP datagram of layer 3 consists of an organized sequence of 0's and 1's with the following structure:
 
 <div class="img_container">
-![Layer 3 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_packet.png){: height="1000px" width = "300px"}
+![Layer 3 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_packet.png){: height="100px" width = "300px"}
 </div>
 
 Unlike the ethernet frame, the source IP address comes before the destination IP address. In the ethernet frame, we saw that the MAC destination address had to come first so that the receiving machine immediately knows whether the packets is for it or not...\\
@@ -375,7 +375,7 @@ Let's start by asking a question: what is circulating on the network? Frames ? D
 --> To answer this question, we have to look at the OSI model once again:
 
 <div class="img_container">
-![OSI model]({{https://jsom1.github.io/}}/_images/tcpip_OSI2.png){: height="280px" width = "300px"}
+![OSI model]({{https://jsom1.github.io/}}/_images/tcpip_OSI2.png){: height="300px" width = "330px"}
 </div>
 
 As we see, a message is sent from the 7th layer of the OSI model, and it goes through all the layers above until layer 1 where it is sent on the network. When the message is received, it goes from layer 1 to layer 7.\\
