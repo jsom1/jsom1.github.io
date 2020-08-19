@@ -220,7 +220,7 @@ The first thing to do is to transform those addresses into binary:\\
 255.255.240.0     11111111.11111111.11110000.00000000\\
 192.168.0.1       11000000.10101000.00000000.00000001\\
 At this point, we know that 11000000.10101000.0000 represents the network part, and 0000.00000001 the machine part.\\
-**Every machine belonging to the same network have something in common: all the bits of the network part are identical**. If two machines have addresses with different networking part, they are not on the same network.\\
+**All machines belonging to the same network have something in common: all the bits of the network part are identical**. If two machines have addresses with different networking part, they are not on the same network.\\
 In our case, all the machines on our network will have the same network part, which is 11000000.10101000.0000. However, the bits of the machine part of the address can vary. We see here that we have many possibilities, such as:\\
 11000000.10101000.00000000.00000000\\
 11000000.10101000.00000000.00000001\\
@@ -263,18 +263,20 @@ We're now going to see how to split address ranges.
 
 ## Split an address range
 
+### Base method
+
 Be able to split an address range correctly is important to quickly identify a network.\\
 But what does splitting an address range mean? Let's imagine we're admin of a network in an IT school, where students learn how networks work and how to exploit their vulnerabilities. We configured the machines so that they all belong to the same large network 10.0.0.0/255.255.0.0. The problem is that on this network, there are students, teachers and the administration... And we suddenly realize that some students were able to access a teacher's machine and change their grades.\\
 What could we do to prevent that ? We can split the large address range in different smaller subnetworks. We'll have one for the students, one for the teachers and one for the administration. 
 
 So far, we have written the masks on 4 bytes (in decimal notation). This quickly becomes annoying when we have many masks to write. Thankfully, some people "created" the **CIDR notation**. We will see later what CIDR is, but now let's see how to use it. Recall that a masks is written on 32 bits, and 0's and 1's aren't mixed within a mask. This means that if we know the number of 1 in a mask, we know it completely.\\
-Example: the mask 255.255.255.0 is written /24 iin CIDR notation (because 255.255.255.0 is 11111111.11111111.11111111.00000000 in binary, and there are 24 bits set to 1). Instead of writing 192.168.0.1/255.255.255.0, we can write 192.168.0.1/24.
+Example: the mask 255.255.255.0 is written /24 in CIDR notation (because 255.255.255.0 is 11111111.11111111.11111111.00000000 in binary, and there are 24 bits set to 1). Instead of writing 192.168.0.1/255.255.255.0, we can write 192.168.0.1/24.
 
 **Example - exercise**: let's imagine a company owning the address range 10.0.0.0/16. The company consists of 1000 technicians, 200 sale people and 20 bosses. We're going to split the original range into 3 smaller subnets.
 
 First, we check if our original range contains enough addresses for 1220 people. The mask has 16 bits to 1, therefore it also has 16 bits to 0. The number of available addresses is 2^16 = 65536, which is more than enough.
 
-### Determine the masks
+#### Determine the masks
 
 We know how many addresses we want in the smaller subnets, and the previous formula gives us the relationship between the number of addresses and the number of zeros in the mask.\\
 For the 1000 technicians, we need a subnet with at least 1000 addresses (in fact 1002 since the first and last addresses cannt be used!). We can deduce the required number of 0's in the mask with the formula. 1000 < 2^10, so if we set 10 bits to 0 in the mask, we can identify 2^10 = 1024 addresses. Also, the mask can be noted /22 in CIDR notation.\\
@@ -283,12 +285,29 @@ Finally, the mask for the bosses will be /27.
 
 What do we do with those masks now? We must find the associated address ranges, and we have many possibilities given the large range we started with...
 
-### Chose address ranges
+#### Chose address ranges
 
-We have our large range 10.0.0.0/16 consisting of 65536 addresses, and we would like to find a range of 1024 addresses within it for our technicians. The simplest choice is to start with the lowest address (but not the only one). So, we start the range at the address 10.0.0.0. We can already identify the technician network with the pair 10.0.0.0/22, but we also need to know the last address of the range... We know how to it. We usually started by transforming the pair into binary, but we see here that only one of the four bytes interests us: the one where the split occurs (3rd byte, 252 because we the mask is /22, that is 11111111.11111111.11111100.00000000, or 255.255.252.0). Therefore, we can focus on the 3rd byte.\\
+We have our large range 10.0.0.0/16 consisting of 65536 addresses, and we would like to find a range of 1024 addresses within it for our technicians. The simplest choice is to start with the lowest address (but not the only one). So, we start the range at the address 10.0.0.0. We can already identify the technician network with the pair 10.0.0.0/22, but we also need to know the last address of the range... We know how to do it. We usually started by transforming the pair into binary, but we see here that only one of the four bytes interests us: the one where the split occurs (3rd byte, 252 because we the mask is /22, that is 11111111.11111111.11111100.00000000, or 255.255.252.0). Therefore, we can focus on the 3rd byte.\\
 Mask: 252 -> 11111100\\
 Address: 0 -> 00000000\\
-p. 100
+From the mask, all the addresses of the machines on this network will start with 000000 on the third byte. Therefore, the last address will be the one where all the bits are set to 1 in the machine part, that is 00000011 on the third byte (3 in decimal), and 11111111 on the fourth one (255 in decimal). This gives us the last address of the technicians range: 10.0.3.255.
 
-p. 97
+Now, we need a range for the 200 sales people. However, we know the technicians are already using the range 10.0.0.0 - 10.0.3.255. We could decide to start the sales people range right after it, that is 10.0.4.0. We had the mask, so we can identiy this range with the pair 10.0.4.0/24. What's the last address of this range? This time, the split occurs between 2 bytes, so it's going to be easier: the last address will be 10.0.4.255.
 
+Finally, we do the same for the bosses, starting right after the previous range, at 10.0.5.0. By associating the mask to that addresss (10.0.5.0/27), we find the last address of the range: 10.0.5.31.
+
+That's it, we have our 3 subnets that look like this:
+
+- 10.0.0.0/22 -> 10.0.0.0 to 10.0.3.255 for the technicians
+- 10.0.4.0/24 -> 10.0.4.0 to 10.0.4.255 for the sales people
+- 10.0.5.0/27 -> 10.0.5.0 to 10.0.5.31 for the bosses
+
+**Important rule**: to avoid errors (not explained here), always start with the largest ranges! That's what we did (1000, 200, 20). This was a pretty easy example, it's sometimes more complicated in real life.
+
+### The magical method
+
+We just saw the base method to split address ranges, but fortunately, there is an easier method.
+
+#### The magical number
+
+In order to use the magical method, we need the **magical number**: p. 103
