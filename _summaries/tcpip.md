@@ -140,7 +140,7 @@ Where can we find the information we just saw, that is the information about the
 There's nothing to do in the exercise, it's just about understanding what a switching loop is. Let's imagine the following situation: there are 3 switches connected together, and a few machines connected to each of them. The setup looks like the following:
 
 <div class="img_container">
-![CAM table]({{https://jsom1.github.io/}}/_images/tcpip_lan.png)
+![CAM table]({{https://jsom1.github.io/}}/_images/tcpip_lan.png){: height="400px" width = "500px"}
 </div>
 
 **Problem**: switch 5 broke down, so the machines of switches 1 and 9 can't communicate. How can we repair it, and how can we get a working network, even if a switch breaks down?\\
