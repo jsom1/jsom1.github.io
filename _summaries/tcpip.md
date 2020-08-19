@@ -86,7 +86,7 @@ At this point, the structure of the frame is: DST MAC address, SRC MAC address, 
 The ethernet frame is now complete and its structure looks like the following:
 
 <div class="img_container">
-![Layer 2 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_L2packet.png)
+![Layer 2 frame structure]({{https://jsom1.github.io/}}/_images/tcpip_L2packet.png)
 </div>
 
 The size of the bold elements never changes and constitute the **header** (here, the ethernet header). Its size is always 18 bytes. Only tee size of the data part varies. What's the minimum and maximum size of a frame ?\\
@@ -140,7 +140,7 @@ Where can we find the information we just saw, that is the information about the
 There's nothing to do in the exercise, it's just about understanding what a switching loop is. Let's imagine the following situation: there are 3 switches connected together, and a few machines connected to each of them. The setup looks like the following:
 
 <div class="img_container">
-![CAM table]({{https://jsom1.github.io/}}/_images/tcpip_lan.png){: height="250px" width = "200px"}
+![CAM table]({{https://jsom1.github.io/}}/_images/tcpip_lan.png)
 </div>
 
 **Problem**: switch 5 broke down, so the machines of switches 1 and 9 can't communicate. How can we repair it, and how can we get a working network, even if a switch breaks down?\\
@@ -272,7 +272,7 @@ What could we do to prevent that ? We can split the large address range in diffe
 So far, we have written the masks on 4 bytes (in decimal notation). This quickly becomes annoying when we have many masks to write. Thankfully, some people "created" the **CIDR notation**. We will see later what CIDR is, but now let's see how to use it. Recall that a masks is written on 32 bits, and 0's and 1's aren't mixed within a mask. This means that if we know the number of 1 in a mask, we know it completely.\\
 Example: the mask 255.255.255.0 is written /24 in CIDR notation (because 255.255.255.0 is 11111111.11111111.11111111.00000000 in binary, and there are 24 bits set to 1). Instead of writing 192.168.0.1/255.255.255.0, we can write 192.168.0.1/24.
 
-**Example - exercise**: let's imagine a company owning the address range 10.0.0.0/16. The company consists of 1000 technicians, 200 sale people and 20 bosses. We're going to split the original range into 3 smaller subnets.
+**Example - exercise**: let's imagine a company owning the address range 10.0.0.0/16. The company consists of 1000 technicians, 200 sale people and 20 directors. We're going to split the original range into 3 smaller subnets.
 
 First, we check if our original range contains enough addresses for 1220 people. The mask has 16 bits to 1, therefore it also has 16 bits to 0. The number of available addresses is 2^16 = 65536, which is more than enough.
 
@@ -281,7 +281,7 @@ First, we check if our original range contains enough addresses for 1220 people.
 We know how many addresses we want in the smaller subnets, and the previous formula gives us the relationship between the number of addresses and the number of zeros in the mask.\\
 For the 1000 technicians, we need a subnet with at least 1000 addresses (in fact 1002 since the first and last addresses cannt be used!). We can deduce the required number of 0's in the mask with the formula. 1000 < 2^10, so if we set 10 bits to 0 in the mask, we can identify 2^10 = 1024 addresses. Also, the mask can be noted /22 in CIDR notation.\\
 We proceed with the same logic for the 200 sales people. 200 < 2^8, so the mask will be /24.\\
-Finally, the mask for the bosses will be /27.
+Finally, the mask for the directors will be /27.
 
 What do we do with those masks now? We must find the associated address ranges, and we have many possibilities given the large range we started with...
 
@@ -294,20 +294,93 @@ From the mask, all the addresses of the machines on this network will start with
 
 Now, we need a range for the 200 sales people. However, we know the technicians are already using the range 10.0.0.0 - 10.0.3.255. We could decide to start the sales people range right after it, that is 10.0.4.0. We had the mask, so we can identiy this range with the pair 10.0.4.0/24. What's the last address of this range? This time, the split occurs between 2 bytes, so it's going to be easier: the last address will be 10.0.4.255.
 
-Finally, we do the same for the bosses, starting right after the previous range, at 10.0.5.0. By associating the mask to that addresss (10.0.5.0/27), we find the last address of the range: 10.0.5.31.
+Finally, we do the same for the directors, starting right after the previous range, at 10.0.5.0. By associating the mask to that addresss (10.0.5.0/27), we find the last address of the range: 10.0.5.31.
 
 That's it, we have our 3 subnets that look like this:
 
 - 10.0.0.0/22 -> 10.0.0.0 to 10.0.3.255 for the technicians
 - 10.0.4.0/24 -> 10.0.4.0 to 10.0.4.255 for the sales people
-- 10.0.5.0/27 -> 10.0.5.0 to 10.0.5.31 for the bosses
+- 10.0.5.0/27 -> 10.0.5.0 to 10.0.5.31 for the directors
 
 **Important rule**: to avoid errors (not explained here), always start with the largest ranges! That's what we did (1000, 200, 20). This was a pretty easy example, it's sometimes more complicated in real life.
 
 ### The magical method
 
-We just saw the base method to split address ranges, but fortunately, there is an easier method.
+We just saw the base method to split address ranges, but fortunately, there is an easier and faster method in which we don't need to transform into binary.
 
 #### The magical number
 
-In order to use the magical method, we need the **magical number**: p. 103
+In order to use the magical method, we need the **magical number**: it is a simple calculation made from the significant byte (where the split occurs) of a mask, and is defined as **256 - significant byte**.\\
+Example: the significant byte of the mask 255.224.0.0 is 224. Hence, the magical number is 256 - 224 = 32.
+
+Great, what do we do now with this magical number? We can use it to **instantly determine the first and last addresses of our range**! To do so, we simply have to write all the multiples of the magical number, up to 256. So, for 32 we have: 0, 32, 64, 96, 128, 160, 192, 224, 256. Now, we apply the 2 following rules:
+
+- The first address of the range will be the multiple of the magical number lower or equal to the corresponding byte in the address.
+- The last addrress of the range will be the next multiple, minus 1
+
+**Example:** we have the pair 192.168.0.1 with the mask 255.224.0.0. The significant byte in the mask is the second one, 224 (magical number = 256 - 224 = 32). Therefore, we take the second byte of our address, that is 168.\\
+The first address of the network will be the multiple of the magical number, lower or equal to 168. We quickly find it is 160.\\
+The last address will be the next multiple minus 1, that is 192 - 1 = 191.\\
+And we have our addresses: the first one is 192.160.0.0 (we add the 0's), and the last one is 192.191.255.255 (we add the 255's).
+
+**A concrete example of splitting an address range with the magical method**: let's assume we're in charge of the network in a small company. The general admin gives us the network 192.168.160.0/255.255.224.0. We want to split this newtwork into the 3 following subnets:
+
+- 550 technicians
+- 130 sales people
+- 10 directors
+
+We start by determining the original range. The magical number is 256 - 224 = 32. The significant byte of the mask is the third, so the corresponding byte of the address is 160 (a multiple of 32!). The first address is 192.168.160.0, the last is 192.168.191.255.
+
+Then, we calculate the masks. We saw that the size of a range depends on the mask -> if we know the required number of addresses, we can determine the mask (Nb. of addresses = 2^Nb. of 0's in the mask).\\
+For the 550 technicians, the network will need to have 2^10 = 1024 addresses. The corresponding mask is 11111111.11111111.11111100.00000000, or 255.255.252.0.\\
+For the sales people, 130 < 2^8 so the mask is 255.255.255.0.\\
+For the directors, 10 < 2^4, so the mask is 255.255.255.240.\\
+
+Finally, now that we have the masks, we just have to associate addresses in order to have our ranges. Let's start with the technicians: we start at the beggining of the range, 192.168.160.0. We'll find the last address with the mask (255.255.252.0). The magical number is 256 - 252 = 4. The next multiple of 4 after 160 is 164 - 1 = 163. So, the last address for the technicians is 192.168.163.255.\\
+For the sales people, we can start right after at 192.168.164.0. Since the split occurs between 2 bytes in the mask (255.255.255.0), we don't need the magical number: it's easy to see that the last address is 192.168.164.255.\\
+For the directors, we start at 192.168.165.0. The magical number is 256 - 240 = 16. So, the last address is 192.168.165.15.\\
+
+## Routing
+
+This chapter explains how information goes from a network to another.
+
+### The protocol, IP
+
+Now that we know how to communicate on a network, we want to know how to communicate with other networks. To understand this, we must first see the layer 3 protocol, IP (Internet Protocol). As for layer 2, we will see what information are required by the protocol in the header, and in which order.\\
+We'll start with the IP addresses of the sender and receiver. Let's imagine machine A (192.168.0.1/24) wants to send a message to machine B (192.168.1.1/24).
+
+Is the mask required in the address ?\\
+--> No, the IP address alone is enough: the only important thing to know is whether B is on the same network as A. If it is the case, A can talk to B with layer 2. If B is on another network, A will have to use layer 3.
+
+How do we know if B is on our network?\\
+--> we check if the address of B is part of our address range. In our case, our range is 192.168.0.0 - 192.168.0.255. We see that B isn't part of our network. Note that we didn't need B's mask.
+
+We have 2 IP addresses so far, that we will call **source IP address** and **destination IP address**. In layer 2, the message was called an ethernet frame. In layer 3, we talk about a **datagram** or **packet**. 
+
+#### The datagram (or packet)
+
+As the ethernet frame of layer 2, the IP datagram of layer 3 consists of an organized sequence of 0's and 1's with the following structure:
+
+<div class="img_container">
+![Layer 3 packet structure]({{https://jsom1.github.io/}}/_images/tcpip_packet.png)
+</div>
+
+Unlike the ethernet frame, the source IP address comes before the destination IP address. In the ethernet frame, we saw that the MAC destination address had to come first so that the receiving machine immediately knows whether the packets is for it or not...\\
+But why is it different for the IP address ?!
+--> To understand why the structure is the way it is, we musst first understand other concepts.
+
+#### Encapsulation
+
+Let's start by asking a question: what is circulating on the network? Frames ? Datagrames ? Both ?
+--> To answer this question, we have to look at the OSI model once again:
+
+<div class="img_container">
+![OSI model]({{https://jsom1.github.io/}}/_images/tcpip_OSI2.png)
+</div>
+
+As we see, a message is sent from the 7th layer of the OSI model, and it goes through all the layers above until layer 1 where it is sent on the network. When the message is received, it goes from layer 1 to layer 7.\\
+What does our message and the headers of each layer become?\\
+--> A header is added each time we go through a layer. Hence, we accumulate the headers of the different layers. When we go through layer 4, we add the layer 4 header, then layer 3, and so on. This mechanism is called **encapsulation**.
+
+At this point, we can answer our previous question: what circulates on the network is a frame of layer 2, containing a datagram or packet of layer 3, containing the element of layer 4, ...
+p. 115
