@@ -382,5 +382,21 @@ As we see, a message is sent from the 7th layer of the OSI model, and it goes th
 What does our message and the headers of each layer become?\\
 --> A header is added each time we go through a layer. Hence, we accumulate the headers of the different layers. When we go through layer 4, we add the layer 4 header, then layer 3, and so on. This mechanism is called **encapsulation**.
 
-At this point, we can answer our previous question: what circulates on the network is a frame of layer 2, containing a datagram or packet of layer 3, containing the element of layer 4, ...
-p. 115
+At this point, we can answer our previous question: what circulates on the network is a frame of layer 2, containing a datagram or packet of layer 3, containing the element of layer 4, ...\\
+Note that layer 2 isn't able to read layer 3 or 4 information, and it doesn't understant the data to send. For layer 2, it's just a bunch of 0's and 1's. However, we humans know that the data contains the headers of the layers above.
+
+**Example**: we will use **Wireshark** to visualize the frames on our network. Wireshark is a sniffer, a software listening on the network, intercepting every frames received by our network card, and displaying them on the screen. It can be downloaded for free here: <https://www.wireshark.org/#download>, or is already installed on Kali. In the readme, there is a link to download ChmodBPF, which is required to capture packets. Its use will be discussed in a later chapter, we will just use it in a simple manner here. The purpose is just to visualize the encapsulation.\\
+When we start listening, Wireshark immediately captures a lot of packets. We can click on any of them, and see the different layers. For example, we can examine the elements of layer 1 by clicking on "Frame", layer 2 on ethernet, layer 3 on Internet Protocol (IP), layer 4 that we don't know yet, and application data such as "Hypertext Transfer Protocol" (HTTP) for example if we made a request on the internet. We can click on the small arrow at the left of the different layer to get additional information such as the source and destination.
+
+When a machine receives a message, it goes up the layers of the OSI model, from 1 to 7. It goes through layer 2, which reads the destination MAC address: if it matches the network card MAC address, it reads the remaining of the frame and sends the data (the datagram or packet) to layer 3. If it doesn't match, it throws it away.\\
+So, if the packets reaches the 3rd layer, the machines already knows for sure that the message is for itself (since the MAC address matches). This is why it doesn't need to know the destination IP address, because it knows the datagram is for itself.\\
+We've seen 2 elements of the IP header. To discover the remaining elements, let's look at routing in more details.
+
+
+### Routing in details
+
+Routing will allow us to send a message outside of our network. Networks are linked together, and we go through many of them to reach our destination.
+A **router** is a layer 3 device (hardware) that links several networks together. It must have an interface in each network it is connected to. In other words, it is simply a machine that has several network cards. Its role is to route the packets between the different networks. A computer with 2 network cards could be a router.\\
+So, what's the difference between a computer and a router?\\
+--> Not much, the main difference is that a router accepts to route packets that are not meant for itself, whereas a computer just throws them away. But technically, any machine connected to a network can work as a router. We must just enable the routing on that machine.
+p. 119
