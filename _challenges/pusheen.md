@@ -45,19 +45,19 @@ After trying to find a quick and easy video explaining IDA, I decided to give it
 Then, we open the Pusheen file and get some error messages. Apparently, we can skip those until we get the following warning:
 
 <div class="img_container">
-![Node error]({{https://jsom1.github.io/}}/_images/challenge_push_mess.png){: height="300px" width = "350px"}
+![Node error]({{https://jsom1.github.io/}}/_images/challenge_push_mess.png){: height="380px" width = "450px"}
 </div>
 
 It says it's switching to text mode, but from the description, we know that Pusheen only loves graphs. So, let's try to change this parameter to stay in graph mode:
 
 <div class="img_container">
-![Config change]({{https://jsom1.github.io/}}/_images/challenge_push_conf.png){: height="280px" width = "200px"}
+![Config change]({{https://jsom1.github.io/}}/_images/challenge_push_conf.png){: height="300px" width = "250px"}
 </div>
 
 Then, it brings us back the the main window and displays the graph correctly. In the lower left window, there's a graph overview, and within it, we can read *fUn_w17h_CFGz*:
 
 <div class="img_container">
-![Flag]({{https://jsom1.github.io/}}/_images/challenge_push_flag.png){: height="300px" width = "350px"}
+![Flag]({{https://jsom1.github.io/}}/_images/challenge_push_flag.png){: height="380px" width = "450px"}
 </div>
 
 And that's the flag. Unfortunately, I'm not sure what *CFGz* means. It could be a reference to a game called Crossfire (referred to CFGZ for some reason), or a reference to Context-free Grammars, which are studied in fields of theoretical computer science, compiler design and linguistics. CFG's are used to describe programming language, and parser programs in compilers can be generated automatically from them.
