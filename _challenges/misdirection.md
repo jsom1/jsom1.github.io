@@ -16,7 +16,7 @@ output: html_document
  <div style="clear: both;"></div>
  </div> 
 
-**Description**: During an assessment of a unix system the HTB team found a suspicious directory. They looked at everything within but couldn't find any files with malicious intent.
+**Description**: *During an assessment of a unix system the HTB team found a suspicious directory. They looked at everything within but couldn't find any files with malicious intent.*
 
 I personally started the challenge on my Mac, but switched to Linux when I saw it was about file manipulations. 
 From what I read on the forums, it is **recommended to do this challenge on Linux**. The reason is that other OS can unzip and display files differently, which could potentially make the challenge hard or impossible to solve.
