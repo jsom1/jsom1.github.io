@@ -53,7 +53,7 @@ There's only a web server running on port 8080, so we don't have many choices!
 Let's see this web server on port 8080:
 
 <div class="img_container">
-![site web]({{https://jsom1.github.io/}}/_images/htb_buff_site.png){: height="280px" width = "430px"}
+![site web]({{https://jsom1.github.io/}}/_images/htb_buff_site.png){: height="280px" width = "415px"}
 </div>
 
 It's about gym, and after browsing the different tabs, we see the site is made using Gym Management Software 1.0. There's also a login page, but it requires an email and a password. I've never tried bruteforcing credentials with emails, so let's check if there is an easier way with this Gym Management Software. I had never heard about it, and Googling the first letters immediately returns something about an exploit (<https://www.exploit-db.com/exploits/48506>).\\
@@ -61,7 +61,7 @@ From Exploit-DB, the verion 1.0 of this software (it's the one used here) suffer
 The exploit consists in the following steps:
 
 <div class="img_container">
-![exploit description]({{https://jsom1.github.io/}}/_images/htb_buff_exploit.png){: height="450px" width = "450px"}
+![exploit description]({{https://jsom1.github.io/}}/_images/htb_buff_exploit.png){: height="450px" width = "300px"}
 </div>
 
 Down the page, there is the script that performs all the steps listed above.
