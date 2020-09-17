@@ -80,28 +80,80 @@ I then tried to launch it with something like *python exploit.py*, and we get a 
 It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using get requests. At this point, I thought I had to upload something on but didn't know what and how (there wasn't anything else to do). I had to ask for help...
 We indeed have to upload 2 executables (maybe there are other ways to do it): **nc.exe** and **plink.exe**. I had already seen nc.exe somewhere but didn't know what it was, and had nevear heard of plink. So, let's look at those executables.
 
-- **nc.exe**: is a software component of NetCat Netwoork Control Program. It's a tool for testing TCP/IP connections and ports. Some features are port scanning, port listening, file transferring, proxying and requesting HTTTP. Apparently, this file is often used by attackers as a backdoor. Its name can also be used to disguise malwares (the amount of CPU used by nc.exe is a good indicator; high numbers are suspicious).
-- **plink**: is a command line application, similar to ssh in Linux. It can be used too make an interactive connection to a remote server.
+- **nc.exe**: is a software component of NetCat Netwoork Control Program. It's a tool for testing TCP/IP connections and ports. Some features are port scanning, port listening, file transferring, proxying and requesting HTTTP. Apparently, this file is often used by attackers as a backdoor. Its name can also be used to disguise malwares (the amount of CPU used by nc.exe is a good indicator; high numbers are suspicious). In our case, we will use it to **get a reverse shell**.
+- **plink**: is a command line application, similar to ssh in Linux. It can be used to make an interactive connection to a remote server. Here, we will use it to **forward port**.
 
-We start by finding those files on our system with the command *locate*:
-
-<div class="img_container">
-![locate nc.exe and plink.exe]({{https://jsom1.github.io/}}/_images/htb_buff_locate.png)
-</div>
-
-Then, we copy those files on the server:
-
-<div class="img_container">
-![Copy files]({{https://jsom1.github.io/}}/_images/htb_buff_cp.png)
-</div>
-
-Note that the "." copies the files in the present directory. Typing *dir* doesn't display the files. Finally, we start a HTTP server:
+To upoad those files, we will start a HTTP server on our machine, and curl the files from the server as Shaun:
 
 <div class="img_container">
 ![HTTP server]({{https://jsom1.github.io/}}/_images/htb_buff_server.png)
 </div>
 
-We're going to try to get a reverse shell. We will need our listening address, which we can get with the command *sudo ifconfig tun0*.
+Note that since we didn't specify a port, it picked 8000 by default. Now, we can curl the file. However, it didn't work for me at first because the command couldn't find the file... To resolve this, we can see the tree of files by browsing to our address on the specified port (get the address with the command *sudo ifconfig tun0*):
+
+<div class="img_container">
+![Tree of files]({{https://jsom1.github.io/}}/_images/htb_buff_files.png)
+</div>
+
+And locate the files we need to curl:
+
+<div class="img_container">
+![Locate the files]({{https://jsom1.github.io/}}/_images/htb_buff_locate.png)
+</div>
+
+The problem is that we need to find nc.exe and plink.exe in the file system. I didn't find them, but we see that *Desktop* is a directory that is listed here. So, we can copy the files there:
+
+<div class="img_container">
+![copy files on Desktop]({{https://jsom1.github.io/}}/_images/htb_buff_copy.png)
+</div>
+
+Check it's here:
+
+<div class="img_container">
+![Check files are on the Desktop]({{https://jsom1.github.io/}}/_images/htb_buff_check.png)
+</div>
+
+Now, we should be able to curl those files on the server:
+
+<div class="img_container">
+![curl]({{https://jsom1.github.io/}}/_images/htb_buff_curl.png)
+</div>
+
+We see that the files are listed, and we can make sure they were well transfered (they would appear here even if the curl failed. That happened to me a few times: I got 404 error - file not found, yet they were listed by *dir*) by looking at the web server:
+
+<div class="img_container">
+![check web server]({{https://jsom1.github.io/}}/_images/htb_buff_transfer.png)
+</div>
+
+Great, it worked. We can stop the webserver (Ctrl + c) and start a listener. Indeed, we will now get a revershe shell. Start the listener:
+
+<div class="img_container">
+![Start listener]({{https://jsom1.github.io/}}/_images/htb_buff_listener.png)
+</div>
+
+Now, we will use the telepathy parameter to use nc.exe that will get us a command prompt. We enter the following command in the browser:
+
+<div class="img_container">
+![reverse]({{https://jsom1.github.io/}}/_images/htb_buff_reverse.png)
+</div>
+
+This should give us a command prompt. Let's look at our listener:
+
+<div class="img_container">
+![get the prompt]({{https://jsom1.github.io/}}/_images/htb_buff_shellok.png)
+</div>
+
+We see that our target connected to our machine, and we get our reverse shell. We can then navigate and search the flag:
+
+<div class="img_container">
+![search the flag]({{https://jsom1.github.io/}}/_images/htb_buff_toflag1.png)
+</div>
+
+<div class="img_container">
+![search the flag]({{https://jsom1.github.io/}}/_images/htb_buff_toflag2.png)
+</div>
+
+And that's it for the user!
 
 <ins>**My thoughts**</ins>
 
