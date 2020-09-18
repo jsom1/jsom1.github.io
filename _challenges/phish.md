@@ -58,7 +58,7 @@ It allows the receiver to verify that an email has been sent and authorized by t
 
 A little bit about DMARC, since it seems to be of concern in this challenge and combines both DKIM and SPF... In short, it allows a sender to indicate that their message are protected by SPF and/or DKIM.
 It also tells a receiver what to do if neither of those authentication method passes (junk or reject the message). So, DMARC limits or elimininates the user's exposure to fraudulent messages.\\
-Thus, DMARC is used to **reduce spam and phishing on the internet**. Maybe we can answer the question *Customers of secure-startup.com have been recieving some very convincing phishing emails, can you figure out why?*: could it be because there is no DMARC ?
+Thus, DMARC is used to **reduce spam and phishing on the internet**. Maybe we can answer the question *Customers of secure-startup.com have been recieving some very convincing phishing emails, can you figure out why?*: could it be related to DMARC ? Maybe it isn't working properly ?
 
 To explore this hypothesis, let's see the output of the command with *-type=txt*:
 
@@ -66,16 +66,24 @@ To explore this hypothesis, let's see the output of the command with *-type=txt*
 ![type=txt]({{https://jsom1.github.io/}}/_images/challenge_phish_typetxt.png)
 </div>
 
-
-
-
-
-
-
-
-
+Well, we see what seems to be part of the flag: HTB{RIP_SP_Always_2nd. We also see *spf1* mentionned. I don't really know what to do with this. Also, there is no trace of DKIM. I searched for the command to query the DKIM, and found a good website for that matter: <http://knowledge.ondmarc.redsift.com/en/articles/1519838-looking-up-spf-dkim-and-dmarc-records-in-dns>. We must know the *DKIM selector* being used - I have no idea what that is - but they use Google in the example so let's try with it. Also, the tool is *dig* and not *nslookup*:
 
 <div class="img_container">
-![Find ID]({{https://jsom1.github.io/}}/_images/challenge_id_id.png){: height="420px" width = "500px"}
+![dkim query]({{https://jsom1.github.io/}}/_images/challenge_phish_dkim.png)
 </div>
+
+I also tried the command with nslookup (*nslookup -type=txt google._domainkey.secure-startup.com*), but it returns an error. There's nothing here, but we can still try to query the DMARC:
+
+<div class="img_container">
+![dmarc query]({{https://jsom1.github.io/}}/_images/challenge_phish_dmarc.png)
+</div>
+
+We've got the second part of the flag, and we see that *v=DMARC1;p=none;*: could that mean that there's "no DMARC"?
+
+All those concepts are still not clear to me, but I learned some interesting stuff. I would never have thought of doing DNS queries to answer the challenge question, because I didn't even think that DNS and phishing could somehow be related. I didn't go into details, especially regarding the analysis of the SPF, DKIM and DMARC reports, but this might give me a starting point someday.
+
+
+
+
+{: height="420px" width = "500px"}
 
