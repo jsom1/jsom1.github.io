@@ -69,7 +69,7 @@ To explore this hypothesis, let's see the output of the command with *-type=txt*
 Well, we see what seems to be part of the flag: HTB{RIP_SP_Always_2nd. We also see *spf1* mentionned. I don't really know what to do with this. Also, there is no trace of DKIM. I searched for the command to query the DKIM, and found a good website for that matter: <http://knowledge.ondmarc.redsift.com/en/articles/1519838-looking-up-spf-dkim-and-dmarc-records-in-dns>. We must know the *DKIM selector* being used - I have no idea what that is - but they use Google in the example so let's try with it. Also, the tool is *dig* and not *nslookup*:
 
 <div class="img_container">
-![dkim query]({{https://jsom1.github.io/}}/_images/challenge_phish_dkim.png){: height="380px" width = "470px"}
+![dkim query]({{https://jsom1.github.io/}}/_images/challenge_phish_dkim.png){: height="370px" width = "455px"}
 </div>
 
 I also tried the command with nslookup (*nslookup -type=txt google._domainkey.secure-startup.com*), but it returns an error. There's nothing here, but we can still try to query the DMARC:
