@@ -35,7 +35,7 @@ I tried with the network tab, but couldn't find the information. I looked at the
 Fortunately, the other option worked: in the Elements tab, we're supposed to search for the **data-sourceid**. I Found it, but the ID didn't look like it was supposed to (apparently, it consists of a 21 character long decimal numbers, starting with "10" or "11"). The one I had for data-sourceid was 16 character long, starting with "6f". So, I searched everywhere on this page for something that would look like an ID, and found the following:
 
 <div class="img_container">
-![Find ID]({{https://jsom1.github.io/}}/_images/challenge_id_id.png)
+![Find ID]({{https://jsom1.github.io/}}/_images/challenge_id_id.png){: height="380px" width = "450px"}
 </div>
 
 It starts with "11" and is 21 digits long. It appears many times on the page and often with references to Sara. So, let's suppose it's her Google ID and look at the rest of the artice. It is said that we can get an exact location on Google maps.\\
@@ -48,7 +48,7 @@ To do this, we enter **https://www.google.com/maps/contrib/{userID}** in our bro
 And this locates the ID!
 
 <div class="img_container">
-![ID on the map]({{https://jsom1.github.io/}}/_images/challenge_id_map.png)
+![ID on the map]({{https://jsom1.github.io/}}/_images/challenge_id_map.png){: height="380px" width = "450px"}
 </div>
 
 There is a menu on the left where we see if the user imported pictures or wrote a feedback. There is no pictures, but the flag is in a feedback ! So, we know that Sara posted this message from Sao Paulo!
