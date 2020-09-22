@@ -21,7 +21,7 @@ output: html_document
 We start by downloading the file, checking the hash and opening it. It's the following image:
 
 <div class="img_container">
-![image]({{https://jsom1.github.io/}}/_images/challenge_templed_img.png)
+![image]({{https://jsom1.github.io/}}/_images/challenge_templed_img.png){: height="150px" width = "300px"}
 </div>
 
 It took me a while to find out that this is an old cipher, known as **the ciphers of the monks**. From Wikipedia, "The system uses a vertical straight line as its main symbol. This symbol is essentially an axis that divides the two-dimensional plane into four quadrants. Each of these four quadrants signifies one of the four digits. The number can then be determined by visual inspection.
@@ -31,7 +31,7 @@ The numeral system was invented in the 1300s by French Cistercian monks. It was 
 How do we decipher those symbols? We can understand the method with the following image:
 
 <div class="img_container">
-![Templar numbers]({{https://jsom1.github.io/}}/_images/challenge_templed_nbrs.png)
+![Templar numbers]({{https://jsom1.github.io/}}/_images/challenge_templed_nbrs.png){: height="350px" width = "400px"}
 </div>
 
 Then, we know that any number necessarily consists of a central vertical bar: if nothing else is written, then it takes the value 0, otherwise, the quadrant at the top right corresponds to the units, the quadrant at the top left for the tens, the quadrant at the bottom right for the hundreds and the last quadrant at the bottom left for the thousands.
@@ -46,9 +46,6 @@ By doing the same with each symbol, we get the following numbers:
 I then used a tool to identify this cipher (eventhough one could recognize it is decimal code), and decoded it with cryptii to get the flag:
 
 <div class="img_container">
-![Flag]({{https://jsom1.github.io/}}/_images/challenge_templed_flag.png)
+![Flag]({{https://jsom1.github.io/}}/_images/challenge_templed_flag.png){: height="350px" width = "450px"}
 </div>
-
-
-{: height="250px" width = "300px"}
 
