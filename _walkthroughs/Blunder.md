@@ -235,7 +235,7 @@ And we can launch it
 ![meterpreter]({{https://jsom1.github.io/}}/_images/htb_blunder_options.png)
 </div>
 
-And we get a Meterpreter session ! We see that the exploit loged us a fergus, retrieved the UUID, uploaded an image by abusing the UUID which allowed it to save a payload somewhere on the server. Then, it uploaded a custom .htaccess file, and that gave us a RCE and finally a meterpreter session.\\
+And we get a Meterpreter session ! We see that the exploit logged us a fergus, retrieved the UUID, uploaded an image by abusing the UUID which allowed it to save a payload somewhere on the server. Then, it uploaded a custom .htaccess file, and that gave us a RCE and finally a meterpreter session.\\
 The command *getuid* shows we're www-data, a user with limited privileges. We now have to find a way to escalate those privileges, starting by enumerating everything. As usual on Linux, we change directories with *cd*, list files and directories with *ls*, and inspect a file with *cat*. There is something interesing in */ftp*: 
 
 <div class="img_container">
