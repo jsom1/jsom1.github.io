@@ -107,7 +107,7 @@ It found something, but after trying the credentials on the login page, I was sa
 I had to look at the forum to get some hints. Many people were talking about **fuzzing**, and I finally understood they were refering to **wfuzz**. Wfuzz is a tool I didn't know about, and is used to bruteforce web applications. After looking at the help (*wfuzz --help*), I fired the following command:
 
 <div class="img_container">
-![wfuzz]({{https://jsom1.github.io/}}/_images/htb_blunder_hydra.png)
+![wfuzz]({{https://jsom1.github.io/}}/_images/htb_blunder_wfuzz.png)
 </div>
 
 Note that I had to try with different wordlists, and filtered the results so that it doesn't show 404 errors. We see some files that Gobuster found, but this time we get a new one: *todo*.\\
