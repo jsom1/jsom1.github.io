@@ -57,7 +57,7 @@ Let's see this web server on port 8080:
 </div>
 
 It's about gym, and after browsing the different tabs, we see the site is made using Gym Management Software 1.0. There's also a login page, but it requires an email and a password. I've never tried bruteforcing credentials with emails, so let's check if there is an easier way with this Gym Management Software. I had never heard about it, and Googling the first letters immediately returns something about an exploit (<https://www.exploit-db.com/exploits/48506>).\\
-From Exploit-DB, the verion 1.0 of this software (it's the one used here) suffers from an **unauthenticated file upload vulnerability** allowing remote attackers to gain remote code execution (**RCE**) on the web server by uploading a maliciously crafted PHP file that bypasses the image upload filters.\\
+From Exploit-DB, the verion 1.0 of this software (it's the one used here) suffers from an **unauthenticated file upload vulnerability** allowing remote attackers to gain remote code execution (**RCE**) on the web server by uploading a maliciously crafted PHP file that bypasses the image upload filters. In other words, it is vulnerable to RFI (remote file inclusion).\\
 The exploit consists in the following steps:
 
 <div class="img_container">
@@ -77,11 +77,11 @@ I then tried to launch it with something like *python exploit.py*, and we get a 
 ![exploit launch]({{https://jsom1.github.io/}}/_images/htb_buff_launch.png)
 </div>
 
-It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using get requests. At this point, I thought I had to upload something on it but didn't know what and how (there wasn't anything else to do). I had to ask for help...
-We indeed have to upload 2 executables (maybe there are other ways to do it): **nc.exe** and **plink.exe**. I had already seen nc.exe somewhere but didn't really know what it was, and had nevear heard of plink. So, let's look at those executables.
+It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using GET requests. At this point, I thought I had to upload something on it but didn't know what and how (there wasn't anything else to do). I had to ask for help...
+We indeed have to upload 2 executables (maybe there are other ways to do it): **nc.exe** and **plink.exe**. Let's look at those executables.
 
-- **nc.exe**: is a software component of NetCat Netwoork Control Program. It's a tool for testing TCP/IP connections and ports. Some features are port scanning, port listening, file transferring, proxying and requesting HTTTP. Apparently, this file is often used by attackers as a backdoor. Its name can also be used to disguise malwares (the amount of CPU used by nc.exe is a good indicator; high numbers are suspicious). In our case, we will use it to **get a reverse shell**.
-- **plink**: is a command line application, similar to ssh in Linux. It can be used to make an interactive connection to a remote server. Here, we will use it to **forward port**.
+- **nc.exe**: is the executable of netcat (for Windows). We will use it to catch a **reverse shell**.
+- **plink**: is a command line application, similar to ssh in Linux. It can be used to make an interactive connection to a remote server. Here, we will use it to perform **port forwarding**.
 
 To upload those files (which are present on our machine), we will start a HTTP server on our machine, and curl the files from the server as Shaun:
 
@@ -155,5 +155,8 @@ We see that our target connected to our machine, and we get our reverse shell. W
 
 And that's it for the user!
 
-<ins>**My thoughts**</ins>
+I didn't have time to get root before this box went inactive. I will stop here and focus on a new one, maybe I'll come back to this one in the future.
 
+<ins>**My thoughts**</ins>
+I learned about file inclusions (local and remote, LFI and RFI) in the PWK course. It is less common to find RFI than LFI vulnerabilitie, but once one is found, it allows for more flexibility and it's usually easier to get a reverse shell. This machine was a good opportunity to apply what I learned in the course.
+I find port forwarding to be quite tough, so it's a shame I didn't get to train it with plink here but might give it a try someday.
