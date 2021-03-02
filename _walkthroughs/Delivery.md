@@ -98,8 +98,19 @@ The SQL query for a login has th syntax *select \* from users where name = 'name
 <div class="img_container">
 ![Full TCP scan]({{https://jsom1.github.io/}}/_images/htb_delivery_nmap.png){: height="280px" width = "415px"}
 </div>
-adm
-We see something running on port 8065, but we already know that this is MatterMost, as we saw previously in the URL. So no trace of a database. We're left with the possibility of creating an account (there is also a button "I'm an agent - sign in here" that redirects us to another login page (osTicket), but there doesn't seem to be anything there).
+
+We see something running on port 8065, but we already know that this is MatterMost, as we saw previously in the URL. So no trace of a database. We're left with the possibility of creating an account (there is also a button "I'm an agent - sign in here" that redirects us to another login page (osTicket), but there doesn't seem to be anything there) or submitting a ticket. I started by creating an account, and then I opened a ticket. We can add a file to the ticket. On the following image, we see my initial ticket to which I added a python script ("hi.py") that simply prints "hello". Then I thought I'd try to add a php webshell ("php-reverse-shell.php"). Before uploading it, we have to edit it and change the hard-coded IP address and port. When submitted, we can right click on the link and "copy link location". In a new terminal tab, I started up a netcat listener ("sudo nc -nlvp 4444) and browsed to the copied link in my browser:
+
+<div class="img_container">
+![Tickets]({{https://jsom1.github.io/}}/_images/htb_delivery_tickets.png){: height="280px" width = "415px"}
+</div>
+
+<div class="img_container">
+![Browse to link]({{https://jsom1.github.io/}}/_images/htb_delivery_upload.png){: height="280px" width = "415px"}
+</div>
+
+Of course, I didn't get a reverse shell on my listener because the script doesn't get executed when it is uploaded. However, we know we can upload files on the server.
+
 
 
 
