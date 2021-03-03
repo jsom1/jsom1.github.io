@@ -146,10 +146,31 @@ make sure to select all the link and open it in a new tab. Then, our email has b
 </div>
 
 We immediately see two very interesting messages from root: there are credentials (maildeliverer / Youve_GOt_Mail!) and another password, "PleaseSubscribe". Apparently, this password is re-used in different places, and we can use hashcat to generate variations.
+I previously mentionned a login page to osTicket where we couldn't do anything... Let's try the credentials there:
 
+<div class="img_container">
+![osTicket login page]({{https://jsom1.github.io/}}/_images/htb_delivery_ostlogin.png){: height="280px" width = "415px"}
+</div>
 
+<div class="img_container">
+![Logged in]({{https://jsom1.github.io/}}/_images/htb_delivery_ost.png){: height="280px" width = "415px"}
+</div>
 
+From this page we can see all the tickets, and manage the server. I didn't change anything because I didn't want to break the box, and the only thing I found was the email address of the user, "maildeliverer@delivery.htb" (not a big surprise).
 
+Let's leave this window open and try the credentials we found to log with SSH:
+
+<div class="img_container">
+![SSH]({{https://jsom1.github.io/}}/_images/htb_delivery_ssh.png){: height="280px" width = "415px"}
+</div>
+
+And we're in! We can grab the user flag:
+
+<div class="img_container">
+![User flag]({{https://jsom1.github.io/}}/_images/htb_delivery_user.png){: height="280px" width = "415px"}
+</div>
+
+Now, let's start enumerating to find a way to elevate our privileges...
 
 <ins>**My thoughts**</ins>
 
