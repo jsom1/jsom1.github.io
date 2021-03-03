@@ -99,7 +99,14 @@ The SQL query for a login has th syntax *select \* from users where name = 'name
 ![Full TCP scan]({{https://jsom1.github.io/}}/_images/htb_delivery_nmap.png){: height="280px" width = "415px"}
 </div>
 
-We see something running on port 8065, but we already know that this is MatterMost, as we saw previously in the URL. So no trace of a database. We're left with the possibility of creating an account (there is also a button "I'm an agent - sign in here" that redirects us to another login page (osTicket), but there doesn't seem to be anything there) or submitting a ticket. I started by creating an account, and then I opened a ticket. We can add a file to the ticket. On the following image, we see my initial ticket to which I added a python script ("hi.py") that simply prints "hello". Then I thought I'd try to add a php webshell ("php-reverse-shell.php"). Before uploading it, we have to edit it and change the hard-coded IP address and port. When submitted, we can right click on the link and "copy link location". In a new terminal tab, I started up a netcat listener ("sudo nc -nlvp 4444) and browsed to the copied link in my browser:
+We see something running on port 8065, but we already know that this is MatterMost, as we saw previously in the URL. So no trace of a database. We're left with the possibility of creating an account (there is also a button "I'm an agent - sign in here" that redirects us to another login page (osTicket), but there doesn't seem to be anything there) or submitting a ticket. I started by creating an account, and then I opened a ticket. We can add a file to the ticket. When we submit a ticket, we get the following message:
+
+<div class="img_container">
+![Message email]({{https://jsom1.github.io/}}/_images/htb_delivery_email.png){: height="280px" width = "415px"}
+</div>
+
+So we now "have" a @delivery.htb address. 
+On the following image, we see my initial ticket to which I added a python script ("hi.py") that simply prints "hello". Then I thought I'd try to add a php webshell ("php-reverse-shell.php"). Before uploading it, we have to edit it and change the hard-coded IP address and port. When submitted, we can right click on the link and "copy link location". In a new terminal tab, I started up a netcat listener ("sudo nc -nlvp 4444) and browsed to the copied link in my browser:
 
 <div class="img_container">
 ![Tickets]({{https://jsom1.github.io/}}/_images/htb_delivery_tickets.png){: height="280px" width = "415px"}
@@ -109,7 +116,37 @@ We see something running on port 8065, but we already know that this is MatterMo
 ![Browse to link]({{https://jsom1.github.io/}}/_images/htb_delivery_upload.png){: height="280px" width = "415px"}
 </div>
 
-Of course, I didn't get a reverse shell on my listener because the script doesn't get executed when it is uploaded. However, we know we can upload files on the server.
+Of course, I didn't get a reverse shell on my listener because the script doesn't get executed when it is uploaded. However, we know we can upload files on the server, which could be useful later\\
+Let's come back at what we get when we open a ticket (let's open a new one)
+
+<div class="img_container">
+![Create ticket]({{https://jsom1.github.io/}}/_images/htb_delivery_t1.png){: height="280px" width = "415px"}
+</div>
+
+<div class="img_container">
+![Support response]({{https://jsom1.github.io/}}/_images/htb_delivery_t2.png){: height="280px" width = "415px"}
+</div>
+
+This time after clicking on the MatterMost Server button, let's try to create an account using the generated email address rather than logging in with it (which didn't work):
+
+<div class="img_container">
+![Create MatterMost acc]({{https://jsom1.github.io/}}/_images/htb_delivery_mmacc.png){: height="280px" width = "415px"}
+</div>
+
+We then get a message asking to verify the email address. To do so, we have to check our inbox for an email. We don't have an inbox with that mail extension, however the verification email was sent to 7096863@delivery.htb. This is the address to which we could write if we wanted to add something to our ticket. So, this might appear in the ticket thread!
+
+<div class="img_container">
+![Confirmation]({{https://jsom1.github.io/}}/_images/htb_delivery_confirmation.png){: height="280px" width = "415px"}
+</div>
+
+make sure to select all the link and open it in a new tab. Then, our email has been verified and we can log in into MatterMost:
+
+<div class="img_container">
+![MM login]({{https://jsom1.github.io/}}/_images/htb_delivery_logged.png){: height="280px" width = "415px"}
+</div>
+
+We immediately see two very interesting messages from root: there are credentials (maildeliverer / Youve_GOt_Mail!) and another password, "PleaseSubscribe". Apparently, this password is re-used in different places, and we can use hashcat to generate variations.
+
 
 
 
