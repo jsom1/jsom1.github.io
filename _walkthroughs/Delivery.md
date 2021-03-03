@@ -170,7 +170,26 @@ And we're in! We can grab the user flag:
 ![User flag]({{https://jsom1.github.io/}}/_images/htb_delivery_user.png){: height="280px" width = "415px"}
 </div>
 
-Now, let's start enumerating to find a way to elevate our privileges...
+Now, let's start enumerating to find a way to elevate our privileges... Before doing a manual search, let's try to download unix-privesc-check on the server and run it. We can find it on Kali with the command *locate unix-privesc-check*. Then we *cd* into our web root directory and copy the file there. Finally, we start the web server:
+
+<div class="img_container">
+![Web server]({{https://jsom1.github.io/}}/_images/htb_delivery_webserv.png){: height="280px" width = "415px"}
+</div>
+
+We can now download this file from the server with curl (I created a .tmp directory beforehand):
+
+<div class="img_container">
+![privesc dl]({{https://jsom1.github.io/}}/_images/htb_delivery_privescdl.png){: height="280px" width = "415px"}
+</div>
+
+As its name suggests, this scripts runs automatic checks to find a way to elevate our privileges. We can see some of those checks on the image below:
+
+<div class="img_container">
+![checks]({{https://jsom1.github.io/}}/_images/htb_delivery_checks.png){: height="280px" width = "415px"}
+</div>
+
+The output is very long and covers many potential vulnerabilities. Of course it can miss things, but it can also save us precious time. Unfortunately, it didn't reveal anything useful this time. We will have to proceed manually. At least we know what we're looking for: from what we read on MatterMost, we're looking for a hash. Once we find it, we will have to create a custom wordlist with "PleaseSubscribe!" using hashcat. So let's hunt for that hash!
+
 
 <ins>**My thoughts**</ins>
 
