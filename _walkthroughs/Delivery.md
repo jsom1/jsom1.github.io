@@ -127,7 +127,7 @@ Let's come back at what we get when we open a ticket (let's open a new one)
 ![Support response]({{https://jsom1.github.io/}}/_images/htb_delivery_t2.png){: height="280px" width = "415px"}
 </div>
 
-This time after clicking on the MatterMost Server button, let's try to create an account using the generated email address rather than logging in with it (which didn't work):
+This time after clicking on the MatterMost Server button, let's try to create an account using the generated email address rather than logging in with it (I'm ashamed to admit that this is what I tried first... It's obvious it woudn't work!):
 
 <div class="img_container">
 ![Create MatterMost acc]({{https://jsom1.github.io/}}/_images/htb_delivery_mmacc.png){: height="280px" width = "415px"}
@@ -158,7 +158,7 @@ I previously mentionned a login page to osTicket where we couldn't do anything..
 
 From this page we can see all the tickets, and manage the server. I didn't change anything because I didn't want to break the box, and the only thing I found was the email address of the user, "maildeliverer@delivery.htb" (not a big surprise).
 
-Let's leave this window open and try the credentials we found to log with SSH:
+Let's leave this window open and try the credentials we found to log with SSH. Indeed, the root user said on MatterMost that same passwords are re-used everywhere... So why not onn SSH?
 
 <div class="img_container">
 ![SSH]({{https://jsom1.github.io/}}/_images/htb_delivery_ssh.png){: height="280px" width = "415px"}
@@ -170,7 +170,7 @@ And we're in! We can grab the user flag:
 ![User flag]({{https://jsom1.github.io/}}/_images/htb_delivery_user.png){: height="280px" width = "415px"}
 </div>
 
-Now, let's start enumerating to find a way to elevate our privileges... Before doing a manual search, let's try to download unix-privesc-check on the server and run it. We can find it on Kali with the command *locate unix-privesc-check*. Then we *cd* into our web root directory and copy the file there. Finally, we start the web server:
+Now, let's start enumerating to find a way to elevate our privileges... Before doing a manual search, let's try to download unix-privesc-check on the server and run it. We can find it on Kali with the command *locate unix-privesc-check*. Then we copy the file into our web root directory. Finally, we start the web server:
 
 <div class="img_container">
 ![Web server]({{https://jsom1.github.io/}}/_images/htb_delivery_webserv.png){: height="280px" width = "415px"}
@@ -188,7 +188,47 @@ As its name suggests, this scripts runs automatic checks to find a way to elevat
 ![checks]({{https://jsom1.github.io/}}/_images/htb_delivery_checks.png){: height="280px" width = "415px"}
 </div>
 
-The output is very long and covers many potential vulnerabilities. Of course it can miss things, but it can also save us precious time. Unfortunately, it didn't reveal anything useful this time. We will have to proceed manually. At least we know what we're looking for: from what we read on MatterMost, we're looking for a hash. Once we find it, we will have to create a custom wordlist with "PleaseSubscribe!" using hashcat. So let's hunt for that hash!
+The output is very long and covers many potential vulnerabilities. Of course it can miss things, but it can also save us precious time. Unfortunately, it didn't reveal anything useful this time. We will have to proceed manually. At least we know what we're looking for: from what we read on MatterMost, we're looking for a hash. Once we find it, we will have to create a custom wordlist with "PleaseSubscribe!" mutations using hashcat. So let's hunt for that hash!
+
+When doing manual enumeeration, I often struggle knowing where and what to search for. Let's talk briefly about the Linux directory structure: everything on a Linux system is located in the root directory "/". In this directory, we always find the following important ones (not an exhaustive list):
+
+- */bin*: contains the essential user binaries (program)
+- */sbin*: contains the essential binaries that are intended to be run by the root user for system administration
+- */boot*: contains the files that are needed to boot the system
+- */dev*: contains devices and pseudo-devices exposed as files. An example of this latter is */dev/null*, which produces no output and automatically discards all input. This is why we often pipe the output of a command to */dev/null*
+- */etc*: contains system-wide **configuration** files (user-specific configuration files are located in the user's home directory)
+- */home*: contains a home folder for each user which contains the user's data fies and the previously mentionned user-specific configuration files. Note that each user only has write access to their own home folder. They must elevate their permissions in order to modify other files on the system
+- */lib*: contains libraries needed by the binaries contained in */bin* and */sbin*
+- */lost+found*: contains files that were corrupted because of a system crash
+- */root*: home directory of the root user (not located at /home/root)
+- */tmp*: contains temporary files created by applications. These files are generally deleted when the system is restarted
+- */usr*: contains applications and files usd by users
+- */var*: contains log files, among other things
+
+When it comes to privilege escalation, we're generally looking for poorly configured files (read-write permissions), cleartext users and passwords, hashes, and so on. Here we're looking for a hashed password. On Linux, password hashes are stored in */etc/shadow* but we don't have access to that file so we have to find it somewhere else. Or maybe we could create a custom list with mutations of the string "PleaseSubscribe!" and try brute-forcing ssh with admin@delivery.htb. Anyway, we will have to create that permutation list at some point, so let's do it now. We start by creating a file on Kali (I called it *rawpw.txt*) that contains "PleaseSubscribe!". This can be done with the following command:
+
+<div class="img_container">
+![raw password]({{https://jsom1.github.io/}}/_images/htb_delivery_rawpw.png){: height="280px" width = "415px"}
+</div>
+
+Then, we will use John The Ripper and rules to create similar passwords. We can create our own rules, but let's look at those already present in JtR. They can be found and edited in */etc/john/john.conf*:
+
+<div class="img_container">
+![JtR rules]({{https://jsom1.github.io/}}/_images/htb_delivery_rules.png){: height="280px" width = "415px"}
+</div>
+
+On the image above, we see the rule called "Single". We could easily create our own rule with the syntax [List.Rules:<rule-set-name>]. For example, we could create a rule that converts the string into lowercase and appends two numbers to it (let's call it "tolowertwodigits"). To do that, we would add the following in the configuration file:\\
+[List.Rules:tolowertwodigits]\\
+l$[0-9]$[0-9]\\
+Where *l* means "lowercase" and "$" means append. We would then save the modifications and apply the rule. However, let's start by using the existing rule "Single" we saw previously:
+ 
+<div class="img_container">
+![Password mutation]({{https://jsom1.github.io/}}/_images/htb_delivery_mutation.png){: height="280px" width = "415px"}
+</div>
+
+In a second, JtR generated 952 permutations from our initial raw password! We will start with this new wordlist and if that doesn't work, we will look at other rules or create our own.
+
+
 
 
 <ins>**My thoughts**</ins>
