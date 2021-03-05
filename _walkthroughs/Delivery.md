@@ -200,6 +200,7 @@ When doing manual enumeeration, I often struggle knowing where and what to searc
 - */home*: contains a home folder for each user which contains the user's data fies and the previously mentionned user-specific configuration files. Note that each user only has write access to their own home folder. They must elevate their permissions in order to modify other files on the system
 - */lib*: contains libraries needed by the binaries contained in */bin* and */sbin*
 - */lost+found*: contains files that were corrupted because of a system crash
+- */opt*: contains optional packages. This is generally used by proprietary software that doesn't respect the standard file system hierarchy. Such a program might dump its files in that directory when installed
 - */root*: home directory of the root user (not located at /home/root)
 - */tmp*: contains temporary files created by applications. These files are generally deleted when the system is restarted
 - */usr*: contains applications and files usd by users
@@ -226,7 +227,37 @@ Where *l* means "lowercase" and "$" means append. We would then save the modific
 ![Password mutation]({{https://jsom1.github.io/}}/_images/htb_delivery_mutation.png){: height="280px" width = "415px"}
 </div>
 
-In a second, JtR generated 952 permutations from our initial raw password! We will start with this new wordlist and if that doesn't work, we will look at other rules or create our own.
+In a second, JtR generated 952 permutations from our initial raw password! We will start with this new wordlist and if that doesn't work, we will look at other rules or create our own with Hashcat, since this is the tool that was mentionned on MatterMost.\\
+Let's get back at our search and look into configuration files. We can see a list of configuration files with the following command:
+
+<div class="img_container">
+![Search config files]({{https://jsom1.github.io/}}/_images/htb_delivery_findconf.png){: height="280px" width = "415px"}
+</div>
+
+Where we ask to search from the root directory "/", specify the type (f for file, d for directory) and the name. Note that 2 is the file descriptor of *STDERR*, so we filter errors by redirecting it to */dev/null*. The output is a little bit longer that what is shown on the image, but the first line concerns mattermost, so we will start here. The configuration file contains a lot of information and several hashes, but one is interesting:
+
+<div class="img_container">
+![sql info]({{https://jsom1.github.io/}}/_images/htb_delivery_sqlinfo.png){: height="280px" width = "415px"}
+</div>
+
+So MatterMost indeed has a database behind it, and here we see a user called "mmuser" with the password "Crack_The_MM_Admin_PW". Let's try to connect to the database with the credentials:
+
+<div class="img_container">
+![MariaDB]({{https://jsom1.github.io/}}/_images/htb_delivery_mariadb.png){: height="280px" width = "415px"}
+</div>
+
+We see it's MariaDB version 10.3.27, and the commands are very similar to MySQL. It is not shown in the image below, but the Users table is at the botton of the list. We can get the column names of that table and then display the ones we want as follows:
+
+<div class="img_container">
+![column names]({{https://jsom1.github.io/}}/_images/htb_delivery_mariadb2.png){: height="280px" width = "415px"}
+</div>
+
+<div class="img_container">
+![Creds]({{https://jsom1.github.io/}}/_images/htb_delivery_mariadb3.png){: height="280px" width = "415px"}
+</div>
+
+I think this is it, we finally got the hash we were looking for! 
+
 
 
 
