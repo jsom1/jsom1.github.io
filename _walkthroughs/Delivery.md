@@ -9,7 +9,7 @@ output: html_document
 
  <div id="boxinfo">
  <div id="textbox">
- <p class="alignleft">**Difficulty**: easy (2.9/10)</p>
+ <p class="alignleft">**Difficulty**: easy (?/10)</p>
  <p class="aligncenter">**Type**: CTF</p>
  <p class="alignright">**OS**: Linux</p>
  </div>
@@ -19,6 +19,10 @@ output: html_document
 <div class="img_container">
 ![desc]({{https://jsom1.github.io/}}/_images/htb_delivery_desc.png){: height="250px" width = "280px"}
 </div>
+
+**Tools:** hashcat\\
+**Techniques:** password cracking\\
+**Keywords:** MatterMost, MySQL\\
 
 From this walkthrough on, the lab configuration won't be covered anymore.
 
