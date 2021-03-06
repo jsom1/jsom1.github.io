@@ -240,13 +240,13 @@ Where we ask to search from the root directory "/", specify the type (f for file
 ![sql info]({{https://jsom1.github.io/}}/_images/htb_delivery_sqlinfo.png){: height="280px" width = "415px"}
 </div>
 
-So MatterMost indeed has a database behind it, and here we see a user called "mmuser" with the password "Crack_The_MM_Admin_PW". Let's try to connect to the database with the credentials:
+So MatterMost indeed has a database behind it. First I thought I had to connect to tcp port 3306 at 127.0.0.1 to somehow retrieve the password. I tried doing that with netcat, but there was nothing there. I then googled the *tcp(127.0.0.1:3306)/mattermost?...* part and read the MatterMost doc. This is where I understood that *mmuser* was in fact the username, and *Crack_The_MM_Admin_PW* was the password. Let's try to connect to the database with the credentials:
 
 <div class="img_container">
 ![MariaDB]({{https://jsom1.github.io/}}/_images/htb_delivery_mariadb.png){: height="280px" width = "415px"}
 </div>
 
-We see it's MariaDB version 10.3.27, and the commands are very similar to MySQL. It is not shown in the image below, but the Users table is at the botton of the list. We can get the column names of that table and then display the ones we want as follows:
+This is it! We see it's MariaDB, and the commands are very similar to MySQL. It is not shown in the image below, but the Users table is at the botton of the list. We can get the column names of that table and then display the ones we want as follows:
 
 <div class="img_container">
 ![column names]({{https://jsom1.github.io/}}/_images/htb_delivery_mariadb2.png){: height="280px" width = "415px"}
@@ -256,11 +256,35 @@ We see it's MariaDB version 10.3.27, and the commands are very similar to MySQL.
 ![Creds]({{https://jsom1.github.io/}}/_images/htb_delivery_mariadb3.png){: height="280px" width = "415px"}
 </div>
 
-I think this is it, we finally got the hash we were looking for! 
+I think this is it, we finally got the hash we were looking for! We can determine the type of hash with hash-identifier on Kali or with online tools. In this case, hash-identifier failed to find the hash, but some tool on internet says it is *bcrypt*. To we specify the hash-type in hashcat with the flag *-m*. For example, *-m 0* is for MD5. We can type *hashcat -h* to see the list of available hash-types:
 
+<div class="img_container">
+![bcrypt ID]({{https://jsom1.github.io/}}/_images/htb_delivery_bcrypt.png){: height="280px" width = "415px"}
+</div>
 
+We see bcrypt has the ID 3200, so let's try to crack the password with the following command:
 
+<div class="img_container">
+![hashcat command]({{https://jsom1.github.io/}}/_images/htb_delivery_hashcat.png){: height="280px" width = "415px"}
+</div>
 
+<div class="img_container">
+![hashcat result]({{https://jsom1.github.io/}}/_images/htb_delivery_hashcat2.png){: height="280px" width = "415px"}
+</div>
+
+Hashcat didn't find the password... We will now use hashcat directly to generate mutations of "PleaseSubscribe!". As JtR, hashcat has predefined rules we can find in */usr/share/hashcat/rules*. Let's try to use the one called *generated.rule*. In case of a successful crack, the password is written into the *hashcat.potfile*:
+
+<div class="img_container">
+![Password]({{https://jsom1.github.io/}}/_images/htb_delivery_pw.png){: height="280px" width = "415px"}
+</div>
+
+The password is PleaseSubscribe!21! I then tried to log into MatterMost as well as SSH with the this password, to no avail. I was starting to feel desperate when I thought about someething simple I could still try:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_delivery_root.png){: height="280px" width = "415px"}
+</div>
+
+And we finally did it!
 
 <ins>**My thoughts**</ins>
-
+I enjoyed this box a lot! I found it very CTF-like and don't really see how such a scenario culd happen in real life, but it is very well designed and fun! The worst part is that it took me like 10 hours to hack that box even though it doesn't really require any great hacking skills. It's more about logic and felt a bit like an escape game.
