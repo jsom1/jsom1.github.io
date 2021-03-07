@@ -51,8 +51,19 @@ There are a few directories, but we cannot access any of them. Let's look at the
 ![site web]({{https://jsom1.github.io/}}/_images/htb_time_site.png){: height="320px" width = "550px"}
 </div>
 
+It appears to be an online app that beautify and validate json. Let's try it with a JSON POST request syntax:
 
+<div class="img_container">
+![beautify]({{https://jsom1.github.io/}}/_images/htb_time_beautify.png){: height="320px" width = "550px"}
+</div>
 
+It seems to work. Let's copy and paste the output and try to validate it:
+
+<div class="img_container">
+![validate]({{https://jsom1.github.io/}}/_images/htb_time_validate.png){: height="320px" width = "550px"}
+</div>
+
+For some reason it fails, but we don't really know what it's doing. By trying some other commands with the validate function (here a GET request), there is an error message that says "validation failed: Unhandled Java exception: com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'GET': was expecting ('true', 'false' or 'null'".
 
 <ins>**My thoughts**</ins>
 
