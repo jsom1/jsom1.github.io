@@ -110,5 +110,23 @@ Insecure deserialization happens when an attacker is able to manipulate the seri
 
 From what I understand in our case, we submit a JSON object to the application, and this latter serializes it before sending it to the server. This serialized object is then desrialized and "executed". The idea could then be to embed our own malicious code in the JSON object we submit to the application.
 
+After a long time of researching, I found a Github repo that looks promising: https://github.com/jas502n/CVE-2019-12384. The explanations are kind of cryptic, but fortunatly there is a link at the bottom of the README on which the repo is based. The authors of the article analyzed an application which used the Jackson library for deserializing JSONs. They show how an attacker can leverage the deserialization to gain remote code execution, and that seems to be what we want to achieve.\\
+It is required to download various scripts and libraries, but fortunately the Github repo contains everything we need. Let's clone it on Kali to have what we need:
+
+<div class="img_container">
+![github clone]({{https://jsom1.github.io/}}/_images/htb_time_git.png){: height="320px" width = "550px"}
+</div>
+
+And we're ready to follow the steps given in the article. Because this might be the wrong exploit (there are many of them), I'll first try to "run it blindly" so that I don't spend too much time on it in case it doesn't work. The first command to run is the following:
+````
+jruby test.rb "[\"ch.qos.logback.core.db.DriverManagerConnectionSource\", {\"url\":\"jdbc:h2:mem:\"}]"
+````
+The previous command has to be adapted to work on my machine as follows:
+
+<div class="img_container">
+![1st command]({{https://jsom1.github.io/}}/_images/htb_time_jruby.png){: height="320px" width = "550px"}
+</div>
+
+
 <ins>**My thoughts**</ins>
 
