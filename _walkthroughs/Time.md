@@ -196,7 +196,15 @@ And we analyze the request on Burp:
 ![Burp]({{https://jsom1.github.io/}}/_images/htb_time_burp.png)
 </div>
 
-Here we see the request and the parameters. We can modify anything we want before forwarding it to the server. Once we're happy with it, we click on forward. We can also analyze the response by right clicking in the Window, selecting Do intercept -> response to this request.
+Here we see the request and the parameters. We can modify anything we want before forwarding it to the server. Once we're happy with it, we click on forward. We can also analyze the response by right clicking in the Window, selecting Do intercept -> response to this request.\\
+Let's just forward it and see what happens. In this case, the validation is successful. I don't know if it has to fail or not to trigger the vulnerability. We didn't get a reverse shell anyway, so we have to keep trying things.
+To make the process of modifying the request easier, we will send the request to Burp's repeater. We just right click on the request and select Send to Repeater as follows:
+
+<div class="img_container">
+![Burp repeater]({{https://jsom1.github.io/}}/_images/htb_time_repeater.png)
+</div>
+
+TODO : repreenddre 1ere requet qui a crash et add la commande. Need aussi choper Jruby que je sers sur le serv et copier la commande entière '??
 
 <ins>**My thoughts**</ins>
 
