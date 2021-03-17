@@ -96,7 +96,7 @@ UDP scans are way slower than TCP scans, so it is going to take some time. The T
 By googling the error we saw previously, I found a StackExchange describing a similar problem:
 
 <div class="img_container">
-![StackExchange]({{https://jsom1.github.io/}}/_images/htb_time_stack.png){: height="320px" width = "550px"}
+![StackExchange]({{https://jsom1.github.io/}}/_images/htb_time_stack.png){: height="450px" width = "660px"}
 </div>
 
 The person gives a link and mentions the three CVEs we see in the image below:
@@ -114,7 +114,7 @@ After a long time of researching, I found a Github repo that looks promising: ht
 It is required to download various scripts and libraries, but fortunately the Github repo contains everything we need. Let's clone it on Kali to have what we need:
 
 <div class="img_container">
-![github clone]({{https://jsom1.github.io/}}/_images/htb_time_git.png){: height="320px" width = "550px"}
+![github clone]({{https://jsom1.github.io/}}/_images/htb_time_git.png)
 </div>
 
 And we're ready to follow the steps given in the article. Because this might be the wrong exploit (there are many of them), I'll first try to "run it blindly" so that I don't spend too much time on it in case it doesn't work. If it works, I'll take some time to read and understand how it works. The first part of the article shows how to perform a SRRF. SSRF stands for Server-Side Request Forgery, which is a technique that consists of inducing the server-side application to make HTTP requests to an arbitrary domain of the attacker's choosing. We could typically use that to make a connection back to ourselves. The command in the following:
