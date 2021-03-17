@@ -20,9 +20,9 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_time_desc.png){: height="250px" width = "280px"}
 </div>
 
-**Tools:** ?\\
-**Techniques:** Exploit tweaking\\
-**Keywords:** JSON, Jackson, serialization/deserialization\\
+**Tools:** linpeas\\
+**Techniques:** enumeration\\
+**Keywords:** JSON, Jackson, serialization/deserialization, writable files, SSH\\
 
 
 ## 1. Port scanning
@@ -233,11 +233,40 @@ Note that it is necessary to give execute permissions to the script before execu
 ![clue]({{https://jsom1.github.io/}}/_images/htb_time_clue.png)
 </div>
 
+Let's look at the content of this file:
 
+<div class="img_container">
+![file content]({{https://jsom1.github.io/}}/_images/htb_time_timer.png)
+</div>
 
+It seems we can write to this file which then get copied into /root. Unfortunately, I didn't know what to do and had to ask for help once again... Apparently, we can add our pubic key to the server. We start by retrieving it:
 
+<div class="img_container">
+![Key]({{https://jsom1.github.io/}}/_images/htb_time_key.png)
+</div>
 
+And we write to the discovered file with the following command:
 
+````
+echo “echo SSH_PUB_KEY >> /root/.ssh/authorized_keys” >> /usr/bin/timer_backup.sh
+`````
+
+<div class="img_container">
+![Write key]({{https://jsom1.github.io/}}/_images/htb_time_write.png)
+</div>
+
+And we should now be able to ssh:
+
+<div class="img_container">
+![ssh root]({{https://jsom1.github.io/}}/_images/htb_time_root.png)
+</div>
+
+And it worked!
 
 <ins>**My thoughts**</ins>
+This was my first medium machine, and I must say I had a hard time... Getting a foothold was tedious despite the fact there weren't many different ways to go. The hardest thing was to find an exploit among dozens of articles, blogs and github repo.\\
+When I found it, it seemed "too complicated". I thought this way because the user flag was first blooded in 8 minutes, so I was looking for an easy and fast way to get there. Then, I felt like I was on the right track when the PoC worked (even though it was only locally).\\
+It took me a lot of time to make it work against the target.\\
+Root part was also hard for me, since it was the first time I saw this way of escalating privileges.\\
+Overall it was a very nice but hard box... I learned a lot and look forward to starting the next one!
 
