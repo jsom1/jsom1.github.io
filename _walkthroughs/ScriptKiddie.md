@@ -5,7 +5,7 @@ date: "March 18, 2021"
 output: html_document
 ---
 
-# Time
+# ScriptKiddie
 
  <div id="boxinfo">
  <div id="textbox">
@@ -121,7 +121,20 @@ This script seems to be honest and easy to use. It will ask us to setup a netcat
 ![exploit fail]({{https://jsom1.github.io/}}/_images/htb_sk_fail.png)
 </div>
 
-We see in the script above that this error is returned if "Werkzeug " is not in the response of the GET request "GET http://10.10.10.226:5000/console".
+We see in the script above that this error is returned if "Werkzeug " is not in the response of the GET request "GET http://10.10.10.226:5000/console". We can use Burp or Wireshark to see it in details. I'll use Wireshk this time. We just have to capture traffic on the tun0 interface and try the previous command once again. We then see the three-ways handshake and the GET request among all the packets:
+
+<div class="img_container">
+![wireshark packets]({{https://jsom1.github.io/}}/_images/htb_sk_ws1.png)
+</div>
+
+We an right click on this packet and select *Follow* -> *TCP stream*. We then see the response of the server:
+
+<div class="img_container">
+![TCP stream]({{https://jsom1.github.io/}}/_images/htb_sk_ws2.png)
+</div>
+
+Unsurprisingly, we see the file *console* was not found.
+
 
 
 <ins>**My thoughts**</ins>
