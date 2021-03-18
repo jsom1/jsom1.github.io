@@ -20,9 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_sk_desc.png){: height="250px" width = "280px"}
 </div>
 
+**Ports/services exploited:** 5000/http
 **Tools:** \\
 **Techniques:** \\
-**Keywords:** \\
+**Keywords:** werkzeug\\
 
 
 ## 1. Port scanning
@@ -50,7 +51,9 @@ While will try its functionnalities, we start dirbuster in the background:
 ````
 sudo dirb http://10.10.10.226:5000 -r
 `````
-We see the web server is "Werkzeug", so let's search for an exploit related to it in the tool (it's the third tool on the page si it's not in the image above):
+We see the web service is "Werkzeug". From the internet, it is not a web server like Apache or nginx for example, but a **WSGI** utility framework for python. In a nutshell, it simplifies the handling of HTTP connections with a python application and also provides a debugger that permits to execute code from within the browser. The documentation warns to not use the debugger on anything in production since it allows to execute python code remotely. However, it seems that this warning is often ignored. We can search for systems that have the debugger enabled by causing an exception.\\
+It's also mentionned that Werkzeug requires an actual error to trigger the console. The reason for that is that it uses a secret key generated when the application starts and is only exposed in the debugger page...\\
+Because the machine is called ScriptKiddie, there's probably an existing exploit for that vulnerability. Let's search for it in the tool (it's the third tool on the page si it's not in the image above):
 
 <div class="img_container">
 ![try tool]({{https://jsom1.github.io/}}/_images/htb_sk_tool.png)
@@ -115,13 +118,13 @@ print "[+] response from server"
 print "status code: " + str(response.status_code)
 print "response: "+ str(response.text)
 `````
-This script seems to be honest and easy to use. It will ask us to setup a netcat listener at some point. Let's just try it. I fist copy the script on my desktop with *cp /usr/share/exploitdb/exploits/multiple/remote/43905.py .*. We then use it with the syntax *python exploit.pty target_IP target_port my_IP netcat_port*. I'll set up the listener on port 4444 with the command *sudo nc -nlvp 4444*. We get our ip with *sudo ifconfig tun0*. We can then try the script:
+This script seems to be honest and easy to use. We see a reference to the debugger mentionned earlier. It will ask us to setup a netcat listener at some point. Let's just try it. I fist copy the script on my desktop with *cp /usr/share/exploitdb/exploits/multiple/remote/43905.py .*. We then use it with the syntax *python exploit.pty target_IP target_port my_IP netcat_port*. I'll set up the listener on port 4444 with the command *sudo nc -nlvp 4444*. We get our ip with *sudo ifconfig tun0*. We can then try the script:
 
 <div class="img_container">
 ![exploit fail]({{https://jsom1.github.io/}}/_images/htb_sk_fail.png)
 </div>
 
-We see in the script above that this error is returned if "Werkzeug " is not in the response of the GET request "GET http://10.10.10.226:5000/console". We can use Burp or Wireshark to see it in details. I'll use Wireshk this time. We just have to capture traffic on the tun0 interface and try the previous command once again. We then see the three-ways handshake and the GET request among all the packets:
+We see in the script above that this error is returned if "Werkzeug " is not in the response of the GET request "GET http://10.10.10.226:5000/console". However, the console is triggered by an error, which didn't happen... We can use Burp or Wireshark to see it in details. I'll use Wireshark this time. We just have to capture traffic on the tun0 interface and try the previous command once again. We then see the three-ways handshake and the GET request among all the packets:
 
 <div class="img_container">
 ![wireshark packets]({{https://jsom1.github.io/}}/_images/htb_sk_ws1.png)
@@ -133,8 +136,21 @@ We an right click on this packet and select *Follow* -> *TCP stream*. We then se
 ![TCP stream]({{https://jsom1.github.io/}}/_images/htb_sk_ws2.png)
 </div>
 
-Unsurprisingly, we see the file *console* was not found.
+Unsurprisingly, we see the file *console* was not found... Let's try the simplest things first, so let's have a look at the Metasploit exploit. Maybe it will work? We start Metasploit with *sudo msfconsole -q* (-q for quiet), and then *search werkzeug*. We *use* it and *set* the required options:
 
+<div class="img_container">
+![Metasploit fail]({{https://jsom1.github.io/}}/_images/htb_sk_metasploit.png)
+</div>
+
+The script also fails but with a different error. Looking at the script (*cat /usr/share/exploitdb/exploits/python/remote/37814.rb*), we see it could be for the same reason. In the *target* options when setting up the exploit, there is only one available: "werkzeug 0.10 and older". We saw on nmap that the target version is 0.16.1, so maybe this is why it's not working and we might be on the wrong way. At this point I started a full TCP scan as well as a top 1000 ports UDP scan to make sure there isn't another way in. However it didn't reveal anything.\\
+
+We know we have to cause an error that should trigger the console. Let's get back to the tool and try to encode a payload for the target:
+
+<div class="img_container">
+![Payload]({{https://jsom1.github.io/}}/_images/htb_sk_payload.png)
+</div>
+
+It doesn't work. I naively try to browse to 10.10.10.226:5000/console to see if the error somehow spawned it, but it wasn't the case. From the description, we can imagine it uses *msfvenom* under the hood to encode the payload. Let's try to add a template file. I tried to add a random script and got the error "linux requires a elf ext template file*. So let's
 
 
 <ins>**My thoughts**</ins>
