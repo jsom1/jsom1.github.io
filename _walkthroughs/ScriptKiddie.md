@@ -51,7 +51,7 @@ While will try its functionnalities, we start dirbuster in the background:
 ````
 sudo dirb http://10.10.10.226:5000 -r
 `````
-We see the web service is "Werkzeug". From the internet, it is not a web server like Apache or nginx for example, but a **WSGI** utility framework for python. In a nutshell, it simplifies the handling of HTTP connections with a python application and also provides a debugger that permits to execute code from within the browser. The documentation warns to **not use the debugger on anything in production since it allows to execute python code remotely**. However, it seems that this warning is often ignored. We can search for systems that have the debugger enabled by causing an exception.\\
+We see the web service is "Werkzeug". From the internet, it is not a web server like Apache or nginx for example, but a **WSGI** (Web Server Gateway Interface) utility framework for python. In a nutshell, it describes how a web server communicates with web applications and also provides a debugger that permits to execute code from within the browser. The documentation warns to **not use the debugger on anything in production since it allows to execute python code remotely**. However, it seems that this warning is often ignored. We can search for systems that have the debugger enabled by causing an exception.\\
 It's also mentionned that Werkzeug requires an actual error to trigger the console. The reason for that is that it uses a secret key generated when the application starts and is only exposed in the debugger page...\\
 Because the machine is called ScriptKiddie, there's probably an existing exploit for that vulnerability. Let's search for it in the tool (it's the third tool on the page si it's not in the image above):
 
@@ -144,16 +144,49 @@ Unsurprisingly, we see the file *console* was not found... The console is suppos
 
 The script also fails but with a different error. Looking at the script (*cat /usr/share/exploitdb/exploits/python/remote/37814.rb*), we see it could be for the same reason. In the *target* options when setting up the exploit, there is only one available: "werkzeug 0.10 and older". We saw on nmap that the target version is 0.16.1, so maybe this is why it's not working and we might be on the wrong way. At this point I started a full TCP scan as well as a top 1000 ports UDP scan to make sure there isn't another way in. However it didn't reveal anything.\\
 
-Let's review what we know so far. We know we have to cause an error that should trigger the console. Let's get back to the tool and try to encode a payload for the target:
+Let's review what we know so far. We know we have to cause an error that should trigger the console. However, we can't access /console if the debugger mode is not active... We saw earlier that "Debug is not enabled", so I think we must find another way.\\
+Let's get back to the tool and try to encode a payload for the target:
 
 <div class="img_container">
 ![Payload]({{https://jsom1.github.io/}}/_images/htb_sk_payload.png)
 </div>
 
-It doesn't work. I naively try to browse to 10.10.10.226:5000/console to see if the error somehow spawned it, but it wasn't the case. It's weird because the python script 
+It doesn't work. I naively try to browse to 10.10.10.226:5000/console to see if the error somehow spawned the console, but it wasn't the case. It seems these exploits won't work as long as the debugger is not enabled. Maybe there is a way to do it? Could we somehow upload a file containing instructions to activate the debugger and get it executed?\\
+From the description, we can imagine this functionnality uses *msfvenom* under the hood to encode the payload. Let's try to add a template file. I tried to add a random script and got the error "linux requires a elf ext template file*. I uploaded an elf file, but it didn't give anything...\\
+I used Burp to intercept requests and tried every functionnalities on the page. I don't really know what to do anymore, but let's try to update msfconsole and see if there has been something new recently. I currently have v5.0.71-dev. The command is the following:
+
+````
+sudo apt  update
+sudo apt-get install metasploit-framework
+`````
+
+Then, we start Metasploit again. I encountered the following error: *Unable to find a spec satisfying metasploit-framework (>= 0) in the set. Perhaps the lockfile is corrupted?
+Run bundle install to install missing gems.*. The following commands fixed the problem:
+
+````
+sudo gem install bundler -v 2.2.4
+sudo msfdb reinit
+sudo msfconsole
+`````
+Finally, we start msfconsole and get the newest version. In my case, I went from 5.0.71 to 6.0.34. We find the exploit, the options are similar but we can add our host IP as well as the listening port. Sadly it still doesn't work.\\
+Let's get back to the web page... There are 3 tools: one that performs a nmap scan, one that encode a payload and one that searches for exploit. Under the hood, the server executes commands such as *sudo nmap given_ip*, *sudo msfvenom [...]*, and *searchsploit given_string*. The one where we encounter errors is the encoder, so let's focus on that. It is kind of out of pure luck and despair that I found something interesting by googling "msfencode vulnerability". Apparently, there is an msfvenom APK Template Command Injection module whoch exploits a vulnerability in msfvenom payload generator when using a crafted APK file as an Android payload template. To trigger the vulnerability, the victim user should do the following: msfvenom -p android/<...> -x.\\
+One of the OS options on the website is Android, so that's probably not a coincidence. On the Rapid7's page, there is the command to launch the module in msfconsole:
+
+````
+use exploit/unix/fileformat/metasploit_msfvenom_apk_template_cmd_injection
+````
+The options are the following:
+
+<div class="img_container">
+![Exploit options]({{https://jsom1.github.io/}}/_images/htb_sk_options.png)
+</div>
+
+It's weird that there is no remote host option. I googled "APK template exploit" and found the Github page of the author where he explains it in details and gives a PoC: https://github.com/justinsteven/advisories/blob/master/2020_metasploit_msfvenom_apk_template_cmdi.md.\\
+It is said that **when there's a vulnerability in offensive software such as Metasploit, the attacker becomes the victim**.
+
+Explain page, c/c PoC, etc...
 
 
-From the description, we can imagine it uses *msfvenom* under the hood to encode the payload. Let's try to add a template file. I tried to add a random script and got the error "linux requires a elf ext template file*. So let's
 
 
 <ins>**My thoughts**</ins>
