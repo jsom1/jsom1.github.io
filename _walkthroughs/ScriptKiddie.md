@@ -325,11 +325,20 @@ We check the file is there and make it executable (*chmod +x*):
 ![linpeas]({{https://jsom1.github.io/}}/_images/htb_sk_linpeas.png)
 </div>
 
-Finally we can run it with *./linpeas.sh*. TODO : analyserr output. Si rien, manual enum
+Finally we can run it with *./linpeas.sh*. Nothing is really standing out in the output, so let's enumerate manually. There's an interesting file in kid's home that is called *hackers*. The file permissions are interesting because we see *pwn* is the group owner.
 
+<div class="img_container">
+![hackers file]({{https://jsom1.github.io/}}/_images/htb_sk_hackers.png)
+</div>
 
+Let's have a look at that user's home directory.
 
+<div class="img_container">
+![pwn directory]({{https://jsom1.github.io/}}/_images/htb_sk_pwn.png)
+</div>
 
+There's a script called *scanlosers.sh* which contains a reference to the *hackers* file located in kid's home. 
+TODO : check si on peut edit le script. on ne peut pas le run
 
 
 <ins>**My thoughts**</ins>
