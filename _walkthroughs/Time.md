@@ -149,7 +149,7 @@ We see the file was not found, however we see the request on our web server:
 ![Request]({{https://jsom1.github.io/}}/_images/htb_time_request.png)
 </div>
 
-I thought I had to serve the file in the web root directory (*/var/www/html*), but browsing at http://localhost:8000 shows that the request looks for the file in /home/kali. Let's copy the file there and try again. And it worrks! The script *inject.sql* writes the output of the *id* command into a file called *exploited.txt*. We can see this script as well as the content of the created file and the successful request below:
+I thought I had to serve the file in the web root directory (*/var/www/html*), but browsing at http://localhost:8000 shows that the request looks for the file in /home/kali. Let's copy the file there and try again. And it works! The script *inject.sql* writes the output of the *id* command into a file called *exploited.txt*. We can see this script as well as the content of the created file and the successful request below:
 
 <div class="img_container">
 ![Request 200]({{https://jsom1.github.io/}}/_images/htb_time_reqok.png)
@@ -217,7 +217,7 @@ It runs it and connects back to us:
 </div>
 
 And we have the user flag! We must now find a way to elevate our privileges. In my little experience, there is always a link between the machine name and something we have to do. Since I started this box, I've been wondering if "Time" was a reference to cronjobs. Before we enumerate manually, let's upload a script and see if it finds any vulnerability. This time, let's try linpeas.sh. LinPEAS stands for Linux Privilege Escalation Awesome Script and it searches for possible paths to escalate privileges on Linux/Unix hosts.\\
-We start by downloading the script on ourr Kali machine (we clone the repo):
+We start by downloading the script on our Kali machine (we clone the repo):
 ````
 git clone https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git
 `````
