@@ -76,8 +76,44 @@ It seems we have to find something on this web site. Before digging into it, let
 sudo ssh nathan@10.10.10.245
 `````
 
-Sadly the password isn't that obvious.
+Sadly the password isn't that obvious. Let's get back at the website and have a look at the tab "Security Snapshot (5 Second PCAP + Analysis)":
 
+<div class="img_container">
+![PCAP]({{https://jsom1.github.io/}}/_images/htb_cap_pcap.png)
+</div>
+
+We see 9 TCP packets were sent over the last 5 seconds and were captured by pcap. We can download the resulting file and open it on WireShark for example:
+
+<div class="img_container">
+![WireShark]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark.png)
+</div>
+
+It's weird the dashboard said 9 TCP packets, whereas WireShark says it was UDP protocol. Anyways, we see the traffic between our machine (10.10.14.6) and the box (10.10.10.245). There's nothing really interesting in this file. Going back on the website, I then got another dashboard, this time with 8 TCP packets. The url was different, *10.10.10.245/data/4* (it was *10.10.10.245/data/1* before). I downloaded the new file but there wasn't anything there either. I'm not sure what makes the dashboard change, but we can manually alter the url. Note that if a file doesn't exist, it just brings us back to the default page dashboard (for example *10.10.10.245/data/9*).\\
+After trying a few different numbers, we see one that looks different:
+
+<div class="img_container">
+![Data 0]({{https://jsom1.github.io/}}/_images/htb_cap_data0.png)
+</div>
+
+I don't know what it means, but the number of IP packets doesn't match the one of total packets. Let's download this file and open it on Wireshark:
+
+<div class="img_container">
+![Wireshark 2]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark2.png)
+</div>
+
+This time we see traffic between 192.168.196.1 and 192.168.196.16. The packet stream starts with a successful 3 ways handshake, then there's a few get requests, and then lower (starting at packet 33), FTP connction traffic was captured. We see the user Nathan and the password in cleartext ("Buck3tH4TFORM3!"). We see the connection was successful, so we FTP into the server with those credentials:
+
+<div class="img_container">
+![FTP in]({{https://jsom1.github.io/}}/_images/htb_cap_ftpok.png)
+</div>
+
+The first thing we see once connected to the server is the user flag. We can download it with the command *get*. Back on Kali, we find the file in the directory where the FTP command was issued:
+
+<div class="img_container">
+![User flag]({{https://jsom1.github.io/}}/_images/htb_cap_user.png)
+</div>
+
+Let's do a quick manual enumeration of the files on the server. We FTP back in (there was no need to close the session earlier) and go through the different directories.
 
 <ins>**My thoughts**</ins>
 
