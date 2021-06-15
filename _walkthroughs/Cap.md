@@ -113,7 +113,79 @@ The first thing we see once connected to the server is the user flag. We can dow
 ![User flag]({{https://jsom1.github.io/}}/_images/htb_cap_user.png)
 </div>
 
-Let's do a quick manual enumeration of the files on the server. We FTP back in (there was no need to close the session earlier) and go through the different directories.
+Let's do a quick manual enumeration of the files on the server. Instead of FTP back in, let's try to use the same credentials to SSH into the server. That would be great to have a proper shell instead of issuing commands through FTP:
+
+<div class="img_container">
+![SSH]({{https://jsom1.github.io/}}/_images/htb_cap_ssh.png)
+</div>
+
+Great, it worked! We're now going to go through the different directories (I described the main Linux directories in the Delivery writeup), looking for any interesting file/program, weak permissions, misconfigurations, and so on.\\
+The *hostname* command indicates **cap**. Looking at the hosts file, we see something that might be interesting:
+
+<div class="img_container">
+![Hosts]({{https://jsom1.github.io/}}/_images/htb_cap_hosts.png)
+</div>
+
+The loopback interface IP (127.0.0.1) has two domain names or hosts associated with it. Any traffic sent by the target to this address is addressed to itself. I don't know what to do with that information yet, so let's keep looking for clues. Here are some basic enumeration commands we can try:
+
+````
+# Info about current user
+id || (whoami && groups) 2>/dev/null
+
+# List all users
+cat /etc/passwd | cut -d: -f1
+
+# List users with console
+cat /etc/passwd | grep "sh$"
+
+# List superusers
+awk -F: '($3 == "0") {print}' /etc/passwd
+
+# Currently logged users
+w
+
+# Login history
+last | tail
+
+# Last log of each user
+lastlog
+
+# List all users and their groups
+for i in $(cut -d":" -f1 /etc/passwd 2>/dev/null);do id $i;done 2>/dev/null | sort
+
+# Current user PGP keys
+gpg --list-keys 2>/dev/null
+
+# Check commands you can execute with sudo
+sudo -l
+
+# Find all SUID binaries
+find / -perm -4000 2>/dev/null
+`````
+
+There are a lot more commands on https://book.hacktricks.xyz/linux-unix/privilege-escalation/. I didn't find anything I could use... Let's think about what's happening on that box: it seems that that there's a sniffing tool running (I saw tcpdump in the binaries (/sbin), or maybe pcap which would be the reason of this box name?). There's also an *ipconfig* tab on the website which displays the output of the command, and a network status as we saw previously. Those commands are most likely ran by root. In fact, we can view the application's source code in */var/www/html/app.py*. We see there that the capturing tool is indeed tcpdump, the IP tab uses *ifconfig* and the network one uses *netstat -aneop*.\\
+Anyways, manual enumeration didn't reveal anything. We'll now upload Linpeas to see if it does better! We start a web server on our machine:
+
+````
+sudo python -m SimpleHTTPServer
+`````
+
+Note that we have to download the script linpeas.sh and place it the web directory (*/var/www/html*). Then we download it on the victim machine (I first created the .test directory in */tmp*) and make it executable:
+
+<div class="img_container">
+![linpeas]({{https://jsom1.github.io/}}/_images/htb_cap_linpeas.png)
+</div>
+
+Finally we run it:
+
+````
+./linpeas.sh
+``````
+
+d
+
+
+
 
 <ins>**My thoughts**</ins>
 
