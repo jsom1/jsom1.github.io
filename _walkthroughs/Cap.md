@@ -95,13 +95,13 @@ After trying a few different numbers, we see one that looks different:
 ![Data 0]({{https://jsom1.github.io/}}/_images/htb_cap_data0.png)
 </div>
 
-I don't know what it means, but the number of IP packets doesn't match the one of total packets. Let's download this file and open it on Wireshark:
+I don't know if it means anything, but the number of IP packets doesn't match the one of total packets. Let's download this file and open it on Wireshark:
 
 <div class="img_container">
 ![Wireshark 2]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark2.png)
 </div>
 
-This time we see traffic between 192.168.196.1 and 192.168.196.16. The packet stream starts with a successful 3 ways handshake, then there's a few get requests, and then lower (starting at packet 33), FTP connction traffic was captured. We see the user Nathan and the password in cleartext ("Buck3tH4TFORM3!"). We see the connection was successful, so we FTP into the server with those credentials:
+This time we see traffic between 192.168.196.1 and 192.168.196.16. The packet stream starts with a successful 3 ways handshake, then there's a few get requests, and then lower (starting at packet 33), FTP connction traffic was captured. We see the user Nathan and the password in cleartext ("Buck3tH4TF0RM3!"). We see the connection was successful, so we can FTP into the server with those credentials:
 
 <div class="img_container">
 ![FTP in]({{https://jsom1.github.io/}}/_images/htb_cap_ftpok.png)
@@ -120,13 +120,7 @@ Let's do a quick manual enumeration of the files on the server. Instead of FTP b
 </div>
 
 Great, it worked! We're now going to go through the different directories (I described the main Linux directories in the Delivery writeup), looking for any interesting file/program, weak permissions, misconfigurations, and so on.\\
-The *hostname* command indicates **cap**. Looking at the hosts file, we see something that might be interesting:
-
-<div class="img_container">
-![Hosts]({{https://jsom1.github.io/}}/_images/htb_cap_hosts.png)
-</div>
-
-The loopback interface IP (127.0.0.1) has two domain names or hosts associated with it. Any traffic sent by the target to this address is addressed to itself. I don't know what to do with that information yet, so let's keep looking for clues. Here are some basic enumeration commands we can try:
+Here are some basic enumeration commands we can try:
 
 ````
 # Info about current user
@@ -182,13 +176,40 @@ Finally we run it:
 ./linpeas.sh
 ``````
 
-d
+The output is very long, so here's only a tiny part of it but it could be what we're looking for:
+
+<div class="img_container">
+![linpeas capabilities]({{https://jsom1.github.io/}}/_images/htb_cap_capa.png)
+</div>
+
+The name of the box could clearly be a reference to those **capabilities**. I've never head of that, so let's browse to the given link to learn more about it (https://book.hacktricks.xyz/linux-unix/privilege-escalation/linux-capabilities). I'll resume the explanation here:\\
+When the **root** user runs a process, he/she gets a "special treatment". The kernel and applications skip the restriction of some activities when they see his/her ID of 0.\\
+When a normal user runs a process, he/she is non-privileged. That means he/she can only access data that are owned by him/her, his/her group, or that is accessible to all users. However, the process might need more permissions at some point, for example to open a network socket. Normal users can't open a socket (it requires root permissions). So, how can it do it?! **Linux capabilities** provive a subset of the available root privileges to a process.\\
+
+We can list capabilities with the following command:
+
+````
+capsh --print
+`````
+<div class="img_container">
+![List capabilities]({{https://jsom1.github.io/}}/_images/htb_cap_capsh.png)
+</div>
+
+Here is a description of the first few listed capabilities:
+
+- CAP_CHOWN: Allow user to make arbitratry change to files UIDs and GIDs (full filesystem access)
+- CAP_DAC_OVERRIDE: This helps to bypass file read, write and execution permission checks (full filesystem access)
+- CAP_DAC_READ_SEARCH: This only bypass file and directory read/execute permission checks
+
+Thee are many capabilities in the command output, maybe one of them is the key to root! We also see *Bounding set* and *Ambient set*. From the article, they are part of the **capabilities sets**. With the **bounding set** (CapBnd in the output of Linpeas above), it is possible to restrict the capabilities a process may ever receive. Only capabilities that are present in this set will be allowed in the **inheritable set** (CapInh) and **permitted set** (CapPrm). The **ambient set** (CapAmb) applies to all non-SUID binaries without file capabilities.
+
+
 
 
 
 
 <ins>**My thoughts**</ins>
 
-
+New privilege escalation vector on Linux
 
 
