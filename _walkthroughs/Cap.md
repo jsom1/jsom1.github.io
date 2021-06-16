@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_cap_desc.png){: height="300px" width = "400px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_cap_desc.png){: height="400px" width = 600px"}
 </div>
 
 **Ports/services exploited:** -\\
@@ -52,7 +52,7 @@ Apparently, anonymous FTP isn't allowed (I tried with an empty password and a fe
 Let's now look at the web server. We browse at 10.10.10.245:
 
 <div class="img_container">
-![Web server]({{https://jsom1.github.io/}}/_images/htb_cap_web.png)
+![Web server]({{https://jsom1.github.io/}}/_images/htb_cap_web.png){: height="400px" width = 600px"}
 </div>
 
 We see a dashboard with different statistics, and we're already logged in as Nathan. There is a menu in the upper left of the page with different links: Dashboard (this is where we are currently), Security Snapshot (5 Second PCAP + Analysis), IP Config and Network Status.
@@ -65,7 +65,7 @@ sudo dirb http://10.10.10.245 -r
 Note that the *-r* flag prevents the script from being recursive. Let's look at "Network Status" for example:
 
 <div class="img_container">
-![Network Status]({{https://jsom1.github.io/}}/_images/htb_cap_network.png)
+![Network Status]({{https://jsom1.github.io/}}/_images/htb_cap_network.png){: height="400px" width = 600px"}
 </div>
 
 The output is somewhat similar to the one of the command *ps -aux* and lists the active connections (*ps -aux* lists the running processes). Dirbuster only found three directories: /data, /ip and /netstat.
@@ -79,26 +79,26 @@ sudo ssh nathan@10.10.10.245
 Sadly the password isn't that obvious. Let's get back at the website and have a look at the tab "Security Snapshot (5 Second PCAP + Analysis)":
 
 <div class="img_container">
-![PCAP]({{https://jsom1.github.io/}}/_images/htb_cap_pcap.png)
+![PCAP]({{https://jsom1.github.io/}}/_images/htb_cap_pcap.png){: height="400px" width = 600px"}
 </div>
 
 We see 9 TCP packets were sent over the last 5 seconds and were captured by pcap. We can download the resulting file and open it on WireShark for example:
 
 <div class="img_container">
-![WireShark]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark.png)
+![WireShark]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark.png){: height="400px" width = 600px"}
 </div>
 
 It's weird the dashboard said 9 TCP packets, whereas WireShark says it was UDP protocol. Anyways, we see the traffic between our machine (10.10.14.6) and the box (10.10.10.245). There's nothing really interesting in this file. Going back on the website, I then got another dashboard, this time with 8 TCP packets. The url was different, *10.10.10.245/data/4* (it was *10.10.10.245/data/1* before). I downloaded the new file but there wasn't anything there either. I'm not sure what makes the dashboard change, but we can manually alter the url. Note that if a file doesn't exist, it just brings us back to the default page dashboard (for example *10.10.10.245/data/9*).\\
 After trying a few different numbers, we see one that looks different:
 
 <div class="img_container">
-![Data 0]({{https://jsom1.github.io/}}/_images/htb_cap_data0.png)
+![Data 0]({{https://jsom1.github.io/}}/_images/htb_cap_data0.png){: height="400px" width = 600px"}
 </div>
 
 I don't know if it means anything, but the number of IP packets doesn't match the one of total packets. Let's download this file and open it on Wireshark:
 
 <div class="img_container">
-![Wireshark 2]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark2.png)
+![Wireshark 2]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark2.png){: height="400px" width = 600px"}
 </div>
 
 This time we see traffic between 192.168.196.1 and 192.168.196.16. The packet stream starts with a successful 3 ways handshake, then there's a few get requests, and then lower (starting at packet 33), FTP connction traffic was captured. We see the user Nathan and the password in cleartext ("Buck3tH4TF0RM3!"). We see the connection was successful, so we can FTP into the server with those credentials:
@@ -202,9 +202,9 @@ Here is a description of the first few listed capabilities:
 - CAP_DAC_READ_SEARCH: This only bypass file and directory read/execute permission checks
 
 Thee are many capabilities in the command output, maybe one of them is the key to root! We also see *Bounding set* and *Ambient set*. From the article, they are part of the **capabilities sets**. With the **bounding set** (CapBnd in the output of Linpeas above), it is possible to restrict the capabilities a process may ever receive. Only capabilities that are present in this set will be allowed in the **inheritable set** (CapInh) and **permitted set** (CapPrm). The **ambient set** (CapAmb) applies to all non-SUID binaries without file capabilities.\\
-There are many different capabilities, such as:
+There are many different capabilities, such as Process capabilities, Binaries capabilities, User capabilities, ....
 
-1. Process capabilities (we can see them for a particular process by using the **status file** in the */proc* directory. For example *cat /proc/1234/status | grep Cap*). This command returns 5 lines that look like the following:
+Let's look at process capabilities (we can see them for a particular process by using the **status file** in the */proc* directory. For example *cat /proc/1234/status | grep Cap*). This command returns 5 lines that look like the following:
 
 - CapInh: 0000000000000000
 - CapPrm: 0000003fffffffff
@@ -222,13 +222,7 @@ capsh --decode=0000003fffffffff
 ![Decode hex capa]({{https://jsom1.github.io/}}/_images/htb_cap_decode.png)
 </div>
 
-2) Binaries capabilities that can be used while executing (for example *ping* has the *cap_net_raw* capability to open an ICMP socket. If we remove that capability, the command no longer works ("Operation not permitted")).
-
-3) User capabilities: it is possible to assign capabilities to users.
-
-4) Environment capabilites
-
-5) Service capabilities
+Binaries capabilities can be used while executing (for example *ping* has the *cap_net_raw* capability to open an ICMP socket. If we remove that capability, the command no longer works ("Operation not permitted")).
 
 I voluntarily don't get into too many details since I might be on the wrong way. Let's get back at the capabilities returned by Linpeas and see if we can use them as a PE vector.\\
 Linpeas found Shell as well as a few files capabilities. There's a capability hightlighted in red, **cap_setuid**. This latter allows changing of the UID. At the end of the 2 listed capabilities, there is also *+eip*. *ep* means that the binary has all the capabilities. After searching capabilities exploit for python, I found a few examples and how to do it. The idea is that to use the *cap_setuid* capability to set the UID to 0 when we run python:
