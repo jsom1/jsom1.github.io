@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_cap_desc.png){: height="300px" width = "400px"}
 </div>
 
-**Ports/services exploited:** ?\\
-**Tools:** ?\\
-**Techniques:** ?\\
-**Keywords:** ?\\
+**Ports/services exploited:** -\\
+**Tools:** Wireshark\\
+**Techniques:** -\\
+**Keywords:** Wireshark, Linux capabilities\\
 
 
 ## 1. Port scanning
@@ -201,15 +201,45 @@ Here is a description of the first few listed capabilities:
 - CAP_DAC_OVERRIDE: This helps to bypass file read, write and execution permission checks (full filesystem access)
 - CAP_DAC_READ_SEARCH: This only bypass file and directory read/execute permission checks
 
-Thee are many capabilities in the command output, maybe one of them is the key to root! We also see *Bounding set* and *Ambient set*. From the article, they are part of the **capabilities sets**. With the **bounding set** (CapBnd in the output of Linpeas above), it is possible to restrict the capabilities a process may ever receive. Only capabilities that are present in this set will be allowed in the **inheritable set** (CapInh) and **permitted set** (CapPrm). The **ambient set** (CapAmb) applies to all non-SUID binaries without file capabilities.
+Thee are many capabilities in the command output, maybe one of them is the key to root! We also see *Bounding set* and *Ambient set*. From the article, they are part of the **capabilities sets**. With the **bounding set** (CapBnd in the output of Linpeas above), it is possible to restrict the capabilities a process may ever receive. Only capabilities that are present in this set will be allowed in the **inheritable set** (CapInh) and **permitted set** (CapPrm). The **ambient set** (CapAmb) applies to all non-SUID binaries without file capabilities.\\
+There are many different capabilities, such as:
 
+1. Process capabilities (we can see them for a particular process by using the **status file** in the */proc* directory. For example *cat /proc/1234/status | grep Cap*). This command returns 5 lines that look like the following:
 
+- CapInh: 0000000000000000
+- CapPrm: 0000003fffffffff
+- CapEff: 0000003fffffffff
+- CapBnd: 0000003fffffffff
+- CapAmb: 0000000000000000
 
+Those are the sets we just described, and it's exacty what we see in the output of Linpeas. We can decode the hex numbers to get the capabilities name with the following command:
 
+````
+capsh --decode=0000003fffffffff
+``````
+
+<div class="img_container">
+![Decode hex capa]({{https://jsom1.github.io/}}/_images/htb_cap_decode.png)
+</div>
+
+2) Binaries capabilities that can be used while executing (for example *ping* has the *cap_net_raw* capability to open an ICMP socket. If we remove that capability, the command no longer works ("Operation not permitted")).
+
+3) User capabilities: it is possible to assign capabilities to users.
+
+4) Environment capabilites
+
+5) Service capabilities
+
+I voluntarily don't get into too many details since I might be on the wrong way. Let's get back at the capabilities returned by Linpeas and see if we can use them as a PE vector.\\
+Linpeas found Shell as well as a few files capabilities. There's a capability hightlighted in red, **cap_setuid**. This latter allows changing of the UID. At the end of the 2 listed capabilities, there is also *+eip*. *ep* means that the binary has all the capabilities. After searching capabilities exploit for python, I found a few examples and how to do it. The idea is that to use the *cap_setuid* capability to set the UID to 0 when we run python:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_cap_root.png)
+</div>
+
+So we just used python that is running as root to spawn a shell as root!
 
 
 <ins>**My thoughts**</ins>
-
-New privilege escalation vector on Linux
-
+The user flag was not too hard to get, but I wouldn't rate the root part as easy. It took me some time and introduced me to a new privesc vector on Linux that I didn't know about. I just scratched the surface of capabilities, but now I know what it's about and hopefully I will be able to use that again in the future!\\
 
