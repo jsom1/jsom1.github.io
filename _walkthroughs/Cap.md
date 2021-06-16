@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_cap_desc.png){: height="800px" width = 900px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_cap_desc.png){: height="600px" width = 800px"}
 </div>
 
 **Ports/services exploited:** -\\
