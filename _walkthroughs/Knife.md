@@ -191,6 +191,19 @@ else:
 
 We download or copy this script on our Kali machine (I named it *php_8.1.0-dev-backdoor.py*) and execute it:
 
+<div class="img_container">
+![shell]({{https://jsom1.github.io/}}/_images/htb_knife_shell.png)
+</div>
+
+We now have a simple shell in which we can use some basic commands, but we can't change directory (we can still see content with commands such as *ls /var/www/html*, but it's not very convenient). Let's still perform a very basic manual enumeration to see if we can get something. The reason is that I tried to use another exploit supposed to give a proposer reverse shell but it didn't work. Among the few simple commands we can try, it is always good to check what the current can do with the command *sudo -l*:
+
+<div class="img_container">
+![james permissions]({{https://jsom1.github.io/}}/_images/htb_knife_shell.png)
+</div>
+
+We see he can run the command */usr/bin/knife* as root, without providing a password.
+
+
 
 
 <ins>**My thoughts**</ins>
