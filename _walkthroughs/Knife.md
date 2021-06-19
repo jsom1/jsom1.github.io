@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** -\\
 **Tools:** dirb, nikto\\
 **Techniques:** RCE\\
-**Keywords:** CVE, /dev/tcp, reverse shell\\
+**Keywords:** CVE, Knife, Chef\\
 
 
 ## 1. Port scanning
@@ -201,7 +201,15 @@ We now have a simple shell in which we can use some basic commands, but we can't
 ![james permissions]({{https://jsom1.github.io/}}/_images/htb_knife_shell.png)
 </div>
 
-We see he can run the command */usr/bin/knife* as root, without providing a password.
+We see he can run the command */usr/bin/knife* as root, without providing a password. We can inspect this file with the command *cat /usr/bin/knife*. I'm not sure about what this script does. There are many ruby gems listed, and it seems like it performs dependencies checks.\\
+I'm not sure so I'll just try to run that script as sudo:
+
+<div class="img_container">
+![knife]({{https://jsom1.github.io/}}/_images/htb_knife_knife.png)
+</div>
+
+We have to provide one sub-command among those listed on the image. I tried for example *sudo ./usr/bin/knife config show* and *sudo ./usr/bin/knife user list*. It works but it's not very useful. There are commands Google services, Azure, SSH, SSL, and so on... In doesn't look like to be a custom script but rather a tool. Let's google */usr/bin/knife* to see if we can find more info.\\
+Apparently, **Knife** is a command-line DevOps tool that provides an interface between a local chef-repo and the **Chef** Infra Server. I didn't know what Chef was, so here's what I found: Chef is a configuration management tool that offers a means of defining infrastructure as code that can be deployed onto multiple servers. It also includes automatic configuration and maintenance. It supports various platforms such as AWS, GCP, OpenStack, and so on.\\
 
 
 
