@@ -20,9 +20,9 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="600px" width = 800px"}
 </div>
 
-**Ports/services exploited:** -\\
+**Ports/services exploited:** PHP 8.1.0-dev\\
 **Tools:** dirb, nikto\\
-**Techniques:** RCE\\
+**Techniques:** RCE, reverse shell\\
 **Keywords:** CVE, Knife, Chef\\
 
 
@@ -211,6 +211,23 @@ I'm not sure so I'll just try to run that script as sudo:
 We have to provide one sub-command among those listed on the image. I tried for example *sudo ./usr/bin/knife config show* and *sudo ./usr/bin/knife user list*. It works but it's not very useful. There are commands Google services, Azure, SSH, SSL, and so on... In doesn't look like to be a custom script but rather a tool. Let's google */usr/bin/knife* to see if we can find more info.\\
 Apparently, **Knife** is a command-line DevOps tool that provides an interface between a local chef-repo and the **Chef** Infra Server. I didn't know what Chef was, so here's what I found: Chef is a configuration management tool that offers a means of defining infrastructure as code that can be deployed onto multiple servers. It also includes automatic configuration and maintenance. It supports various platforms such as AWS, GCP, OpenStack, and so on.\\
 
+After seearching in the doc (https://docs.chef.io/workstation/knife_exec/), I found we can run ruby scripts or ruby code with the syntax *knife exec /path/to/script_file* or *knife exec -E 'ruby code'*. Let's try to get a reverse shell.
+
+<div class="img_container">
+![fail]({{https://jsom1.github.io/}}/_images/htb_knife_fail.png)
+</div>
+
+I looked for this error but couldn't find anything. However, we're trying here to get but we never specified our IP/port (I found those Ruby shell commands on the internet). Maybe we should get back to our initial attempt of getting a reverse shell via the *zerodiumsystem()* command and try with another payload:
+
+<div class="img_container">
+![Burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp8.png)
+</div>
+
+<div class="img_container">
+![Reverse shell!]({{https://jsom1.github.io/}}/_images/htb_knife_reversesh.png)
+</div>
+
+And this time we've got a proper reverse shell! 
 
 
 
