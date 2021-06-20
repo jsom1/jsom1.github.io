@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height400px" width = 500px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height300px" width = 400px"}
 </div>
 
 **Ports/services exploited:** 80/PHP 8.1.0-dev\\
