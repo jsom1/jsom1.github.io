@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height=550px" width = 680px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height460px" width = 580px"}
 </div>
 
 **Ports/services exploited:** 80/PHP 8.1.0-dev\\
@@ -43,7 +43,7 @@ There's only SSH and a web server running.
 We will start by browsing to the web page and see what it contains:
 
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_knife_site.png){: height="410px" width = 620px"}
+![website]({{https://jsom1.github.io/}}/_images/htb_knife_site.png){: height="415px" width = 625px"}
 </div>
 
 There are a few tabs on the page, but none of them are clickable. The next obvious thing we want to do is bruteforce directories, and we'll use dirb for that:
