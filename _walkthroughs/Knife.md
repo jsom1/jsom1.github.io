@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="600px" width = 800px"}
 </div>
 
-**Ports/services exploited:** PHP 8.1.0-dev\\
+**Ports/services exploited:** 80/PHP 8.1.0-dev\\
 **Tools:** dirb, nikto\\
 **Techniques:** RCE, reverse shell\\
-**Keywords:** CVE, Knife, Chef\\
+**Keywords:** CVE, Knife, Chef, backdoor\\
 
 
 ## 1. Port scanning
@@ -141,7 +141,7 @@ It does indeed, but the shell is not responsive... There could be another way to
 ![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp5.png)
 </div>
 
-We see the user james. Because the user flag (*user.txt*) is always in the user's home directory in HtB CTFs, we can just cat the content of that file to retrieve the hash:
+We see the user james. Because the user flag (*user.txt*) is always in the user's home directory in HtB CTFs, we can just *cat* the content of that file to retrieve the hash:
 
 <div class="img_container">
 ![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp6.png)
@@ -151,8 +151,8 @@ We see the user james. Because the user flag (*user.txt*) is always in the user'
 ![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp7.png)
 </div>
 
-And that's it for the user! It's not a very elegant solution, but it's working so this is what matters... In it's early stages, hacking consisted of writing clean, concise and elegant code, but nowadays it's more about finding tricks to get what we want.\\
-With that being said, it would still be helpful to get a shell as james. The reason is that it would be much more simple for enumation. We could of course do it the way we got the user flag, but that would be tedious at it means sending and tampering a request for each command...
+And that's it for the user! It's not a very elegant solution, but it's working so this is what matters... In it's early stages, hacking consisted of writing clean, concise and elegant code, but nowadays it's more about finding tricks to get what we want. So it's kind of ok this way!\\
+With that being said, it would still be helpful to get a shell as james. The reason is that it would be much more simple for enumation. We could of course do it the way we got the user flag, but that would be tedious as it means sending and tampering a request for each command...
 Looking back at Google, there are differnt python PoCs that exploit that vulnerability. Here's the code of one hosted on ExploitDB (https://www.exploit-db.com/exploits/49933). See the link for the details:
 
 ````
@@ -189,35 +189,36 @@ else:
     exit
 ``````
 
-We download or copy this script on our Kali machine (I named it *php_8.1.0-dev-backdoor.py*) and execute it:
+This script won't give us a reverse shell but it simplifies the use of the *zerodiumsystem()* command.
+We don't have to alter the request's header anymore and will be able to enter commands interactively. Let's try it out. We download or copy this script on our Kali machine (I named it *php_8.1.0-dev-backdoor.py*) and execute it:
 
 <div class="img_container">
 ![shell]({{https://jsom1.github.io/}}/_images/htb_knife_shell.png)
 </div>
 
-We now have a simple shell in which we can use some basic commands, but we can't change directory (we can still see content with commands such as *ls /var/www/html*, but it's not very convenient). Let's still perform a very basic manual enumeration to see if we can get something. The reason is that I tried to use another exploit supposed to give a proposer reverse shell but it didn't work. Among the few simple commands we can try, it is always good to check what the current can do with the command *sudo -l*:
+We now have a simple "shell" in which we can use some basic commands, but we can't change directory (we can still see content with commands such as *ls /var/www/html*, but it's not very convenient). Let's still perform a very basic manual enumeration to see if we can get something. The reason is that I tried to use another exploit supposed to give a proper reverse shell, but it didn't work. Among the few simple commands we can try, it is always good to check what the current can do with the command *sudo -l*:
 
 <div class="img_container">
 ![james permissions]({{https://jsom1.github.io/}}/_images/htb_knife_shell.png)
 </div>
 
 We see he can run the command */usr/bin/knife* as root, without providing a password. We can inspect this file with the command *cat /usr/bin/knife*. I'm not sure about what this script does. There are many ruby gems listed, and it seems like it performs dependencies checks.\\
-I'm not sure so I'll just try to run that script as sudo:
+I'm not sure but it doesn't look suspicious so I'll just try to run that script as sudo:
 
 <div class="img_container">
 ![knife]({{https://jsom1.github.io/}}/_images/htb_knife_knife.png)
 </div>
 
-We have to provide one sub-command among those listed on the image. I tried for example *sudo ./usr/bin/knife config show* and *sudo ./usr/bin/knife user list*. It works but it's not very useful. There are commands Google services, Azure, SSH, SSL, and so on... In doesn't look like to be a custom script but rather a tool. Let's google */usr/bin/knife* to see if we can find more info.\\
+We have to provide one sub-command among those listed on the image. I tried for example *sudo ./usr/bin/knife config show* and *sudo ./usr/bin/knife user list*. It works but it's not very useful. There are commands for Google services, Azure, SSH, SSL, and so on... In doesn't look like to be a custom script but rather a tool. Let's google */usr/bin/knife* to see if we can find more info.\\
 Apparently, **Knife** is a command-line DevOps tool that provides an interface between a local chef-repo and the **Chef** Infra Server. I didn't know what Chef was, so here's what I found: Chef is a configuration management tool that offers a means of defining infrastructure as code that can be deployed onto multiple servers. It also includes automatic configuration and maintenance. It supports various platforms such as AWS, GCP, OpenStack, and so on.\\
 
-After seearching in the doc (https://docs.chef.io/workstation/knife_exec/), I found we can run ruby scripts or ruby code with the syntax *knife exec /path/to/script_file* or *knife exec -E 'ruby code'*. Let's try to get a reverse shell.
+After seearching in the doc (https://docs.chef.io/workstation/knife_exec/), I found we can run ruby scripts or ruby code with the syntax *knife exec /path/to/script_file* or *knife exec -E 'ruby code'*. Let's try to get a reverse shell:
 
 <div class="img_container">
 ![fail]({{https://jsom1.github.io/}}/_images/htb_knife_fail.png)
 </div>
 
-I looked for this error but couldn't find anything. However, we're trying here to get but we never specified our IP/port (I found those Ruby shell commands on the internet). Maybe we should get back to our initial attempt of getting a reverse shell via the *zerodiumsystem()* command and try with another payload:
+I looked for this error but couldn't find anything. Could it be because the command is passed through *zerodiumsystem()* and it can't work this way? Maybe we should get back to our initial attempt of getting a reverse shell via the *zerodiumsystem()* command and try with another payload:
 
 <div class="img_container">
 ![Burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp8.png)
@@ -227,7 +228,7 @@ I looked for this error but couldn't find anything. However, we're trying here t
 ![Reverse shell!]({{https://jsom1.github.io/}}/_images/htb_knife_reversesh.png)
 </div>
 
-And this time we've got a proper reverse shell! There's a problem though... Every character we type gets duplicated. There's a fix however (https://forum.hackthebox.eu/discussion/935/double-characters-in-shell) that we can try:
+And this time we've got a proper reverse shell! There's a problem though... Every character we type gets duplicated. Fortunately here's a fix (https://forum.hackthebox.eu/discussion/935/double-characters-in-shell) that we can try:
 
 <div class="img_container">
 ![fix shell!]({{https://jsom1.github.io/}}/_images/htb_knife_fix.png)
@@ -239,10 +240,11 @@ I'm not used to that fix and there's a point when we type and nothing is display
 ![root]({{https://jsom1.github.io/}}/_images/htb_knife_root.png)
 </div>
 
-It took a few tries to get the right command, but we're finally in as root! It's weird though because I couldn't see what I was typing in the shell. Maybe it is because of the previous command that I executed blindly (the one to fix duplicated characters).
-
-
+It took a few tries to get the right command, but we're finally in as root! It's weird though because I couldn't see what I was typing in the shell. Maybe it is because of the previous command that I executed blindly (the one to fix duplicated characters). Anyways, we've got what we wanted!
 
 <ins>**My thoughts**</ins>
-Although only 2 ports, not smth that stands out. Feels more like a real life scenario. Normalement 10000 trucs à try, ici l'inverse, struggle pour trouver un truc.
+I really enjoyed this machine for various reasons. First, there wasn't much to start with and yet it was "hard" to figure out what to do! On some machines there are up to 10 open ports and that potentially means 10 rabbit holes. Here there was only one at first (we rarely if ever start with SSH) so we knew where to go but not how.\\
+Then, even though this machine wasn't particularly described as "real", I felt like it was way more realistic than some other machines on HtB. I can totally imagine a server running an unpatched version of HTP, and they way of exploiting the backdoor was fun!\\
+Finally, I learned a little bit about Chef, Knife and this PHP 8.1.0-dev vulnerability. I'm happy to add this to my toolbox!
 
+I should remember to try different reverse shell payloads in the upcoming boxes. Here I only tried one with netcat and took a different path when it failed. If we feel that something *should work* but doesn't, it might be clever to try with another tool, another wordlist, another payload, and so on.
