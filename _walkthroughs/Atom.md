@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Ports/services exploited:** -\\
-**Tools:** -\\
+**Tools:** dirb, smbclient\\
 **Techniques:** -\\
 **Keywords:** -\\
 
@@ -107,11 +107,35 @@ We could go and download the app on the webpage, but it's a .exe... So we would 
 
 Let's look at SMB and do a quick enumeration. SMB (Server Message Block) is designed to be used as a file sharing protocol. With SMB, an authorized user/application can access files on a remote server.\\
 We saw nmap already ran the script *smb-os-discovery*. It showed the computer's name on the network (ATOM), the account used (guest) and stated that "message_signing is disabled" and that it is dangerous. Signing in SMB is a feature that allows SMB communications to be digitally signed at the packet-level. This allows the recipient to verify the authenticity of the source.\\
-A quick Google search reveals this is a medium risk vulnerability that can allow MitM (man-in-the-midddle) attacks against the server. It is also said that this vulnerability is prone to false positive reports by most vulnerability assessment solutions.
+A quick Google search reveals this is a medium risk vulnerability that can allow MitM (man-in-the-midddle) attacks against the server. It is also said that this vulnerability is prone to false positive reports by most vulnerability assessment solutions.\\
+Let's continue SMB enumeration. We can look at share names with **smbclient**:
 
+<div class="img_container">
+![Smbclient]({{https://jsom1.github.io/}}/_images/htb_atom_smb.png)
+</div>
 
+Note that I tried with different passwords such as *root*, *admin* and empty password, it always return this information. A few words about shares: SMB supports two levels of security. The first one is at the share level and protects the server. Each share has a password that the client user has to provide to access its information. The second one is at the level of the user: it is applied to individual files and each share is based on specific user access rights.\\
+In the picture above we see four shares, *ADMIN$*, *C$*, *IPC$* and *Software_Updates*.\\
 
+We can then use *smbclient* to access those shares:
 
+<div class="img_container">
+![shares]({{https://jsom1.github.io/}}/_images/htb_atom_shares.png)
+</div>
+
+In the share Software_Updates, there is one document which doesn't have an empty size. We can download it on our machine with the command *get* (it is downloaded in the directory from which we executed the *smbclient* command). Let's look at this file that we can open on Kali with the command:
+
+````
+xdg-open UAT_Testing_Procedures.pdf
+`````
+
+<div class="img_container">
+![PDF]({{https://jsom1.github.io/}}/_images/htb_atom_pdf.png)
+</div>
+
+We see on the page that the application was built with *electron-builder*. It is also mentionned that it is a one-tier application. In other words, it's the simplest architecture of a database in which the client, server and database all redise on the same machine. Finally we see the steps of the QA (Quality Assurance) process: build the application and place the updates in one of the "client" folders.
+
+Let's look at what *electron-builder* is. 
 
 <ins>**My thoughts**</ins>
 
