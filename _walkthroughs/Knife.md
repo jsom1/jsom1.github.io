@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height300px" width = 400px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png)
 </div>
 
 **Ports/services exploited:** 80/PHP 8.1.0-dev\\
@@ -243,6 +243,7 @@ I'm not used to that fix and there's a point when we type and nothing is display
 It took a few tries to get the right command, but we're finally in as root! It's weird though because I couldn't see what I was typing in the shell. Maybe it is because of the previous command that I executed blindly (the one to fix duplicated characters). Anyways, we've got what we wanted!
 
 <ins>**My thoughts**</ins>
+
 I really enjoyed this machine for various reasons. First, there wasn't much to start with and yet it was "hard" to figure out what to do! On some machines there are up to 10 open ports and that potentially means 10 rabbit holes. Here there was only one at first (we rarely if ever start with SSH) so we knew where to go but not how.\\
 Then, even though this machine wasn't particularly described as "real", I felt like it was way more realistic than some other machines on HtB. I can totally imagine a server running an unpatched version of HTP, and they way of exploiting the backdoor was fun!\\
 Finally, I learned a little bit about Chef, Knife and this PHP 8.1.0-dev vulnerability. I'm happy to add this to my toolbox!
