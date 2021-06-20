@@ -101,7 +101,13 @@ It doesn't really help us since it doesn't return any version. Because redis is 
 The message *-NOAUTH Authentication required* means that we need valid credentials to access the instance. By default, Redis can be accessed without credentials but that can be configured to support only password or username + password. That seems to be the case here.
 
 We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9 (also found on Metasploit). However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.\\
-A quick search about WSMan makes me think it's not the right way either, so let's get back at the webpage.
+A quick search about WSMan makes me think it's not the right way either, so let's look for something else. Maybe instead of digging into one of the many possibilities I'll just scratch the surface of the possible attack vector and try to find a low hanging fruit.\\
+
+We could go and download the app on the webpage, but it's a .exe... So we would either need a Windows VM or install Wine on Kali to run it. Because I don't have a Windows VM nor Wine installed, let's look at something else for now.
+
+Let's look at SMB and do a quick enumeration. SMB (Server Message Block) is designed to be used as a file sharing protocol. With SMB, an authorized user/application can access files on a remote server.\\
+We saw nmap already ran the script *smb-os-discovery*. It showed the computer's name on the network (ATOM), the account used (guest) and stated that "message_signing is disabled" and that it is dangerous. Signing in SMB is a feature that allows SMB communications to be digitally signed at the packet-level. This allows the recipient to verify the authenticity of the source.\\
+A quick Google search reveals this is a medium risk vulnerability that can allow MitM (man-in-the-midddle) attacks against the server. It is also said that this vulnerability is prone to false positive reports by most vulnerability assessment solutions.
 
 
 
