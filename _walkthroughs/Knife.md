@@ -227,7 +227,19 @@ I looked for this error but couldn't find anything. However, we're trying here t
 ![Reverse shell!]({{https://jsom1.github.io/}}/_images/htb_knife_reversesh.png)
 </div>
 
-And this time we've got a proper reverse shell! 
+And this time we've got a proper reverse shell! There's a problem though... Every character we type gets duplicated. There's a fix however (https://forum.hackthebox.eu/discussion/935/double-characters-in-shell) that we can try:
+
+<div class="img_container">
+![fix shell!]({{https://jsom1.github.io/}}/_images/htb_knife_fix.png)
+</div>
+
+I'm not used to that fix and there's a point when we type and nothing is displayed on the screen. It's a bit messy but it worked in the end as we can see with *ls*. Let's try again some of the commands we tried with *knife* in the previous "shell":
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_knife_root.png)
+</div>
+
+It took a few tries to get the right command, but we're finally in as root! It's weird though because I couldn't see what I was typing in the shell. Maybe it is because of the previous command that I executed blindly (the one to fix duplicated characters).
 
 
 
