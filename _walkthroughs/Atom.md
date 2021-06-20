@@ -66,7 +66,39 @@ There's also an email (MrR3boot@atom.htb (MrR3boot is the creator of this box)) 
 
 Before downloading the program, we'll use dirb to bruteforce directories:
 
+<div class="img_container">
+![dirb]({{https://jsom1.github.io/}}/_images/htb_atom_dirb.png)
+</div>
+
+It found 17 directories but most of them are forbidden to access (code 403). The two "images" contain the heed logo, and */releases* contain a zip file (*heed_setup_v1.0.0.zip*). It's the same file we can download on the main page. We also see */phpmyadmin*, but we can't access it. However, there must be a database somewhere for authentication, so let's perform a full TCP scan to check higher ports:
+
+<div class="img_container">
+![Full TCP scan]({{https://jsom1.github.io/}}/_images/htb_atom_fullscan.png)
+</div>
+
+We see wsman and redis on ports 5985 and 6379 (default port) respectively. I don't know those services, so here's what I found on Google:
+
+- WSMan: it's a DMTF (Distributed Management Task Force) open standard defining a SOAP(Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
+- Redis (REmote DIctionary Server): it's an in-memory data structure store, used as a cache and database.
+
+Let's try to gather more information about redis. There's an nmap script to enumerate the instance:
+
+<div class="img_container">
+![redis scan]({{https://jsom1.github.io/}}/_images/htb_atom_redis.png)
+</div>
+
+It doesn't really help us since it doesn't return any version. Because redis is a text based protocol, we can send a commad in a socket and the returned values should be readable. We can try with netcat for example (or telnet) and the command *info* to get information:
+
+<div class="img_container">
+![netcat redis]({{https://jsom1.github.io/}}/_images/htb_atom_nc.png)
+</div>
+
+The message *-NOAUTH Authentication required* means that we need valid credentials to access the instance. By default, Redis can be accessed without credentials but that can be configured to support only password or username + password. That seems to be the case here.
+
+We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9. However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.
+
+
 
 <ins>**My thoughts**</ins>
 
-Long time no Windows, maybe more frequet than Linux.
+Long time no Windows, maybe more frequet than Linux. Not used to so many information, struggle to know where to start.
