@@ -64,7 +64,12 @@ The easiest thing to do is to browse to the server to get more information about
 We learn from the page that Heed is a software company. They propose here a simple note taking application (v1.0.0) that can be downloaded (for Windows only).
 There's also an email (MrR3boot@atom.htb (MrR3boot is the creator of this box)) and we see it was created with Codepen. Codepen is a development environment for front-end developers.
 
-Before downloading the program, we'll use dirb to bruteforce directories:
+Before downloading the program, we'll use nikto to scan the web server for vulnerabilities and dirb to bruteforce its directories. The command for nikto is:
+
+````
+sudo nikto -h 10.10.10.237
+`````
+The command returns *0 host(s) tested*, that's weird... Let's leave it aside for now and check dirb:
 
 <div class="img_container">
 ![dirb]({{https://jsom1.github.io/}}/_images/htb_atom_dirb.png)
@@ -78,7 +83,7 @@ It found 17 directories but most of them are forbidden to access (code 403). The
 
 We see wsman and redis on ports 5985 and 6379 (default port) respectively. I don't know those services, so here's what I found on Google:
 
-- WSMan: it's a DMTF (Distributed Management Task Force) open standard defining a SOAP(Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
+- WSMan (also called WinRM): it's a DMTF (Distributed Management Task Force) open standard defining a SOAP(Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
 - Redis (REmote DIctionary Server): it's an in-memory data structure store, used as a cache and database.
 
 Let's try to gather more information about redis. There's an nmap script to enumerate the instance:
@@ -95,7 +100,10 @@ It doesn't really help us since it doesn't return any version. Because redis is 
 
 The message *-NOAUTH Authentication required* means that we need valid credentials to access the instance. By default, Redis can be accessed without credentials but that can be configured to support only password or username + password. That seems to be the case here.
 
-We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9. However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.
+We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9 (also found on Metasploit). However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.\\
+A quick search about WSMan makes me think it's not the right way either, so let's get back at the webpage.
+
+
 
 
 
