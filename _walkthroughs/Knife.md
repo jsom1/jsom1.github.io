@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="600px" width = 800px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height=550px" width = 680px"}
 </div>
 
 **Ports/services exploited:** 80/PHP 8.1.0-dev\\
@@ -43,7 +43,7 @@ There's only SSH and a web server running.
 We will start by browsing to the web page and see what it contains:
 
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_knife_site.png){: height="400px" width = 600px"}
+![website]({{https://jsom1.github.io/}}/_images/htb_knife_site.png){: height="410px" width = 620px"}
 </div>
 
 There are a few tabs on the page, but none of them are clickable. The next obvious thing we want to do is bruteforce directories, and we'll use dirb for that:
@@ -97,7 +97,7 @@ I'm not used to it, but we could try to use **Nikto**. This tool allows to scan 
 We see the version of php, which is 8.1.0-dev. The fact that it's a dev version means that it could be vulnerable somehow. I didn't find it on the webpage information, but I think this info should be somewhere... Let's try to find it for the sake of curiosity! We know we have to look at headers, so it's pretty straightforward:
 
 <div class="img_container">
-![Finding php version]({{https://jsom1.github.io/}}/_images/htb_knife_headers.png)
+![Finding php version]({{https://jsom1.github.io/}}/_images/htb_knife_headers.png){: height="400px" width = 600px"}
 </div>
 
 And there it is! Next time I'll have to check more carefuly... Anyways, we'll  now search for vulnerabilities for this version, but first let's look at what CGII directories are. Nikto didn't find any, but I don't know what it is so here's a short description: cgi-bin ("Commom Gateway Interface") is a directory that contains stored Perl or compiled files. Those files are treated as programs instead of HTML pages or images, and will be run by the server instead of displayed normally. In short, it's an interface used by HTTP servers.\\
