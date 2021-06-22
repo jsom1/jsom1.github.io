@@ -198,7 +198,7 @@ releaseDate: '2019-11-20T11:17:02.627Z'
 
 So from what I understand of the article, we have to write a malicious *latest.yml* file and place it in one of the client folders (we saw that on the PDF). This will automatically initiate the QA process. Therefore, we must find how to write that file, and then *put* it in one of the client folder on the *Software_Updates* share (that was said in the PDF).\\
 
-Let's follow the article step-by-step: we first create a malicious update file which must contain a single quote. Then, we must recalculate the file hash. Let's try to include a reverse shell payload in the file. We'll use **msfvenom** to create and encode it:
+Let's follow the article step-by-step: we first create a malicious update file whose name must contain a single quote. This file will contain our payload. Then, we must recalculate the file hash and encode it in base64. We will put this hash in the *latest.yml* file so that when the server executes it, it will match the hash of our payload. Let's try to include a reverse shell payload in the file. We'll use **msfvenom** to create and encode it:
 
 <div class="img_container">
 ![msfvenom]({{https://jsom1.github.io/}}/_images/htb_atom_msfv1.png)
@@ -219,12 +219,7 @@ Finally, we create the *latest.yml* file which will contain the generated hash. 
 ![latest.yml]({{https://jsom1.github.io/}}/_images/htb_atom_yml.png)
 </div>
 
-Before putting this file on the server and starting our own, we must not forget to copy the *m'aliciousupdate.exe* file in our web root directory:
-
-````
-sudo cp "m'aliciousupdate.exe" /var/www/html
-`````
-
+We give it execute permissions with *sudo chmod +x* and before putting this file on the server and starting our own, we make sure the file is in the same directory from which we'll start it (otherwise it won't find it).\\
 When we'll *put* the *latest.yml* file on the target machine, this latter should download our malicious file and execute it. Therefore, we will setup a *multi/handler* in Metasploit to catch the reverse shell:
 
 <div class="img_container">
@@ -234,7 +229,7 @@ When we'll *put* the *latest.yml* file on the target machine, this latter should
 Maybe the default could work, but we have a better chance if we specify the right payload. Now that we're ready to catch the reverse shell, we can start our web server:
 
 ````
-sudo python -m SimpleHTTPServer 8080
+sudo python -m SimpleHTTPServer 8000
 `````
 
 And *put* the *latest.yml* file in one of the client folder:
@@ -242,6 +237,21 @@ And *put* the *latest.yml* file in one of the client folder:
 <div class="img_container">
 ![put latest.yml]({{https://jsom1.github.io/}}/_images/htb_atom_put.png)
 </div>
+
+For some reason it doesn't work... The first thing we should see is the server doing a GET request to our server (to download the file), so there's probably an error in the *latest.yml* file. I tried changing the port to 8000 and *put* the file in the 2 others client folder, but it still doesn't work... After trying a few variations, I realized I just didn't wait long enough to see the request... The scripts probably runs once per minute or something like that. In the following image I renamed the file *v'maliciousupdate.exe* to be as close as the article as possible. However, we see it doesn't find the file:
+
+<div class="img_container">
+![File not found]({{https://jsom1.github.io/}}/_images/htb_atom_fail.png)
+</div>
+
+I finally found why! The directory from which I was starting the web server didn't have the *m'alicious.exe* file in it... Ater changing that, we see the file indeed gets the file:
+
+<div class="img_container">
+![File download]({{https://jsom1.github.io/}}/_images/htb_atom_get.png)
+</div>
+
+Sadly notthing happens in Metasploit, it doesn't catch any shell back... 
+
 
 We see that the server *GET* requested our file:
 
