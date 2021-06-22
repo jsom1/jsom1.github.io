@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Ports/services exploited:** \\
-**Tools:** \\
+**Tools:** wpscan, hydra\\
 **Techniques:** \\
 **Keywords:** \\
 
@@ -78,7 +78,36 @@ Finally, there is a *Log in* link that brings us to the following page:
 </div>
 
 We saw on the main page the username "administrator", so we could try to bruteforce the login with hydra for example. We can try a few obvious passwords such as admin, 1234, administrator, and spectra for example.
-Nothing worked, we'll have to find another way.
+Nothing worked, we'll have to find another way. Now we know the CMS, we can use **wpscan** to scan the website for known vulnerabilities.\\
+For a thorough scan, we'll provide the *enumerate* options *ap* (all plugins), *at* (all themes), *cb* (config backups), *dbe* (Db exports), and *u* (users). The command is the following:
+
+````
+wpscan --url spectra.htb/main --enumerate ap, at, cb, dbe, u
+`````
+
+The output is long and reveals a lot of interesting information, among which:
+
+- Server: nginx/1.17.4
+- X-Powered-By: PHP/5.6.40
+- WordPress version 5.3.2
+- WordPress theme in use: twentytwenty (v. 1.1, up to date)
+- Other themes: twentynineteen (v1.4), twentyseventeen (v. 2.2)
+
+There was no DB exports, no plugins and no config backups found. That's still a lot of things to investigate! Before spreading too much, let's simply try to bruteforce the credentials. Before using Hydra, we need to know the form of the request. To do so, we can open the developer mode on the page and submit random credentials. Then, we look at POST's request parameters:
+
+<div class="img_container">
+![POST request]({{https://jsom1.github.io/}}/_images/htb_spectra_post.png){: height="415px" width = 625px"}
+</div>
+
+The username is in a variable called *log*, the password is in *pwd*, there's a cookie in *testcookie: 1*, and there's the form *wp-submit: Log+In*. We must still look at the response from the server by clicking on the *Response* tab. This is because we will give the error message to Hydra so that it knows whether it has to keep trying or not. The message is the following: "Error: the password you entered for the username administrator is incorrect. Lost your password?".\\
+With this information, we have everything we need for Hydra. The syntax is as follows:
+
+```
+sudo hydra -l administrator -P /usr/share/dirb/wordlists/small.txt spectra.htb http-post-form "/main/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In&testcookie=1&login=Login:Lost your password?" -V -f
+`````
+
+I used a small wordlist here to see if it there was a low hanging fruit. Unfortunately, hydra found a false positive password, *websearch*.
+Even though it didn't find a password, we know there's no limit to our attempts. I tried with another wordlist (*common.txt*) but hydra found a false positive once again. I'm not going to spend too much time with hydra because there are many other things to try and check, and bruteforcing is rather a last resort strategy.\\
 
 
 
