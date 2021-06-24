@@ -32,7 +32,7 @@ output: html_document
 Let's enumerate the running services with nmap and the flags *-sV* to have a verbose output, *-O* to enable OS detection, and *-sC* to enable the most common scripts scan.
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/htb_spectra_nmap.png)
+![nmap]({{https://jsom1.github.io/}}/_images/htb_arma_nmap.png)
 </div>
 
 There's only SSH and HTTP, so it's a pretty straightforward start: we'll inspect the web page.
@@ -43,10 +43,14 @@ There's only SSH and HTTP, so it's a pretty straightforward start: we'll inspect
 By browsing to the box' IP, we land on the following page:
 
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_spectra_site.png){: height="415px" width = 625px"}
+![website]({{https://jsom1.github.io/}}/_images/htb_arma_site.png){: height="415px" width = 625px"}
 </div>
 
+While we inspect its content, we can start dirb and nikto in the background:
 
+<div class="img_container">
+![dirb]({{https://jsom1.github.io/}}/_images/htb_arma_dirb.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
