@@ -70,7 +70,7 @@ This is probably related to the MySQL database revealed by nmap. Let's leave tha
 
 There are several links and interesting information on this page. First, we see the CMS used for the site is Wordpress. Secondly, when we click on *comment*, we see the following message:\\
 *Hi, this is a comment. To get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard. Commenter avatars come from Gravatar*.\\
-Thidrly, we see we can also post comment (without publishing our email address). Maybe the website is vulnerable to SQL injections? We'll have to check.
+Thirdly, we see we can also post comment (without publishing our email address). Maybe the website is vulnerable to SQL injections? We'll have to check.
 Finally, there is a *Log in* link that brings us to the following page:
 
 <div class="img_container">
