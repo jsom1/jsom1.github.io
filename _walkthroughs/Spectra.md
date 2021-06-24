@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_spectra_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_spectra_desc.png){: height="415px" width = 625px"}
 </div>
 
 **Ports/services exploited:** WordPress\\
@@ -44,7 +44,7 @@ Note that the OS isn't specified in the box' description and nmap didn't find an
 By browsing to the target's IP, we see the following page:
 
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_spectra_site.png){: height="415px" width = 625px"}
+![website]({{https://jsom1.github.io/}}/_images/htb_spectra_site.png){: height="150px" width = 340px"}
 </div>
 
 Jira is a software that was designed to help work management. It was originally designed as a bug and issue tracker, but is today a powerful work management tool for all kinds of uses cases.
@@ -59,7 +59,7 @@ echo "10.10.10.229 spectra.htb" >> /etc/hosts
 We can now refresh the page to see what it contains. The link *Test* returns the following message:
 
 <div class="img_container">
-![website2]({{https://jsom1.github.io/}}/_images/htb_spectra_site2.png){: height="415px" width = 625px"}
+![website2]({{https://jsom1.github.io/}}/_images/htb_spectra_site2.png){: height="300px" width = 340px"}
 </div>
 
 This is probably related to the MySQL database revealed by nmap. Let's leave that aside for the moment and look at the second link, *Software Issue Tracker*:
@@ -146,14 +146,14 @@ SQLmap didn't find anything either, so SQLi is probably not what we're looking f
 There are two other links on the website: *Entries feed* and *Comments feed*. When we open the first one, we see the following:
 
 <div class="img_container">
-![Entries feed]({{https://jsom1.github.io/}}/_images/htb_spectra_entries.png){: height="415px" width = 625px"}
+![Entries feed]({{https://jsom1.github.io/}}/_images/htb_spectra_entries.png){: height="430px" width = 660px"}
 </div>
 
 We see another host, *http://10.10.10.90/sites/dev/?p=1*. Is it the dev site of the application? Anyways, we cannot ping it (host unreachable) nor browse to it... After a while of pretty much trying everything, I came back at the other link (among the two first links we saw, *Software Issue Tracker* and *Test*) and clicked on it. As previously, we have the error "Error establishing a database connection". The URL at this point is *spectra.htb/testing/index.php*.\\
 It appears that by removing the */index.php* part of the URL, we see a list of php scripts:
 
 <div class="img_container">
-![Scripts]({{https://jsom1.github.io/}}/_images/htb_spectra_scripts.png){: height="415px" width = 625px"}
+![Scripts]({{https://jsom1.github.io/}}/_images/htb_spectra_scripts.png){: height="415px" width = 600px"}
 </div>
 
 Most of those links return the error we just saw or some show a blank page. Some of them are accessible and contain a bunch of other php scripts within them. After looking those files I had to ask for help. It was a good thing because I would never have thought about that: even though a page appears blank in the browser, we can *curl* into its location to see its content:
@@ -165,7 +165,7 @@ Most of those links return the error we just saw or some show a blank page. Some
 We see a database username and password in cleartext (user 'devtest', password 'devteam01'). However, we can't access the MySQL instance for the moment as we don't have a foothold on the server yet... Let's try to use those credentials on the login page... It doesn't work, but it does for *administrator* / *devteam01*:
 
 <div class="img_container">
-![login]({{https://jsom1.github.io/}}/_images/htb_spectra_cms.png)
+![login]({{https://jsom1.github.io/}}/_images/htb_spectra_cms.png){: height="415px" width = 600px"}
 </div>
 
 Now that we have a foothold, we would ideally like to have a shell. I think we could add a new theme or plugin in which we'd put a malicious payload (reverse shell), but that would screw the box for other players. So, since we saw the version of WordPress is out of date, we can try to use the famous wp_admin_shell_upload exploit. We start Metasploit, search for the exploit and use it:
