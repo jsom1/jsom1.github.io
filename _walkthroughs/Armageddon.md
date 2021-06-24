@@ -17,13 +17,13 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_arma_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_arma_desc.png){: height="415px" width = 625px"}
 </div>
 
 **Ports/services exploited:** \\
 **Tools:** \\
 **Techniques:** \\
-**Keywords:** \\
+**Keywords:**
 
 
 ## 1. Port scanning
