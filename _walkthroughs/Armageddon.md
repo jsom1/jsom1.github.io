@@ -52,6 +52,15 @@ While we inspect its content, we can start dirb and nikto in the background:
 ![dirb]({{https://jsom1.github.io/}}/_images/htb_arma_dirb.png)
 </div>
 
+<div class="img_container">
+![nikto]({{https://jsom1.github.io/}}/_images/htb_arma_nikto1.png)
+</div>
+
+<div class="img_container">
+![nikto]({{https://jsom1.github.io/}}/_images/htb_arma_nikto2.png)
+</div>
+
+There's a lot of information and leads to investigate.
 
 <ins>**My thoughts**</ins>
  
