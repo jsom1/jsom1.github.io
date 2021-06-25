@@ -243,8 +243,23 @@ We should see the server doing a GET request to our server (to download the file
 
 At first I thought it didn't work, but we have to wait long enough to see the request... The scripts probably runs once per minute or something like that. Now that the server grabbed our file, it should execute it and connect back to us. Sadly notthing happens in Metasploit, it doesn't catch any shell back... That means there's a problem with our payload in the *m'aliciousupdate.exe* file...\\\
 
+Someone on the forum suggested to take null bytes into consideration, so I added *-b "\x00"* to the *msfvenom* command. It still didn't work. After trying with different encodings, it finally worked with another payload: instead of *windows/meterpreter/reverse_tcp*, I used *windows/x64/shell_reverse_tcp*:
+
+<div class="img_container">
+![revsh]({{https://jsom1.github.io/}}/_images/htb_atom_revsh.png)
+</div>
+
+From there, we can easily retrieve the user's flag from the Desktop:
+
+<div class="img_container">
+![User flag]({{https://jsom1.github.io/}}/_images/htb_atom_user.png)
+</div>
+
+And we're back at enumeration. We'll start with a little manual search and if we don't find anything, we might uplaod an automatic script such as *WinPeas*.
+
+
 
 
 <ins>**My thoughts**</ins>
 
-Long time no Windows, maybe more frequet than Linux. Not used to so many information, struggle to know where to start.
+Long time no Windows, maybe more frequet than Linux. Not used to so many information, struggle to know where to start. Revsh frustrating
