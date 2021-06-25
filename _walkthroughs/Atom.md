@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="415px" width = 625px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_atom_desc.png){: height="415px" width = 625px"}
 </div>
 
 **Ports/services exploited:** SMB, Redis, WinRM\\
