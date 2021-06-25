@@ -58,7 +58,7 @@ The easiest thing to do is to browse to the server to get more information about
 ![website]({{https://jsom1.github.io/}}/_images/htb_atom_site1.png){: height="420px" width = 635px"}
 </div>
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_atom_site2.png){: height="420px" width = 635px"}
+![website]({{https://jsom1.github.io/}}/_images/htb_atom_site2.png){: height="430px" width = 660px"}
 </div>
 
 We learn from the page that Heed is a software company. They propose here a simple note taking application (v1.0.0) that can be downloaded (for Windows only).
