@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="415px" width = 625px"}
 </div>
 
 **Ports/services exploited:** SMB, Redis, WinRM\\
@@ -55,10 +55,10 @@ There are many things to go over, so let's begin!
 The easiest thing to do is to browse to the server to get more information about it:
 
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_atom_site1.png){: height="415px" width = 625px"}
+![website]({{https://jsom1.github.io/}}/_images/htb_atom_site1.png){: height="420px" width = 635px"}
 </div>
 <div class="img_container">
-![website]({{https://jsom1.github.io/}}/_images/htb_atom_site2.png)
+![website]({{https://jsom1.github.io/}}/_images/htb_atom_site2.png){: height="420px" width = 635px"}
 </div>
 
 We learn from the page that Heed is a software company. They propose here a simple note taking application (v1.0.0) that can be downloaded (for Windows only).
@@ -83,8 +83,8 @@ It found 17 directories but most of them are forbidden to access (code 403). The
 
 We see wsman and redis on ports 5985 and 6379 (default port) respectively. I don't know those services, so here's what I found on Google:
 
-- WSMan (also called WinRM): it's a DMTF (Distributed Management Task Force) open standard defining a SOAP(Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
-- Redis (REmote DIctionary Server): it's an in-memory data structure store, used as a cache and database.
+- **WSMan** (also called WinRM): it's a DMTF (Distributed Management Task Force) open standard defining a SOAP(Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
+- **Redis** (REmote DIctionary Server): it's an in-memory data structure store, used as a cache and database.
 
 Let's try to gather more information about redis. There's an nmap script to enumerate the instance:
 
@@ -101,7 +101,7 @@ It doesn't really help us since it doesn't return any version. Because redis is 
 The message *-NOAUTH Authentication required* means that we need valid credentials to access the instance. By default, Redis can be accessed without credentials but that can be configured to support only password or username + password. That seems to be the case here.
 
 We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9 (also found on Metasploit). However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.\\
-A quick search about WSMan makes me think it's not the right way either, so let's look for something else. Maybe instead of digging into one of the many possibilities I'll just scratch the surface of the possible attack vector and try to find a low hanging fruit.\\
+A quick search about WSMan makes me think it's not the right way either, so let's look for something else. Maybe instead of digging into one of the many possibilities I'll just scratch the surface of the possible attack vector and try to find a low hanging fruit.
 
 We could go and download the app on the webpage, but it's a .exe... So we would either need a Windows VM or install Wine on Kali to run it. Because I don't have a Windows VM nor Wine installed, let's look at something else for now.
 
@@ -130,7 +130,7 @@ xdg-open UAT_Testing_Procedures.pdf
 `````
 
 <div class="img_container">
-![PDF]({{https://jsom1.github.io/}}/_images/htb_atom_pdf.png)
+![PDF]({{https://jsom1.github.io/}}/_images/htb_atom_pdf.png){: height="550px" width = 450px"}
 </div>
 
 We see on the page that the application was built with *electron-builder*. It is also mentionned that it is a one-tier application. In other words, it's the simplest architecture of a database in which the client, server and database all redise on the same machine. Finally we see the steps of the QA (Quality Assurance) process: build the application and place the updates in one of the "client" folders.\\
