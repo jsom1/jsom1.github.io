@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** WordPress\\
 **Tools:** wpscan, hydra (not necessary), sqlmap (not necessary)\\
 **Techniques:** enumeration\\
-**Keywords:** wp_admin_shell_upload, SQL injection (not necessary)\\
+**Keywords:** wp_admin_shell_upload, SQL injection (not necessary)
 
 
 ## 1. Port scanning
@@ -49,14 +49,14 @@ By browsing to the target's IP, we see the following page:
 
 Jira is a software that was designed to help work management. It was originally designed as a bug and issue tracker, but is today a powerful work management tool for all kinds of uses cases.
 It is notably the ticketing system used by Hack The Box.\\
-There are two clickable links, but there's an error when we click on them: we see in the URL *spectra.htb/testing/index.php*. 
+There are two clickable links, but we land on an error page when clicking on them: we see in the URL *spectra.htb/testing/index.php*. 
 This is a hostname resolution issue, and we can easily resolve it by adding the host into our */etc/hosts* file:
 
 ````
 echo "10.10.10.229 spectra.htb" >> /etc/hosts
 ``````
 
-We can now refresh the page to see what it contains. The link *Test* returns the following message:
+We can now refresh the page and see what it contains. The link *Test* returns the following message:
 
 <div class="img_container">
 ![website2]({{https://jsom1.github.io/}}/_images/htb_spectra_site2.png){: height="300px" width = 340px"}
@@ -94,7 +94,7 @@ The output is long and reveals a lot of interesting information, among which:
 - Other themes: twentynineteen (v1.5, out of date), twentyseventeen (v. 2.3, out of date)
 - 1 user found: administrator
 
-There was no DB exports, no plugins and no config backups found. That's still a lot of things to investigate! Before spreading too much, let's simply try to bruteforce the credentials. Before using Hydra, we need to know the form of the request. To do so, we can open the developer mode on the page and submit random credentials. Then, we look at POST's request parameters:
+There was no DB exports, no plugins and no config backups found. That's still a lot of things to investigate! Before spreading too much, let's simply try to **bruteforce** the credentials. Before using **Hydra**, we need to know the form of the request. To do so, we can open the developer mode on the page and submit random credentials (we could also use Burp). Then, we look at POST's request parameters:
 
 <div class="img_container">
 ![POST request]({{https://jsom1.github.io/}}/_images/htb_spectra_post.png){: height="415px" width = 625px"}
@@ -108,8 +108,9 @@ sudo hydra -l administrator -P /usr/share/dirb/wordlists/small.txt spectra.htb h
 `````
 
 I used a small wordlist here to see if it there was a low hanging fruit. Unfortunately, hydra found a false positive password, *websearch*.
-Even though it didn't find a password, we know there's no limit to our attempts. I tried with another wordlist (*common.txt*) but hydra found a false positive once again. I'm not going to spend too much time with hydra because there are many other things to try and check, and bruteforcing is rather a last resort strategy.\\
-We can try an SQL injection in the Username field to bypass the authentication process. The idea is the following: when a legitimate user submits their username and password, the application queries the underlying database with those values. The SQL statement uses an *and* logical operator in the *where* clause. This is why the database will only return records that have a user with a given username and password. For example in our case, we know the username *administrator*. Let's imagine the password is 1234. When this persons submits their credentials, the SQL query looks like thee following:
+Even though it didn't find a password, we know there's no limit to our attempts. I tried with another wordlist (*common.txt*) but hydra found a false positive once again. I'm not going to spend too much time with hydra because there are many other things to try and check, and bruteforcing is rather a last resort strategy.
+
+We can try an **SQL injection** in the Username field to bypass the authentication process. The idea is the following: when a legitimate user submits their username and password, the application queries the underlying database with those values. The SQL statement uses an *and* logical operator in the *where* clause. This is why the database will only return records that have a user with a given username and password. For example in our case, we know the username *administrator*. Let's imagine the password is 1234. When this persons submits their credentials, the SQL query looks like thee following:
 
 ````
 SELECT * FROM users WHERE name = 'administrator' and password = '1234';
@@ -127,7 +128,8 @@ Sometimes, applications have functions that query the database and expect a sing
 administrator' or 1=1 LIMIT 1;#
 ``````
 
-After a few tries, here's what comes out: if we only put it in the username, ther's an error "the password field is empty". If we put it in both fields, it returns "Unknown username". Finally if we input "administrator" in the username and the command in the password, it returns "the password you entered or the username administrator is incorrect".\\
+After a few tries, here's what comes out: if we only put it in the username, ther's an error "the password field is empty". If we put it in both fields, it returns "Unknown username". Finally if we input "administrator" in the username and the command in the password, it returns "the password you entered or the username administrator is incorrect".
+
 This can either mean that the application is not vulnerable to SQL injection, or that we don't have the right command. Generally, we can spot SQLi vulnerabilities by injecting a simple "'" in every possible form on the webpage and look at the response. If the application doesn't handle it well, it might indicate the presence of a SQLi vulnerability.\\
 I did that on the website but it seems the application handles that well. Instead of processing manually by trial and error, we can also use an automated tool such a **SQLmap**. For example, we can test different injections against a parameter. In our case, we get the parameter *p* in the URL when we click on the comment. The URL becomes *spectra.htb/main/?p=1#comments*. The SQLmap commands is the following:
 
@@ -168,7 +170,7 @@ We see a database username and password in cleartext (user 'devtest', password '
 ![login]({{https://jsom1.github.io/}}/_images/htb_spectra_cms.png){: height="415px" width = 600px"}
 </div>
 
-Now that we have a foothold, we would ideally like to have a shell. I think we could add a new theme or plugin in which we'd put a malicious payload (reverse shell), but that would screw the box for other players. So, since we saw the version of WordPress is out of date, we can try to use the famous wp_admin_shell_upload exploit. We start Metasploit, search for the exploit and use it:
+Now that we have a foothold, we would ideally like to have a shell. I think we could add a new theme or plugin in which we'd put a malicious payload (reverse shell), but that would screw the box for other players. So, since we saw the version of WordPress is out of date, we can try to use the famous **wp_admin_shell_upload** exploit. We start Metasploit, search for the exploit and use it:
 
 ````
 sudo msfconsole -q
@@ -193,7 +195,7 @@ Where LHOST is my tun0 IP (shown by *sudo ifconfig tun0*). Once this is done, we
 ![Shell]({{https://jsom1.github.io/}}/_images/htb_spectra_shell.png)
 </div>
 
-Finally we've got a shell! However we see we're "in as nginx", and we have to find a way to a user (where the flag is!). Let's start with manual enumeration. The basic shell we have is a nightmare, so let's upgrade it to a fully interactive shell:
+Finally we've got a shell! However we see we're "in as nginx", and we have to find a way to the user where the flag is! Let's start with manual enumeration. The basic shell we have is a nightmare, so let's upgrade it to a fully interactive shell:
 
 <div class="img_container">
 ![Python shell]({{https://jsom1.github.io/}}/_images/htb_spectra_pty.png)
