@@ -60,7 +60,18 @@ While we inspect its content, we can start dirb and nikto in the background:
 ![nikto]({{https://jsom1.github.io/}}/_images/htb_arma_nikto2.png)
 </div>
 
-There's a lot of information and leads to investigate.
+There's a lot of information and leads to investigate. Some of those directories contain dozens of scripts. I'll just quickly go through them, looking for usernames, passwords, interesting functiobs/scripts or any useful information.
+
+One thing that frequently comes out is *Drupal*. It is a CMS written in php and based on the internet, is excellent from a security standpoint. Its flexibility makes it different from other CMS; modularity is one of its core principles. 
+
+By inspecting the web page after a login attempt (admin/admin), we see information sent back from the server in the request's headers. It is Drupal 7 and PHP/5.4.16. Even though it is self-declared secure, we can look if there is any existing exploit on Metasploit with the command *searchsploit drupal*:
+
+<div class="img_container">
+![searchsploit]({{https://jsom1.github.io/}}/_images/htb_arma_search.png)
+</div>
+
+Well, it might not be that secure after all. We see in particular a few exploits for Drupal 7 up to Drupal 8, and some of them contain the string "geddon" in them. That could be a trap, but since the box' name is Armageddon, we have to have a look at that. There are RCE exploits but they seem to require authentication, so let's look at the SQLis. Reding the source code of those exploits seems to indicate we need a *https* url, which we don't have. Let's search on the internet to see if we can find a concrete example of this vulnerability.
+
 
 <ins>**My thoughts**</ins>
  
