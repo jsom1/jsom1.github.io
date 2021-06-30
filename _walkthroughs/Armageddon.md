@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Ports/services exploited:** HTTP, MySQL\\
-**Tools:** Metasploit, JtR, MySQL\\
+**Tools:** Metasploit, JtR, MySQL, dirty_sock\\
 **Techniques:** Enumeration\\
 **Keywords:** Drupal, Snap
 
@@ -476,5 +476,5 @@ And that's it!
 <ins>**My thoughts**</ins>
  
 This box taught me many little but useful details, such as the fact we can "*wget* a blank page" to see its content and the *-e* flag in MySQL to issue commands without connecting directly to the instance.\\
-I also learned about *snap* and how to exploit it if the user has root permissions on it. Note that we didn't go down the GTFOBins path, but there might be another way to get root by crafting our own custom package with fpm. However I read that it is "complicated" since it requires to run another VM in Kali VM and enable some options to allow it to work.\\
+I also learned about *snap* and how to exploit it if the user has root permissions on it. Note that we didn't go down the GTFOBins path, but there might be another way to get root by crafting our own custom package with fpm. However I read that it is "complicated" since it requires to run another VM in Kali VM and enable some options to allow it to work.
  
