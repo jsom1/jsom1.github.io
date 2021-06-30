@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** HTTP, MySQL\\
 **Tools:** Metasploit, JtR, MySQL\\
 **Techniques:** Enumeration\\
-**Keywords:** Drupal
+**Keywords:** Drupal, Snap
 
 
 ## 1. Port scanning
@@ -173,7 +173,30 @@ SSH worked and we get the user flag! As "usual" (it's quite recent), the first t
 ![user perms]({{https://jsom1.github.io/}}/_images/htb_arma_sudol.png)
 </div>
 
-We see we can run the command */usr/bin/snap install* as root without providing a password.
+We see we can run the command */usr/bin/snap install* as root without providing a password. We can check GTFOBins for a way to leverage to this permission:
+
+<div class="img_container">
+![GTFOBins]({{https://jsom1.github.io/}}/_images/htb_arma_gtfo.png)
+</div>
+
+It appears we have to craft a package with **fpm** and upload it to the target. By clicking on the *fpm* link, we land in a github repo where we learn what it is: "The goal of fpm is to make it easy and quick to build packages such as rmps, debs, OSX packages, etc...\\
+Let's also look at what *snap* is: "the */snap* directory is, by default, where the files and folders from installed snap packages appear on your system. A snap package is a cross-distribution, dependency free and easy to install package containing an application and all its dependencies.
+
+By Googling "(root) nopasswd /usr/bin/snap install \*", the first link that comes out is an interesting Github ticket. The person mentions the same user permissions and gives two references describing how to exploit it, respectively **dirty_sock** and **dirty_sock v2**. We can search for an existing exploit:
+
+````
+searchsploit dirty
+`````
+
+There are two python exploits for snapd < 2.37. Let's look at the version running on Armageddon:
+
+<div class="img_container">
+![Snap version]({{https://jsom1.github.io/}}/_images/htb_arma_snapv.png)
+</div>
+
+
+
+
 
 <ins>**My thoughts**</ins>
  
