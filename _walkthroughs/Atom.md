@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Ports/services exploited:** SMB, Redis, WinRM\\
-**Tools:** dirb, smbclient, msfvenom\\
+**Tools:** dirb, smbclient, msfvenom, powershell\\
 **Techniques:** Enumeration, reverse shell\\
 **Keywords:** Electron builder, Redis, WinRM\\
 
@@ -83,7 +83,7 @@ It found 17 directories but most of them are forbidden to access (code 403). The
 
 We see wsman and redis on ports 5985 and 6379 (default port) respectively. I don't know those services, so here's what I found on Google:
 
-- **WSMan** (also called WinRM): it's a DMTF (Distributed Management Task Force) open standard defining a SOAP(Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
+- **WSMan** (also called WinRM): it's a DMTF (Distributed Management Task Force) open standard defining a SOAP (Simple Object Access Protocol)-based protocol (SOAP is a messaging protocol specification for exchanging structured information in the implementation of web services in computer networks. It uses XML Information Set for its message format, and relies on application layer protocols, most often Hypertext Transfer Protocol (HTTP)) for the management of servers, devices, applications and web services.
 - **Redis** (REmote DIctionary Server): it's an in-memory data structure store, used as a cache and database.
 
 Let's try to gather more information about redis. There's an nmap script to enumerate the instance:
@@ -100,14 +100,15 @@ It doesn't really help us since it doesn't return any version. Because redis is 
 
 The message *-NOAUTH Authentication required* means that we need valid credentials to access the instance. By default, Redis can be accessed without credentials but that can be configured to support only password or username + password. That seems to be the case here.
 
-We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9 (also found on Metasploit). However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.\\
-A quick search about WSMan makes me think it's not the right way either, so let's look for something else. Maybe instead of digging into one of the many possibilities I'll just scratch the surface of the possible attack vector and try to find a low hanging fruit.
+We can't get the version of the service. I still checked on Google for *redis key-value store exploit* and found a few pages among which a promising RCE for Redis 4.0.9 (also found on Metasploit). However, it requires that Redis supports anonymous authentication which we saw was not the case. This service might not be our way in and we must find something else.
+
+A quick search about WSMan makes me think it's not the right way either, so let's look for something else. Maybe instead of digging into one of the many possibilities I'll just scratch the surface of the possible attack vectors and try to find a low hanging fruit.
 
 We could go and download the app on the webpage, but it's a .exe... So we would either need a Windows VM or install Wine on Kali to run it. Because I don't have a Windows VM nor Wine installed, let's look at something else for now.
 
 Let's look at SMB and do a quick enumeration. SMB (Server Message Block) is designed to be used as a file sharing protocol. With SMB, an authorized user/application can access files on a remote server.\\
 We saw nmap already ran the script *smb-os-discovery*. It showed the computer's name on the network (ATOM), the account used (guest) and stated that "message_signing is disabled" and that it is dangerous. Signing in SMB is a feature that allows SMB communications to be digitally signed at the packet-level. This allows the recipient to verify the authenticity of the source.\\
-A quick Google search reveals this is a medium risk vulnerability that can allow MitM (man-in-the-midddle) attacks against the server. It is also said that this vulnerability is prone to false positive reports by most vulnerability assessment solutions.\\
+This appears to be a medium risk vulnerability that can allow MitM (man-in-the-midddle) attacks against the server. It is also said that this vulnerability is prone to false positive reports by most vulnerability assessment solutions.\\
 Let's continue SMB enumeration. We can look at share names with **smbclient**:
 
 <div class="img_container">
@@ -115,7 +116,7 @@ Let's continue SMB enumeration. We can look at share names with **smbclient**:
 </div>
 
 Note that I tried with different passwords such as *root*, *admin* and empty password, it always return this information. A few words about shares: SMB supports two levels of security. The first one is at the share level and protects the server. Each share has a password that the client user has to provide to access its information. The second one is at the level of the user: it is applied to individual files and each share is based on specific user access rights.\\
-In the picture above we see four shares, *ADMIN$*, *C$*, *IPC$* and *Software_Updates*.\\
+In the picture above we see four shares, *ADMIN$*, *C$*, *IPC$* and *Software_Updates* (*ADMIN$*, *C$* and *IPC$* are defaut shares).
 
 We can then use *smbclient* to access those shares:
 
@@ -133,10 +134,10 @@ xdg-open UAT_Testing_Procedures.pdf
 ![PDF]({{https://jsom1.github.io/}}/_images/htb_atom_pdf.png){: height="550px" width = 450px"}
 </div>
 
-We see on the page that the application was built with *electron-builder*. It is also mentionned that it is a one-tier application. In other words, it's the simplest architecture of a database in which the client, server and database all redise on the same machine. Finally we see the steps of the QA (Quality Assurance) process: build the application and place the updates in one of the "client" folders.\\
+We see on the page that the application was built with *electron-builder*. It is also mentionned that it is a one-tier application. In other words, it's the simplest architecture of a database in which the client, server and database all reside on the same machine. Finally we see the steps of the QA (Quality Assurance) process: build the application and place the updates in one of the "client" folders.
 
 Let's look at what *electron-builder* is. It's an open-source software framework developed and maintained by GitHub. It allows developers to create cross-platform applications with web technologies such as HTML, CSS and Javascript. Some well-known Electron applications include **Atom editor**, Visual Studio Code, and Slack.\\
-So this is why the box is called Atom! We'll search for known vulnerabilities by Googling "electron-builder exploit". The first result mentions a signature validation bypass leading to RCE (https://blog.doyensec.com/2020/02/24/electron-updater-update-signature-bypass.html). That sounds interesting!\\
+So this is why the box is called Atom! We'll search for known vulnerabilities by Googling "electron-builder exploit". The first result mentions a signature validation bypass leading to RCE (https://blog.doyensec.com/2020/02/24/electron-updater-update-signature-bypass.html). That sounds interesting!
 
 Apparently, Electon-builder is frequently used for software updates. The auto-update feature is provided by its electron-updater submodule, internally using NSIS for Windows. It features a dual code-signing method for Windows.\\
 The article states there's an overall lack of secure coding practices in the update mechanism. In particular, a vulnerability can be used to bypass the signature verification check, eventually leading to **remote command execution**.\\
@@ -196,7 +197,7 @@ sha512: GIh9UnKyCaPQ7ccX0MDL10UxPAAZr1[...]ZrR5X1kb8tPCNZLTbKWcDEOJzfA==
 releaseDate: '2019-11-20T11:17:02.627Z'
 ``````
 
-So from what I understand of the article, we have to write a malicious *latest.yml* file and place it in one of the client folders (we saw that on the PDF). This will automatically initiate the QA process. Therefore, we must find how to write that file, and then *put* it in one of the client folder on the *Software_Updates* share (that was said in the PDF).\\
+So from what I understand of the article, we have to write a malicious *latest.yml* file and place it in one of the client folders (we saw that on the PDF). This will automatically initiate the QA process. Therefore, we must find how to write that file, and then *put* it in one of the client folder on the *Software_Updates* share (that was said in the PDF).
 
 Let's follow the article step-by-step: we first create a malicious update file whose name must contain a single quote. This file will contain our payload. Then, we must recalculate the file hash and encode it in base64. We will put this hash in the *latest.yml* file so that when the server executes it, it will match the hash of our payload. Let's try to include a reverse shell payload in the file. We'll use **msfvenom** to create and encode it:
 
@@ -217,7 +218,7 @@ Finally, we create the *latest.yml* file which will contain the generated hash. 
 </div>
 
 We give it execute permissions with *sudo chmod +x* and before putting this file on the server and starting our own, we make sure it is in the same directory from which we'll start it (otherwise it won't find it).\\
-When we'll *put* the *latest.yml* file on the target machine, this latter should download our malicious file, compare the hashed and execute it. Therefore, we will setup a *multi/handler* in Metasploit to catch the reverse shell:
+When we'll *put* the *latest.yml* file on the target machine, this latter should download our malicious file, compare the hashes and execute it. Therefore, we will setup a *multi/handler* in Metasploit to catch the reverse shell:
 
 <div class="img_container">
 ![multi handler]({{https://jsom1.github.io/}}/_images/htb_atom_mh.png)
@@ -241,7 +242,7 @@ We should see the server doing a GET request to our server (to download the file
 ![File download]({{https://jsom1.github.io/}}/_images/htb_atom_get.png)
 </div>
 
-At first I thought it didn't work, but we have to wait long enough to see the request... The scripts probably runs once per minute or something like that. Now that the server grabbed our file, it should execute it and connect back to us. Sadly notthing happens in Metasploit, it doesn't catch any shell back... That means there's a problem with our payload in the *m'aliciousupdate.exe* file...\\\
+At first I thought it didn't work, but we have to wait long enough to see the request... The scripts probably runs once per minute or something like that. Now that the server grabbed our file, it should execute it and connect back to us. Sadly notthing happens in Metasploit, it doesn't catch any shell back... That means there's a problem with our payload in the *m'aliciousupdate.exe* file...
 
 Someone on the forum suggested to take null bytes into consideration, so I added *-b "\x00"* to the *msfvenom* command. It still didn't work. After trying with different encodings, it finally worked with another payload: instead of *windows/meterpreter/reverse_tcp*, I used *windows/x64/shell_reverse_tcp*. This might be due to the fact I didn't specify *x64* in my prior payload... *windows/x64/meterpreter/reverse_tcp* might work too. Let's look at the one I used and which worked:
 
@@ -255,7 +256,7 @@ From there, we can easily retrieve the user's flag from the Desktop:
 ![User flag]({{https://jsom1.github.io/}}/_images/htb_atom_user.png)
 </div>
 
-And we're back at enumeration. We'll start with a little manual search and if we don't find anything, we might uplaod an automatic script such as *WinPEAS* (the equivalent of Linux' LinPEAS). One of the first thing I check on Linux box' is the current user privileges with *sudo -l*. The Windows equivalent is *whoami /priv*:
+And we're back at enumeration. We'll start with a little manual search and if we don't find anything, we might uplaod an automatic script such as *WinPEAS* (the equivalent of Linux' LinPEAS). One of the first thing I check on Linux boxes is the current user privileges with *sudo -l*. The Windows equivalent is *whoami /priv*:
 
 <div class="img_container">
 ![User privs]({{https://jsom1.github.io/}}/_images/htb_atom_userpriv.png)
@@ -270,7 +271,7 @@ We see *SeChangeNotifyPrivilege* is enabled. Googling it reveals it is a potenti
 Note that commands (in and out of Powershell) issued in the reverse shell containing ' " ' crash it.
 At this point, we'd normally run the script and analyze its output. However, it doesn't work for some reason (see https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/issues/25).
 
-Let's go for a full manuel enumation. However, we won't look around randomly. Our full TCP scan revealed a *WSMan* and *Redis* instance. Let's look for more info about those processes. By going in *C:\Program Files*, we see a *Redis* directory. Within that directory, there's a configuration file called *redis.windows.conf*. We can view its content with the command *type*:
+That leaves us with no choice but to go for a full manual enumation. However, we won't look around randomly. Our full TCP scan revealed a *WSMan* and *Redis* instance. Let's look for more info about those processes. By going in *C:\Program Files*, we see a *Redis* directory. Within that directory, there's a configuration file called *redis.windows.conf*. We can view its content with the command *type*:
 
 <div class="img_container">
 ![password]({{https://jsom1.github.io/}}/_images/htb_atom_pw.png)
@@ -300,7 +301,7 @@ It worked! Now that we're connected, I checked redis commands but it doesn't see
 ![redis keys]({{https://jsom1.github.io/}}/_images/htb_atom_keys.png)
 </div>
 
-We see a user and we can get more information about this person by using the command *get*. We get a password hash, but where can we use it? And how can we decrypt it? If I did a very thorough enumeration, I should have found an interesting directory in jason's download directory:
+We see a user and we can get more information about this person by using the command *get*. We get a password hash, but where can we use it? And how can we decrypt it? If I did a very thorough enumeration (or if WinPEAS worked), I should have found an interesting directory in jason's download directory:
 
 <div class="img_container">
 ![kanban]({{https://jsom1.github.io/}}/_images/htb_atom_kanban.png)
@@ -390,7 +391,7 @@ sudo gem install evil-winrm
 And we can use it:
 
 <div class="img_container">
-![decrypted pw]({{https://jsom1.github.io/}}/_images/htb_atom_adminpw.png)
+![winrm root]({{https://jsom1.github.io/}}/_images/htb_atom_root.png)
 </div>
 
 We see we get a reverse shell as the administrator! We can grab the flag on the desktop.
