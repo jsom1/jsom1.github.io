@@ -196,7 +196,7 @@ This way, we can access the other web server. I didn't show it in this write-up,
 Great, we have credentials! We can go back to *love.htb/admin* and use them here to login. 
 
 <div class="img_container">
-![dashboard]({{https://jsom1.github.io/}}/_images/htb_love_db.png)
+![dashboard]({{https://jsom1.github.io/}}/_images/htb_love_db.png){: height="415px" width = 625px"}
 </div>
 
 We land on a dashboard. The menu contains different tabs, but all of them are empty. We see a user called *Neovic Devierte*. When clicking on the username, we see we can update the profile. A menu opens, and we can add a photo. Maybe we can add a file, so let's try to upload our *windows/meterpreter/reverse_tcp* payload. I don't show the output here because it didn't work... Is it because of the "DOS" error we saw earlier?\\
