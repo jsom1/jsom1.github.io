@@ -188,28 +188,79 @@ With this exploit, we should be able to read files on the server. On *exploit-db
 sudo curl https://www.exploit-db.com/raw/50070 -o esfile.py
 `````
 
-And we can try it with the given syntax in the exploit:
+And we can try one of the exploit's command with the given syntax:
+
+````
+sudo python3 esfile.py listFiles 10.10.10.247
+`````
+
+That works, it lists files and folders on the system. I thought we could list folders content by appending */foldername* to the IP in the previous command, but that throws an error. We can however download files with the command *getFile*. For example, we could download the *bugreports* file with the following command:
+
+````
+sudo python3 esfille.py getFile 10.10.10.247 /bugreports
+`````
+
+The file is downloaded an saved as "out.dat". There's nothing interesting in files, so let's look at the next command, *listPics*:
 
 <div class="img_container">
 ![exploit]({{https://jsom1.github.io/}}/_images/htb_explore_png.png)
 </div>
 
-There's a file called *creds.jpg* that we can download with the exploit's *getFile* function:
+There's a file called *creds.jpg* that we can download as previously:
 
 ````
-sudo python3 esfile.py getFile 10.10.10.247/storage/emulated/0/DCIM/creds.jpg
+sudo python3 esfile.py getFile 10.10.10.247 /storage/emulated/0/DCIM/creds.jpg
 `````
 
-The file is downloaded on our machine and we can simply open it to discover its content:
+We can then simply open it to discover its content:
 
 <div class="img_container">
 ![creds]({{https://jsom1.github.io/}}/_images/htb_explore_creds.png)
 </div>
 
-And we have the username *kristi* with the the password *Kr1sT!5h@Rp3xPl0r3!*. Before trying those credentials with SSH, let's have a look at the other available resources.
+And we have the username *kristi* with the the password *Kr1sT!5h@Rp3xPl0r3!*. Before trying those credentials with SSH, let's have a look at the other available resources. The other images are related to signal processing, so nothing useful for us. We'll try all the other commands (listVideos, listAudios, listApps, and so on...). We see in listApps the following applications running: Google Play Store, Gmail, ES File Explorer and an SSH server. Nothing surprising for Android, and nmap also discovered some of those services.\\
+Next, *listAppsSystem* and *listAppsPhone* return a ton of information. I quickly went through it but nothing seems promising. We're ready to try the credentials with ssh.
 
+<div class="img_container">
+![ssh]({{https://jsom1.github.io/}}/_images/htb_explore_ssh.png)
+</div>
+
+And we're connected as *u0_a76*. As with Linux, we can list content with *ls* and change directory with *cd*. We can then start enumerating again. After a bit of research, we find the user flag in *sdcard*:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_explore_user.png)
+</div>
+
+And we have the user flag! Let's look at the network connections of that device:
+
+<div class="img_container">
+![netstat]({{https://jsom1.github.io/}}/_images/htb_explore_netstat.png)
+</div>
+
+We see our *netstat* command issued via SSH, and the other ports we discovered earlier. There's still *adb* listening on port 5555, so we could try to connect to it again, but this time via port forwarding and by providing kristi's credentials:
+
+````
+sudo ssh -L 5555:localhost:5555 kristi@10.10.10.247 -p 2222
+`````
+
+We then connect to it and issue the *shell* command as we saw in the article previously:
+
+<div class="img_container">
+![privesc]({{https://jsom1.github.io/}}/_images/htb_explore_pe.png)
+</div>
+
+We're root! We can look for the flag now, which we find in */data*:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_explore_root.png)
+</div>
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_explore_pwn.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
  
-First Android box, cool that it doesn't start with a web serv.
+This was my first Android box (I think it's the only one on HtB), and I liked it a lot. For once it didn't start with a web server! The downside was the fact that nmap didn't find the right ports at first, and I still don't know why. It made me lose some time but in the end, we still used *adb* so it wasn't that much of a loss!\\
+Sadly there are less explanations in this "writeup" because I lost everything at some point and had to start over. As we say, there are two kind of people: the ones who save their work regularly, and those who wish they did...
