@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png)
+![desc]({{https://jsom1.github.io/}}/_images/htb_knife_desc.png){: height="400px" width = 600px"}
 </div>
 
 **Ports/services exploited:** 80/PHP 8.1.0-dev\\
@@ -86,7 +86,7 @@ searchsploit httpd | grep linux
 searchsploit openSSH
 `````
 
-There are some existing exploits but they don't look very promising: it's either not for the good version or not what we want (DoS, buffer overflows, ...). We can also inspect the webpage to see if we find information about php (we saw *index.php* in the output of dirb) or any other useful information. We can simply right-click on the page and clickc on *inspect element*. Then we can look at the different tabs, see what kind of php scripts there are, inspect the trafficc between the server and our client, and so on... Sadly, there is nothing there either.\\
+There are some existing exploits but they don't look very promising: it's either not for the good version or not what we want (DoS, buffer overflows, ...). We can also inspect the webpage to see if we find information about php (we saw *index.php* in the output of dirb) or any other useful information. We can simply right-click on the page and click on *inspect element*. Then we can look at the different tabs, see what kind of php scripts there are, inspect the traffic between the server and our client, and so on... Sadly, there is nothing there either.
 
 I'm not used to it, but we could try to use **Nikto**. This tool allows to scan a web server to detect potential vulnerabilities:
 
@@ -100,10 +100,10 @@ We see the version of php, which is 8.1.0-dev. The fact that it's a dev version 
 ![Finding php version]({{https://jsom1.github.io/}}/_images/htb_knife_headers.png){: height="400px" width = 600px"}
 </div>
 
-And there it is! Next time I'll have to check more carefuly... Anyways, we'll  now search for vulnerabilities for this version, but first let's look at what CGII directories are. Nikto didn't find any, but I don't know what it is so here's a short description: cgi-bin ("Commom Gateway Interface") is a directory that contains stored Perl or compiled files. Those files are treated as programs instead of HTML pages or images, and will be run by the server instead of displayed normally. In short, it's an interface used by HTTP servers.\\
+And there it is! Next time I'll have to check more carefuly... Anyways, we'll  now search for vulnerabilities for this version, but first let's look at what CGI directories are. Nikto didn't find any, but I don't know what it is so here's a short description: cgi-bin ("Commom Gateway Interface") is a directory that contains stored Perl or compiled files. Those files are treated as programs instead of HTML pages or images, and will be run by the server instead of displayed normally. In short, it's an interface used by HTTP servers.
 
 Simply Googling "php 8.1.0-dev exploit" returns many pages which mention a **backdoor remote command injection**. That might finally be our way in!\\
-Apparently, the version 8.1.0-dev was released with a backdoor on March 28th, 2021. Someone was able to push two malicious commits into the php-src-repo. They were quickly discovered and removed, but might still be present if the version wasn't patched.
+Apparently, the version 8.1.0-dev was released with a backdoor on March 28th, 2021. Someone was able to push two malicious commits into the *php-src-repo*. They were quickly discovered and removed, but might still be present if the version wasn't patched.
 
 The exploit consists in adding a new header *"User-agentt":"zerodiumsystem();"* (yes with two "t"). We can issue a command in the *zerodiumsystem()* part, for example *zerodiumsystem("ls")* to list files and directories.\\
 A well known tool to tamper a request is Burp, and we can use it to check if it works. We fist make sure the proxy is configured: in the browser, we go to *Preferences* -> *Network Settings* -> *Settings* and tick *Manual proxy configuration*. We set the value of HTTP Proxy to 127.0.0.1 and the port to 8080.\\
@@ -151,9 +151,9 @@ We see the user james. Because the user flag (*user.txt*) is always in the user'
 ![burp]({{https://jsom1.github.io/}}/_images/htb_knife_burp7.png)
 </div>
 
-And that's it for the user! It's not a very elegant solution, but it's working so this is what matters... In it's early stages, hacking consisted of writing clean, concise and elegant code, but nowadays it's more about finding tricks to get what we want. So it's kind of ok this way!\\
+And that's it for the user! It's not a very elegant solution, but it's working so this is what matters... In its early stages, hacking consisted of writing clean, concise and elegant code, but nowadays it's more about finding tricks to get what we want. So it's kind of ok this way!\\
 With that being said, it would still be helpful to get a shell as james. The reason is that it would be much more simple for enumation. We could of course do it the way we got the user flag, but that would be tedious as it means sending and tampering a request for each command...
-Looking back at Google, there are differnt python PoCs that exploit that vulnerability. Here's the code of one hosted on ExploitDB (https://www.exploit-db.com/exploits/49933). See the link for the details:
+Looking back at Google, there are different python PoCs that exploit that vulnerability. Here's the code of one hosted on ExploitDB (https://www.exploit-db.com/exploits/49933). See the link for the details:
 
 ````
 #!/usr/bin/env python3
@@ -199,7 +199,7 @@ We don't have to alter the request's header anymore and will be able to enter co
 We now have a simple "shell" in which we can use some basic commands, but we can't change directory (we can still see content with commands such as *ls /var/www/html*, but it's not very convenient). Let's still perform a very basic manual enumeration to see if we can get something. The reason is that I tried to use another exploit supposed to give a proper reverse shell, but it didn't work. Among the few simple commands we can try, it is always good to check what the current can do with the command *sudo -l*:
 
 <div class="img_container">
-![james permissions]({{https://jsom1.github.io/}}/_images/htb_knife_shell.png)
+![james permissions]({{https://jsom1.github.io/}}/_images/htb_knife_sudol.png)
 </div>
 
 We see he can run the command */usr/bin/knife* as root, without providing a password. We can inspect this file with the command *cat /usr/bin/knife*. I'm not sure about what this script does. There are many ruby gems listed, and it seems like it performs dependencies checks.\\
@@ -210,7 +210,7 @@ I'm not sure but it doesn't look suspicious so I'll just try to run that script 
 </div>
 
 We have to provide one sub-command among those listed on the image. I tried for example *sudo ./usr/bin/knife config show* and *sudo ./usr/bin/knife user list*. It works but it's not very useful. There are commands for Google services, Azure, SSH, SSL, and so on... In doesn't look like to be a custom script but rather a tool. Let's google */usr/bin/knife* to see if we can find more info.\\
-Apparently, **Knife** is a command-line DevOps tool that provides an interface between a local chef-repo and the **Chef** Infra Server. I didn't know what Chef was, so here's what I found: Chef is a configuration management tool that offers a means of defining infrastructure as code that can be deployed onto multiple servers. It also includes automatic configuration and maintenance. It supports various platforms such as AWS, GCP, OpenStack, and so on.\\
+Apparently, **Knife** is a command-line DevOps tool that provides an interface between a local chef-repo and the **Chef** Infra Server. I didn't know what Chef was, so here's what I found: Chef is a configuration management tool that offers a means of defining infrastructure as code that can be deployed onto multiple servers. It also includes automatic configuration and maintenance. It supports various platforms such as AWS, GCP, OpenStack, and so on.
 
 After seearching in the doc (https://docs.chef.io/workstation/knife_exec/), I found we can run ruby scripts or ruby code with the syntax *knife exec /path/to/script_file* or *knife exec -E 'ruby code'*. Let's try to get a reverse shell:
 
@@ -244,7 +244,7 @@ It took a few tries to get the right command, but we're finally in as root! It's
 
 <ins>**My thoughts**</ins>
 
-I really enjoyed this machine for various reasons. First, there wasn't much to start with and yet it was "hard" to figure out what to do! On some machines there are up to 10 open ports and that potentially means 10 rabbit holes. Here there was only one at first (we rarely if ever start with SSH) so we knew where to go but not how.\\
+I really enjoyed this machine for various reasons. First, there wasn't much to start with and yet it was "hard" to figure out what to do! On some machines there are up to 10 open ports and that potentially means 9 rabbit holes. Here there was only one at first (we rarely if ever start with SSH) so we knew where to go but not how.\\
 Then, even though this machine wasn't particularly described as "real", I felt like it was way more realistic than some other machines on HtB. I can totally imagine a server running an unpatched version of HTP, and they way of exploiting the backdoor was fun!\\
 Finally, I learned a little bit about Chef, Knife and this PHP 8.1.0-dev vulnerability. I'm happy to add this to my toolbox!
 
