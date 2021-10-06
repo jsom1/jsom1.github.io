@@ -26,7 +26,7 @@ output: html_document
 **Keywords:** Wireshark, Linux capabilities\\
 
 
-## 1. Port scanning
+## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
 
 As usual, let's perform a nmap scan with the flags *-sV* to have a verbose output, *-O* to enable OS detection, and *-sC* to enable the most common scripts scan.
@@ -38,7 +38,7 @@ As usual, let's perform a nmap scan with the flags *-sV* to have a verbose outpu
 Note that we already know the machine is running Linux, but sometimes we get useful information regarding the version. 
 We see there's an FTP server, SSH and a web server running on the machine. Let's have a look at those services.
 
-## 2. Find and exploit vulnerabilities
+## 2. Further enumeration and foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 As usual, we can leave SSH aside for the moment. We will probably use it later, once we discover some credentials. The main lead is most likely going to be the web server, but let's quickly check FTP first.
@@ -113,7 +113,10 @@ The first thing we see once connected to the server is the user flag. We can dow
 ![User flag]({{https://jsom1.github.io/}}/_images/htb_cap_user.png)
 </div>
 
-Let's do a quick manual enumeration of the files on the server. Instead of FTP back in, let's try to use the same credentials to SSH into the server. That would be great to have a proper shell instead of issuing commands through FTP:
+## 3. Privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
+
+Let's do a quick manual enumeration of the files on the server. Instead of FTP back in, we'll use the same credentials to SSH into the server. That would be great to have a proper shell instead of issuing commands through FTP:
 
 <div class="img_container">
 ![SSH]({{https://jsom1.github.io/}}/_images/htb_cap_ssh.png)
