@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** -\\
 **Tools:** Wireshark\\
 **Techniques:** -\\
-**Keywords:** Wireshark, Linux capabilities\\
+**Keywords:** Wireshark, Linux capabilities
 
 
 ## 1. Services enumeration
@@ -48,15 +48,15 @@ In particular, we want to make sure anonymous FTP isn't allowed. If it is the ca
 ![Anonymous FTP]({{https://jsom1.github.io/}}/_images/htb_cap_ftp.png)
 </div>
 
-Apparently, anonymous FTP isn't allowed (I tried with an empty password and a few other ones). I don't remember for sure, but I think nmap would have told us if it was allowed.\\
-Let's now look at the web server. We browse at 10.10.10.245:
+Apparently, anonymous FTP isn't allowed (I tried with an empty password and a few other ones). I don't remember for sure, but I think *nmap* would have told us if it was allowed.\\
+Let's now look at the web server. We browse at *10.10.10.245*:
 
 <div class="img_container">
 ![Web server]({{https://jsom1.github.io/}}/_images/htb_cap_web.png){: height="400px" width = 600px"}
 </div>
 
-We see a dashboard with different statistics, and we're already logged in as Nathan. There is a menu in the upper left of the page with different links: Dashboard (this is where we are currently), Security Snapshot (5 Second PCAP + Analysis), IP Config and Network Status.
-While we look at those pages, let's start dirbuster in the background:
+We see a dashboard with different statistics, and we're already logged in as Nathan. There is a menu in the upper left of the page with different links: *Dashboard* (this is where we are currently), *Security Snapshot (5 Second PCAP + Analysis)*, *IP Config and Network Status*.\\
+While we look at those pages, let's start *dirbuster* in the background:
 
 ````
 sudo dirb http://10.10.10.245 -r
@@ -68,7 +68,7 @@ Note that the *-r* flag prevents the script from being recursive. Let's look at 
 ![Network Status]({{https://jsom1.github.io/}}/_images/htb_cap_network.png){: height="400px" width = 600px"}
 </div>
 
-The output is somewhat similar to the one of the command *ps -aux* and lists the active connections (*ps -aux* lists the running processes). Dirbuster only found three directories: /data, /ip and /netstat.
+The output is somewhat similar to the one of the command *ps -aux* and lists the active connections (*ps -aux* lists the running processes). *Dirbuster* only found three directories: */data, /ip and /netstat*.
 Those 3 directories correspond to the different links in the menu.\\
 It seems we have to find something on this web site. Before digging into it, let's quickly try to SSH as Nathan with passwords such as "admin", "1234", "nathan", and so on. We never know, it could be simpler than expected:
 
@@ -76,32 +76,32 @@ It seems we have to find something on this web site. Before digging into it, let
 sudo ssh nathan@10.10.10.245
 `````
 
-Sadly the password isn't that obvious. Let's get back at the website and have a look at the tab "Security Snapshot (5 Second PCAP + Analysis)":
+Sadly the password isn't that obvious. Let's get back at the website and have a look at the tab *Security Snapshot (5 Second PCAP + Analysis)*:
 
 <div class="img_container">
 ![PCAP]({{https://jsom1.github.io/}}/_images/htb_cap_pcap.png){: height="400px" width = 600px"}
 </div>
 
-We see 9 TCP packets were sent over the last 5 seconds and were captured by pcap. We can download the resulting file and open it on WireShark for example:
+We see 9 TCP packets were sent over the last 5 seconds and were captured by *pcap*. We can download the resulting file and open it on *Wireshark* for example:
 
 <div class="img_container">
 ![WireShark]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark.png)
 </div>
 
-It's weird the dashboard said 9 TCP packets, whereas WireShark says it was UDP protocol. Anyways, we see the traffic between our machine (10.10.14.6) and the box (10.10.10.245). There's nothing really interesting in this file. Going back on the website, I then got another dashboard, this time with 8 TCP packets. The url was different, *10.10.10.245/data/4* (it was *10.10.10.245/data/1* before). I downloaded the new file but there wasn't anything there either. I'm not sure what makes the dashboard change, but we can manually alter the url. Note that if a file doesn't exist, it just brings us back to the default page dashboard (for example *10.10.10.245/data/9*).\\
+It's weird the dashboard said 9 TCP packets, whereas *Wireshark* says it was UDP protocol. Anyways, we see the traffic between our machine (*10.10.14.6*) and the box (*10.10.10.245*). There's nothing really interesting in this file. Going back to the website, I then got another dashboard, this time with 8 TCP packets. The url was different, *10.10.10.245/data/4* (it was *10.10.10.245/data/1* before). I downloaded the new file but there wasn't anything there either. I'm not sure what makes the dashboard change, but we can manually alter the url. Note that if a file doesn't exist, it just brings us back to the default page dashboard (for example *10.10.10.245/data/9*).\\
 After trying a few different numbers, we see one that looks different:
 
 <div class="img_container">
 ![Data 0]({{https://jsom1.github.io/}}/_images/htb_cap_data0.png){: height="400px" width = 600px"}
 </div>
 
-I don't know if it means anything, but the number of IP packets doesn't match the one of total packets. Let's download this file and open it on Wireshark:
+I don't know if it means anything, but the number of IP packets doesn't match the one of total packets. Let's download this file and open it on *Wireshark*:
 
 <div class="img_container">
 ![Wireshark 2]({{https://jsom1.github.io/}}/_images/htb_cap_wireshark2.png)
 </div>
 
-This time we see traffic between 192.168.196.1 and 192.168.196.16. The packet stream starts with a successful 3 ways handshake, then there's a few get requests, and then lower (starting at packet 33), FTP connction traffic was captured. We see the user Nathan and the password in cleartext ("Buck3tH4TF0RM3!"). We see the connection was successful, so we can FTP into the server with those credentials:
+This time we see traffic between 192.168.196.1 and 192.168.196.16. The packet stream starts with a successful 3 ways handshake, then there's a few get requests, and then lower (starting at packet 33), FTP connection traffic was captured. We see the user Nathan and the password in cleartext ("Buck3tH4TF0RM3!"). We see the connection was successful, so we can FTP into the server with those credentials:
 
 <div class="img_container">
 ![FTP in]({{https://jsom1.github.io/}}/_images/htb_cap_ftpok.png)
@@ -116,13 +116,13 @@ The first thing we see once connected to the server is the user flag. We can dow
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
-Let's do a quick manual enumeration of the files on the server. Instead of FTP back in, we'll use the same credentials to SSH into the server. That would be great to have a proper shell instead of issuing commands through FTP:
+Let's do a quick manual enumeration of the files on the server. Instead of FTPing back in, we'll use the same credentials to SSH into the server. That would be great to have a proper shell instead of issuing commands through FTP:
 
 <div class="img_container">
 ![SSH]({{https://jsom1.github.io/}}/_images/htb_cap_ssh.png)
 </div>
 
-Great, it worked! We're now going to go through the different directories (I described the main Linux directories in the Delivery writeup), looking for any interesting file/program, weak permissions, misconfigurations, and so on.\\
+Great, it worked! We're now going to go through the different directories (I described the main Linux directories in the *Delivery* writeup), looking for any interesting file/program, weak permissions, misconfigurations, and so on.\\
 Here are some basic enumeration commands we can try:
 
 ````
@@ -160,8 +160,8 @@ sudo -l
 find / -perm -4000 2>/dev/null
 `````
 
-There are a lot more commands on https://book.hacktricks.xyz/linux-unix/privilege-escalation/. I didn't find anything I could use... Let's think about what's happening on that box: it seems that that there's a sniffing tool running (I saw tcpdump in the binaries (/sbin), or maybe pcap which would be the reason of this box name?). There's also an *ipconfig* tab on the website which displays the output of the command, and a network status as we saw previously. Those commands are most likely ran by root. In fact, we can view the application's source code in */var/www/html/app.py*. We see there that the capturing tool is indeed tcpdump, the IP tab uses *ifconfig* and the network one uses *netstat -aneop*.\\
-Anyways, manual enumeration didn't reveal anything. We'll now upload Linpeas to see if it does better! We start a web server on our machine:
+There are a lot more commands on https://book.hacktricks.xyz/linux-unix/privilege-escalation/. I didn't find anything I could use... Let's think about what's happening on that box: it seems that that there's a sniffing tool running (I saw *tcpdump* in the binaries (/sbin), or maybe *pcap* which would be the reason of this box name?). There's also an *ipconfig* tab on the website which displays the output of the command, and a network status as we saw previously. Those commands are most likely ran by root. In fact, we can view the application's source code in */var/www/html/app.py*. We see there that the capturing tool is indeed *tcpdump*, the IP tab uses *ifconfig* and the network one uses *netstat -aneop*.\\
+Anyways, manual enumeration didn't reveal anything. We'll now upload *Linpeas* to see if it does better! We start a web server on our machine:
 
 ````
 sudo python -m SimpleHTTPServer
@@ -185,9 +185,9 @@ The output is very long, so here's only a tiny part of it but it could be what w
 ![linpeas capabilities]({{https://jsom1.github.io/}}/_images/htb_cap_capa.png)
 </div>
 
-The name of the box could clearly be a reference to those **capabilities**. I've never head of that, so let's browse to the given link to learn more about it (https://book.hacktricks.xyz/linux-unix/privilege-escalation/linux-capabilities). I'll resume the explanation here:\\
+The name of the box could clearly be a reference to those **capabilities**. I've never heard of that, so let's browse to the given link to learn more about it (https://book.hacktricks.xyz/linux-unix/privilege-escalation/linux-capabilities). I'll resume the explanation here:\\
 When the **root** user runs a process, he/she gets a "special treatment". The kernel and applications skip the restriction of some activities when they see his/her ID of 0.\\
-When a normal user runs a process, he/she is non-privileged. That means he/she can only access data that are owned by him/her, his/her group, or that is accessible to all users. However, the process might need more permissions at some point, for example to open a network socket. Normal users can't open a socket (it requires root permissions). So, how can it do it?! **Linux capabilities** provive a subset of the available root privileges to a process.\\
+When a normal user runs a process, he/she is non-privileged. That means he/she can only access data that are owned by him/her, his/her group, or that is accessible to all users. However, the process might need more permissions at some point, for example to open a network socket. Normal users can't open a socket (it requires root permissions). So, how can it do it?! **Linux capabilities** provide a subset of the available root privileges to a process.
 
 We can list capabilities with the following command:
 
