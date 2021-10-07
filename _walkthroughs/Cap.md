@@ -38,7 +38,7 @@ As usual, let's perform a nmap scan with the flags *-sV* to have a verbose outpu
 Note that we already know the machine is running Linux, but sometimes we get useful information regarding the version. 
 We see there's an FTP server, SSH and a web server running on the machine. Let's have a look at those services.
 
-## 2. Further enumeration and foothold
+## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 As usual, we can leave SSH aside for the moment. We will probably use it later, once we discover some credentials. The main lead is most likely going to be the web server, but let's quickly check FTP first.
