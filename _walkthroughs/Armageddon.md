@@ -37,7 +37,7 @@ Let's enumerate the running services with nmap and the flags *-sV* to have a ver
 
 There's only SSH and HTTP, so it's a pretty straightforward start: we'll inspect the web page.
 
-## 2. Further enumeration and foothold
+## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 By browsing to the box' IP, we land on the following page:
