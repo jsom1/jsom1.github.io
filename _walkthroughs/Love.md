@@ -42,7 +42,7 @@ That's a lengthy output! This is often the case on Windows boxes... There's a we
 The scripts provide some information about SMB, such as the host's OS and the computer name on the network.\\
 We will start by the simplest, that is browsing to the box' web page. The second thing we'll do is enumerate SMB.
 
-## 2. Further enumeration and foothold
+## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 Instead of browsing to the IP, let's add this latter to our hosts file:
