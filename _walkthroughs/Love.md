@@ -26,7 +26,7 @@ output: html_document
 **Keywords:** webshell, "Always Install Elevated" (PE) 
 
 
-## 1. Port scanning
+## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
 
 We'll start with the usual TCP scan and the flags *-sV* to have a verbose output, *-O* to enable OS detection, and *-sC* to enable the most common scripts scan:
@@ -42,7 +42,7 @@ That's a lengthy output! This is often the case on Windows boxes... There's a we
 The scripts provide some information about SMB, such as the host's OS and the computer name on the network.\\
 We will start by the simplest, that is browsing to the box' web page. The second thing we'll do is enumerate SMB.
 
-## 2. Find and exploit vulnerabilities
+## 2. Further enumeration and foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 Instead of browsing to the IP, let's add this latter to our hosts file:
@@ -294,7 +294,10 @@ And finally, after hours of struggling, we've got a shell! I still don't underst
 ![user flag]({{https://jsom1.github.io/}}/_images/htb_love_user.png)
 </div>
 
-And we're back at enumerating... As usual, the first thing I do is check the user permissions. The Windows equivalent of *sudo -l* is *whoami /priv*:
+## 3. Privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
+
+Now that we have a foothold, we start enumerating once again... As usual, the first thing I do is check the user permissions. The Windows equivalent of *sudo -l* is *whoami /priv*:
 
 <div class="img_container">
 ![user perms]({{https://jsom1.github.io/}}/_images/htb_love_sudol.png)
