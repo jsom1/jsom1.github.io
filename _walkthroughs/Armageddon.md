@@ -26,7 +26,7 @@ output: html_document
 **Keywords:** Drupal, Snap
 
 
-## 1. Port scanning
+## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
 
 Let's enumerate the running services with nmap and the flags *-sV* to have a verbose output, *-O* to enable OS detection, and *-sC* to enable the most common scripts scan.
@@ -37,7 +37,7 @@ Let's enumerate the running services with nmap and the flags *-sV* to have a ver
 
 There's only SSH and HTTP, so it's a pretty straightforward start: we'll inspect the web page.
 
-## 2. Find and exploit vulnerabilities
+## 2. Further enumeration and foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 By browsing to the box' IP, we land on the following page:
@@ -168,7 +168,12 @@ JtR finds the plaintext password in a second! We can try to switch user with *su
 ![user flag]({{https://jsom1.github.io/}}/_images/htb_arma_user.png)
 </div>
 
-SSH worked and we get the user flag! As "usual" (it's quite recent), the first thing I check is user permissions:
+SSH worked and we get the user flag! 
+
+## 3. Privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
+
+One of the first thing I check in privesc eumeration is user permissions:
 
 <div class="img_container">
 ![user perms]({{https://jsom1.github.io/}}/_images/htb_arma_sudol.png)
@@ -201,7 +206,7 @@ The version doesn't match... Let's still look at the first exploit to see how it
 cat /usr/share/exploitdb/exploits/linux/local/46361.py
 ``````
 
-It is clearly said that if the version of *snapd* is 2.37.1 or newer, it is safe... At this point I looked at the forum to get a hint, and many people used dirty_sock. There must be a way to make it work. Let's get back at one of the first link that gives the following exploit:
+It is clearly said that if the version of *snapd* is 2.37.1 or newer, it is safe... At this point I looked at the forum to get a hint, and many people used dirty_sock. There must be a way to make it work, maybe by tweaking the exploit a little bit. Let's get back at one of the first link that gives the following exploit:
 
 ````
 #!/usr/bin/env python3
