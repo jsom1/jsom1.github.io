@@ -83,7 +83,7 @@ Still in */ressources*, there's a JavaScript script called *bountylog.js*:
 ![url]({{https://jsom1.github.io/}}/_images/htb_bounty_url.png)
 </div>
 
-We first see a function called *returnSecret()* which takes data as an argument and then does a POST request to *10.10.11.100/tracker_diRbPr00f314.php*. Below this function, there is another one that crafts an xml message from the fields we can fill on *10.10.11.100/log_submit.php*, and uses the *returnSecret()* function (*btoa* converts from binary to ASCII*). This gives us a good understandding of the application. We saw however that the script isn't connected to the database, so it's not very useful. Ideally, we'd like to find a way to use the portal with the credentials 'test' / no password, but it's still under development (I also tried to ssh in, but it didn't work)...
+We first see a function called *returnSecret()* which takes data as an argument and then does a POST request to *10.10.11.100/tracker_diRbPr00f314.php*. Below this function, there is another one that crafts an xml message from the fields we can fill on *10.10.11.100/log_submit.php*, and uses the *returnSecret()* function (*btoa* converts from binary to ASCII*). This gives us a good understandding of the application. However, we would need to see the content of the *tracker_diRbPr00f314.php* script to get the full picture...
 
 After playing a while with the reporting system (*/log_submit.php*), I saw that there is nothing displayed when we input "<" in any field... Every other input seems to work:
 
@@ -91,7 +91,7 @@ After playing a while with the reporting system (*/log_submit.php*), I saw that 
 ![no output]({{https://jsom1.github.io/}}/_images/htb_bounty_nop.png)
 </div>
 
-However, a simple "<" returns no output. II thought about trying a simple one-liner PHP reverse shell as follows, but it didn't work:
+However, a simple "<" returns no output. It looks like it's not properly sanitized... I thought about trying a simple one-liner PHP reverse shell as follows, but it didn't work:
 
 <div class="img_container">
 ![php]({{https://jsom1.github.io/}}/_images/htb_bounty_php.png)
@@ -110,7 +110,28 @@ After submitting this, we can inspect the network tab and we see it was Base64 e
 ![decode]({{https://jsom1.github.io/}}/_images/htb_bounty_decode.png)
 </div>
 
-However, we receive nothing on our listener.
+However, we receive nothing on our listener. At this point, I had to ask for help... It turns out we should have known, based on the XML output wee see on the previous image, that it might be vulnerable to **XXE injection**. I don't know about that, so let's have a look on the internet (https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XXE%20Injection/README.md):\\
+"*An XML External Entity attack is a type of attack against an application that parses XML input and allows XML entities. XML entities can be used to tell the XML parser to fetch specific content on the server.*"\\
+Well, that sounds promising. There are 2 types of XML Entity:
+
+- XML Internal Entity: If an entity is declared within a DTD it is called as internal entity. Syntax: <!ENTITY entity_name "entity_value">
+- XML External Entity: If an entity is declared outside a DTD it is called as external entity. Identified by SYSTEM.Syntax: <!ENTITY entity_name SYSTEM "entity_value">
+
+The webpage also shows how to detect the vulnerability. Here's the PoC:
+
+````
+<!--?xml version="1.0" ?-->
+<!DOCTYPE replace [<!ENTITY example "Doe"> ]>
+ <userInfo>
+  <firstName>John</firstName>
+  <lastName>&example;</lastName>
+ </userInfo>
+`````
+
+This is a basic entity test: when the XML parser parses the external entities the result should contain "John" in firstName and "Doe" in lastName. Entities are defined inside the DOCTYPE element. It might help to set the Content-Type: application/xml in the request when sending XML payload to the server.
+
+Let's try this. We'll use Burp to intercept a request, send it to the repeater and modify it to match the PoC:
+
 
 
 
