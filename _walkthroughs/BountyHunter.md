@@ -112,12 +112,21 @@ After submitting this, we can inspect the network tab and we see it was Base64 e
 
 However, we receive nothing on our listener. At this point, I had to ask for help... It turns out we should have known, based on the XML output wee see on the previous image, that it might be vulnerable to **XXE injection**. I don't know about that, so let's have a look on the internet (https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XXE%20Injection/README.md):\\
 "*An XML External Entity attack is a type of attack against an application that parses XML input and allows XML entities. XML entities can be used to tell the XML parser to fetch specific content on the server.*"\\
+In other words, it allows an attacker to interfere with an application's processing of XML data, making it possible to view files on the server or interact with any backend that the application itself can access.\\
 Well, that sounds promising. There are 2 types of XML Entity:
 
-- XML Internal Entity: If an entity is declared within a DTD it is called as internal entity. Syntax: <!ENTITY entity_name "entity_value">
+- XML Internal Entity: If an entity is declared within a DTD (Document Type Definition) it is called as internal entity. Syntax: <!ENTITY entity_name "entity_value">
 - XML External Entity: If an entity is declared outside a DTD it is called as external entity. Identified by SYSTEM.Syntax: <!ENTITY entity_name SYSTEM "entity_value">
 
-The webpage also shows how to detect the vulnerability. Here's the PoC:
+The web page shows how to test for this vulnerability. First, we'll use Burp to intercept the request when we submit information on */log_submit.php*, send it to the repeater, and click send to forward the request to the web server:
+
+<div class="img_container">
+![Burp repeater]({{https://jsom1.github.io/}}/_images/htb_bounty_burp.png)
+</div>
+
+We see our request on the left being intercepted, the encoded data, and the server's response on the right after clicking on *Send*. We select the encoded data, which opens the inspector on the right. The *%* in the data indicates that it is url encoded: this is why we first decode that, and then we decode one more time with Base64 (we saw it was Base64 earlier). Finally, we see that our data are sent to the server in XML format. This is where it should ring a bell and makes us think about XML entities.\\
+
+Let's see if it is vulnerable. The website gives the following PoC:
 
 ````
 <!--?xml version="1.0" ?-->
@@ -130,12 +139,48 @@ The webpage also shows how to detect the vulnerability. Here's the PoC:
 
 This is a basic entity test: when the XML parser parses the external entities the result should contain "John" in firstName and "Doe" in lastName. Entities are defined inside the DOCTYPE element. It might help to set the Content-Type: application/xml in the request when sending XML payload to the server.
 
-Let's try this. We'll use Burp to intercept a request, send it to the repeater and modify it to match the PoC:
+In our case, we see the XML format on the right side of Burp. We'll use this format with the given PoC, and use any Base64 online encoder to encode it:
 
+<div class="img_container">
+![Base64 encode]({{https://jsom1.github.io/}}/_images/htb_bounty_encode.png)
+</div>
 
+We copy the encoded XML request, and paste it in Burp under *data*. At this point, we still have to URL encode the payload: we select it, right click and select *Convert selection* > *URL* > *URL-encode keey characters*:
 
+<div class="img_container">
+![URL encode]({{https://jsom1.github.io/}}/_images/htb_bounty_burp2.png)
+</div>
 
+Finally, we click on *Send* and see if it worked:
 
+<div class="img_container">
+![Injection]({{https://jsom1.github.io/}}/_images/htb_bounty_burp3.png)
+</div>
+
+And it did! We used the doctype *replace* to replace a field in the request. Now that we know how it works, we can try to read files on the target using the *data* doctype. Still on the web page, the PoC to do that is the following:
+
+````
+<?xml version="1.0"?>
+<!DOCTYPE data [
+<!ELEMENT data (#ANY)>
+<!ENTITY file SYSTEM "file:///etc/passwd">
+]>
+<data>&file;</data>
+`````
+
+We will once again use the XML template we got on Burp and adapt it to read the password file:
+
+<div class="img_container">
+![payload]({{https://jsom1.github.io/}}/_images/htb_bounty_payload.png)
+</div>
+
+As before, we copy the Base64 encoded payload, paste it in Burp's repeater, URL encode it and send the request:
+
+<div class="img_container">
+![password]({{https://jsom1.github.io/}}/_images/htb_bounty_pw.png)
+</div>
+
+And the server returns the password file! 
 
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
