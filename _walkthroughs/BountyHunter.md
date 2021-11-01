@@ -20,9 +20,9 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_bounty_desc.png){: height="415px" width = 625px"}
 </div>
 
-**Ports/services exploited:** ?\\
-**Tools:** ?\\
-**Techniques:** ?\\
+**Ports/services exploited:** 80/web application\\
+**Tools:** dirb, gobuster\\
+**Techniques:** XXE injection\\
 **Keywords:** ? 
 
 
@@ -180,7 +180,28 @@ As before, we copy the Base64 encoded payload, paste it in Burp's repeater, URL 
 ![password]({{https://jsom1.github.io/}}/_images/htb_bounty_pw.png)
 </div>
 
-And the server returns the password file! 
+And the server returns the file! We see an entry for a user called development (uid 1000). Now it would be interesting to get the */etc/shadow* file, but I couldn't get it... We can get specified files, but we can't list files on the server. Therefore, we can't use that XXE injection vulnerability for further enumeration... Instead, we should know a spcecific file to target. We saw a few files on dirb's output, but we already saw their content. Let's try to use another tool or another wordlist to see if we can find anything else:
+
+<div class="img_container">
+![gobuster]({{https://jsom1.github.io/}}/_images/htb_bounty_gob.png)
+</div>
+
+Here I used *gobuster* with the *-x* flag which allows us to specify an extension string. Indeed, we saw some php scripts and can therefore narrow our search this way. We see a new file, *db.php*. Browsing to *10.10.11.100/db.php* shows a blank page, so let's try to display its content with the XXE injection. We can try with the following payload:
+
+````
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE data [
+<!ENTITY file SYSTEM "file:///db.php">
+]>
+ <bugreport>
+  <title>John</title>
+  <cwe>&file;</cwe>
+  <cvss></cvss>
+  <reward></reward>
+ </bugreport>
+`````
+
+As previously, we encode this in Base64 format, paste it in Burp's *data* section, and URL encode it. Unfortunately, this doesn't work. It is very likely due to the specified path. Looking back at the website, there's a PHP wrapper that we can use as follows:
 
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
