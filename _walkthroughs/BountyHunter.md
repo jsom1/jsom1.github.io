@@ -191,7 +191,7 @@ Here I used *gobuster* with the *-x* flag which allows us to specify an extensio
 ````
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE data [
-<!ENTITY file SYSTEM "file:///db.php">
+<!ENTITY file SYSTEM "file:///var/www/html/db.php">
 ]>
  <bugreport>
   <title>John</title>
@@ -201,10 +201,115 @@ Here I used *gobuster* with the *-x* flag which allows us to specify an extensio
  </bugreport>
 `````
 
-As previously, we encode this in Base64 format, paste it in Burp's *data* section, and URL encode it. Unfortunately, this doesn't work. It is very likely due to the specified path. Looking back at the website, there's a PHP wrapper that we can use as follows:
+As previously, we encode this in Base64 format, paste it in Burp's *data* section, and URL encode it. Unfortunately, this doesn't work. It is very likely due to the specified path (I tried in the web root directory). Looking back at the website, there's a PHP wrapper that we can use as follows (only the *DOCTYPE* line):
+
+````
+<!DOCTYPE replace [<!ENTITY xxe SYSTEM "php://filter/convert.base64-encode/resource=index.php"> ]>
+`````
+So we can adapt it to retrieve our file:
+
+````
+<!DOCTYPE replace [<!ENTITY file SYSTEM "php://filter/convert.base64-encode/resource=/var/www/html/db.php"> ]>
+`````
+
+<div class="img_container">
+![db.php]({{https://jsom1.github.io/}}/_images/htb_bounty_dbphp.png)
+</div>
+
+This returns the content of the file in what seems to be Base64 (probably because we specified *base64-encode* in the wrapper). If we decode it (select it, right click > Convert selection > Base64 > Base64-decode) we find the following:
+
+<div class="img_container">
+![credentials]({{https://jsom1.github.io/}}/_images/htb_bounty_creds.png)
+</div>
+
+We're happy to find credentials to log in the database! However, *nmap* didn't reveal any database, and we saw in the *README* file that the application isn't connected to it. The only logical thing we can do now is try those credentials with SSH and hope that we're dealing with a lazy admin who uses the same password for different applications. After trying with the users admin and test with no success, we see it works for the users development:
+
+<div class="img_container">
+![foothold]({{https://jsom1.github.io/}}/_images/htb_bounty_fh.png)
+</div>
+
+We saw in */etc/passwd* is a normal user, and it turns out the flag is in its home.
+
 
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
+
+Also in its home directory, there's a file called *contract.txt*:
+
+<div class="img_container">
+![contract]({{https://jsom1.github.io/}}/_images/htb_bounty_contract.png)
+</div>
+
+Apparently, there's a tool for which we have permissions. Let's look at that:
+
+<div class="img_container">
+![sudol]({{https://jsom1.github.io/}}/_images/htb_bounty_sudol.png)
+</div>
+
+We immediately see the reference: the tool is a python script called *ticketValidator.py*. Let's look at its content:
+
+````
+#Skytrain Inc Ticket Validation System 0.1
+#Do not distribute this file.
+
+def load_file(loc):
+    if loc.endswith(".md"):
+        return open(loc, 'r')
+    else:
+        print("Wrong file type.")
+        exit()
+
+def evaluate(ticketFile):
+    #Evaluates a ticket to check for ireggularities.
+    code_line = None
+    for i,x in enumerate(ticketFile.readlines()):
+        if i == 0:
+            if not x.startswith("# Skytrain Inc"):
+                return False
+            continue
+        if i == 1:
+            if not x.startswith("## Ticket to "):
+                return False
+            print(f"Destination: {' '.join(x.strip().split(' ')[3:])}")
+            continue
+
+        if x.startswith("__Ticket Code:__"):
+            code_line = i+1
+            continue
+
+        if code_line and i == code_line:
+            if not x.startswith("**"):
+                return False
+            ticketCode = x.replace("**", "").split("+")[0]
+            if int(ticketCode) % 7 == 4:
+                validationNumber = eval(x.replace("**", ""))
+                if validationNumber > 100:
+                    return True
+                else:
+                    return False
+    return False
+
+def main():
+    fileName = input("Please enter the path to the ticket file.\n")
+    ticket = load_file(fileName)
+    #DEBUG print(ticket)
+    result = evaluate(ticket)
+    if (result):
+        print("Valid ticket.")
+    else:
+        print("Invalid ticket.")
+    ticket.close
+
+main()
+```````
+
+The script loads a markdown file (*.md*, which is here a ticket) and performs some checks to assess its validity. Also in */opt/skytrain_inc*, there's another directory called *invalid_tickets* that contains examples of invalid tickets:
+
+<div class="img_container">
+![tickets]({{https://jsom1.github.io/}}/_images/htb_bounty_tickets.png)
+</div>
+
+Looking at the script, we easily see where each of them fails the tests. This is not really important anyways. What's interesting here is that the current user can execute this script with root permissions without providing a password, and we want to find a way to use this to our advantage.\\
 
 
 <ins>**My thoughts**</ins>
