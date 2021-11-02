@@ -50,7 +50,7 @@ We land on a cool looking site where we see a few potential useful information. 
 There are also 3 tabs: *about* is just an anchor, but *Contact us* and *Portal* bring us to pages with forms where we can submit data. For example, this is the *Portal* page:
 
 <div class="img_container">
-![Portal]({{https://jsom1.github.io/}}/_images/htb_bounty_portal.png){: height="430px" width = 660px"}
+![Portal]({{https://jsom1.github.io/}}/_images/htb_bounty_portal.png){: height="230px" width = 320px"}
 </div>
 
 While looking around the website, we can lanch *dirb* to look for interesting directories. The result is the following:
@@ -62,7 +62,7 @@ While looking around the website, we can lanch *dirb* to look for interesting di
 There are two accessible directories, *asseets* and *resources*. By looking at their content (by simply browsing to *10.10.11.100/resources*), we see a promising *README* file:
 
 <div class="img_container">
-![readme]({{https://jsom1.github.io/}}/_images/htb_bounty_readme.png){: height="430px" width = 660px"}
+![readme]({{https://jsom1.github.io/}}/_images/htb_bounty_readme.png){: height="230px" width = 320px"}
 </div>
 
 What immediately stands out here is of course the fact that there is a *test* account on the portal that hasn't been disabled. Moreover, it seems we can connect without providing a password.\\
