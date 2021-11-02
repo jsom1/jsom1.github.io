@@ -256,7 +256,7 @@ We're root! We can look for the flag now, which we find in */data*:
 </div>
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_explore_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_explore_pwn.png){: height="300px" width = 400px"}
 </div>
 
 
