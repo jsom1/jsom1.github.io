@@ -20,13 +20,13 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_explore_desc.png){: height="415px" width = 625px"}
 </div>
 
-**Ports/services exploited:** \\
-**Tools:** \\
-**Techniques:** \\
-**Keywords:**  
+**Ports/services exploited:** 5555/adb\\
+**Tools:** ES file explorer, adb (Adroid Debug Bridge)\\
+**Techniques:** port forwarding\\
+**Keywords:** adb (Adroid Debug Bridge)
 
 
-## 1. Port scanning
+## 1. Services eumeration
 {:style="color:DarkRed; font-size: 170%;"}
 
 Let's start by adding the box' IP to our hosts file with the following command:
@@ -45,7 +45,7 @@ As usual, we specify the flags *-sV* to have a verbose output, *-O* to enable OS
 There's not much going there, only ssh on port 2222 (it's usually on port 22) and freeciv on port 5555, which appears to be a video game. 
 We will therefore look for ssh 2.0, Banana Studio and freeciv vulnerabilities.
 
-## 2. Find and exploit vulnerabilities
+## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
 Most of the time, there is a web server running on HtB machines. It's not the case here, so we start by Googling and searching for potential exploits on Metasploit. While we search, we can launch a full TCP scan in the background:
@@ -225,13 +225,19 @@ Next, *listAppsSystem* and *listAppsPhone* return a ton of information. I quickl
 ![ssh]({{https://jsom1.github.io/}}/_images/htb_explore_ssh.png)
 </div>
 
-And we're connected as *u0_a76*. As with Linux, we can list content with *ls* and change directory with *cd*. We can then start enumerating again. After a bit of research, we find the user flag in *sdcard*:
+And we're connected as *u0_a76*. 
+As with Linux, we can list content with *ls* and change directory with *cd*. We can then start enumerating again. After a bit of research, we find the user flag in *sdcard*:
 
 <div class="img_container">
 ![user flag]({{https://jsom1.github.io/}}/_images/htb_explore_user.png)
 </div>
 
-And we have the user flag! Let's look at the network connections of that device:
+And we have the user flag! 
+
+## 3. Privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
+
+Let's look at the network connections of that device:
 
 <div class="img_container">
 ![netstat]({{https://jsom1.github.io/}}/_images/htb_explore_netstat.png)
