@@ -20,11 +20,11 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_bounty_desc.png){: height="415px" width = 625px"}
 </div>
 
-**Ports/services exploited:** 80/web application\\
-**Tools:** dirb, gobuster\\
-**Techniques:** XXE injection\\
-**Keywords:** ? 
-
+**Ports/services exploited:** 80/web application, ssh\\
+**Tools:** dirb, gobuster, Burp\\
+**Techniques:** XXE injection, abuse user permissions\\
+**Keywords:** Python, eval()\\ 
+**In a nutshell**: foothold: the web app is vulnerable to XXE injection, allowing us to retrieve credentials. Those credentials (for a database) can be used to SSH in. Privesc: the user can execute python and a custom script as root without providing a password.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -309,9 +309,76 @@ The script loads a markdown file (*.md*, which is here a ticket) and performs so
 ![tickets]({{https://jsom1.github.io/}}/_images/htb_bounty_tickets.png)
 </div>
 
-Looking at the script, we easily see where each of them fails the tests. This is not really important anyways. What's interesting here is that the current user can execute this script with root permissions without providing a password, and we want to find a way to use this to our advantage.\\
+Looking at the script, we easily see where each of them fails the tests. Let's try the tool with a ticket:
 
+<div class="img_container">
+![test script]({{https://jsom1.github.io/}}/_images/htb_bounty_tst.png)
+</div>
+
+We see it works as expected, but this is not really important anyways. What's interesting here is that the current user can execute this script with root permissions without providing a password, and we want to find a way to use this to our advantage.\\
+
+We can't modify the *ticketValidator.py* script itself, but maybe we can craft a ticket that contains our paylaod. We see the script uses Python functions such as *enumerate*, *startswith()*, *eval()*, and so on. This latter might be interesting, because we see it evaluates the whole line (without the "\*", not just the number). Maybe we could add something here that helps us in privesc?
+
+Let's start by tring to craft a valid ticket and work it out from there. To do that, I created a *testticket.md* in */tmp/.tmp/testticket.md* (I created the *.tmp* directory) and pasted the content of an existing ticket (*390681613.md*). Then, we look at the *ticketValidator.py* script to understand why it fails and modify it in consequence. Here is an example of a working ticket:
+
+````
+# Skytrain Inc
+## Ticket to New Haven
+__Ticket Code:__
+**3000+0+0**
+##Issued: 2021/04/06
+#End Ticket
+`````
+
+Evaluating this ticket works as expected:
+
+<div class="img_container">
+![ticket ok]({{https://jsom1.github.io/}}/_images/htb_bounty_ticketok.png)
+</div>
+
+The line that was changed is the "math" one, so that the test on the modulo operator works (3000 % 7 = 4). Now, we must find a way to add a command after this. Let's look at the *eval()* function on the web. Something stands out in its description:
+
+<div class="img_container">
+![warning eval]({{https://jsom1.github.io/}}/_images/htb_bounty_warning.png)
+</div>
+
+It seems we can import the *os* module to read or write files. After a long time of trial and error, and hints from the forum, I came up with the following ticket:
+
+````
+# Skytrain Inc
+## Ticket to New Haven
+__Ticket Code:__
+**3000+0+0 == 3000 and __import__('os').system('cat /root/root.txt') == False**
+##Issued: 2021/04/06
+#End Ticket
+`````
+
+Let's see if it works (we have to be in developement's home directory to be able to run python as root):
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_bounty_root.png)
+</div>
+
+And it did! Here we used the *os* module to read the file, but it is probably possible use other commands to spawn */bin/bash*, get a reverse shell as root, and so on... Here's the reward:
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_bounty_pwn.png)
+</div>
 
 <ins>**My thoughts**</ins>
 
+This was a very nice box which taught me about XXE injection, something I had never seen before despite everyone on the forum saying "it's easy, top10 OWASP", and so on... It was also a good opportunity to use certain tools on Burp such as the decoder and encoder.\\
+The privesc vector was very easy to find, but it took me some time to get it to work. I didn't learn much in terms of new tools or technique in this part, but it was a good remainder of the danger of user permissions.
 
+<ins>**Fix the vulnerabilities**</ins>
+
+This is a new paragraph in my writeups, as I think it is also intersting to think about how we could prevent the exploitation of this machine. In this case, there are several things on which we can work that come to my mind: 
+
+First, how can we prevent XXE injection? As a reminder, this attack targets applications that parse XML input and can be successful if that parser is poorly configured. In that case, it is possible to input XML containing a reference to an external entity. This allows an attacker to potentially get access to confidential data, take down a server with DoS, make Server Side Request Forgery (SSRF), andd so on...\\
+**The safest way to prevent XXE is to completely disable DTDs (External Entities)**.
+
+Then, the XXE vulnerability allowed us to read a sensible configuration file, containing a cleartext password. Here, we could maybe place the file in a protected directory or/and not show a password in cleartext.
+
+Also, it is a bad practice to reuse password. In this case, the discovered credentials were for a database, but the password allowed us to connect via SSH. **The passwords should be changed and different**. 
+
+Finally, once we got in, we abused user permissions. I don't really know what could be done here since it was necessary to that user to have those permissions. We could maybe modify the script so that it's more secure. 
