@@ -22,9 +22,9 @@ output: html_document
 
 **Ports/services exploited:** 80/web application, ssh\\
 **Tools:** dirb, gobuster, Burp\\
-**Techniques:** XXE injection, abuse user permissions\\
+**Techniques:** XXE injection, Python command injection\\
 **Keywords:** Python, eval\\ 
-**In a nutshell**: foothold: the web app is vulnerable to XXE injection, allowing us to retrieve credentials. Those credentials (for a database) can be used to SSH in. Privesc: the user can execute python and a custom script as root without providing a password.
+**In a nutshell**: foothold: the web app is vulnerable to XXE injection, allowing us to retrieve credentials. Those credentials (for a database) can be used to SSH in. Privesc: the user can execute python and a custom script as root without providing a password. The script uses the *eval()* function which doesn't sanitize user input and is vulnerable to command injection.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -35,12 +35,12 @@ Let's enumerate the running services with *nmap*. We'll use the flags *-sV* to h
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_bounty_nmap.png)
 </div>
 
-Very straightforward start, only an http server running on port 80 and ssh on port 22. This latter appears to be OpenSSH 8.2p1, and I know from experience that it is not vulnerable. Let's focus on the web server.
+Well, it's a very straightforward start, only an http server running on port 80 and ssh on port 22. This latter appears to be OpenSSH 8.2p1, and I know from experience that it is not vulnerable. Let's focus on the web server.
 
 ## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
-As usual, the first thing to do is browse to the target's IP and look at the content:
+As usual with a web server, the first thing to do is browse to the target's IP and look at the content:
 
 <div class="img_container">
 ![web server]({{https://jsom1.github.io/}}/_images/htb_bounty_site.png){: height="430px" width = 660px"}
@@ -342,7 +342,9 @@ The line that was changed is the "math" one, so that the test on the modulo oper
 ![warning eval]({{https://jsom1.github.io/}}/_images/htb_bounty_warning.png)
 </div>
 
-It seems we can import the *os* module to read or write files. After a long time of trial and error, and hints from the forum, I came up with the following ticket:
+It seems we can import the *os* module to read or write files. Since this is a malicious use of the function, we can probably find more information about it with a search like "python eval() exploit". Indeed, there are many articles explaining this vulnerability, for example <https://www.stackhawk.com/blog/command-injection-python/>. In this latter, it is said that "A malicious user could type in something like __import__(‘os’).system(‘rm –rf /’) as input. And this results in a deletion of all files and directories in the script’s folder if the process has enough privileges". This is probably what the *rm -rf incident* mentionned in the contract file was all about! Anyways, we now have an idea on how to use it to our advantage.
+
+After a long time of trial and error, and hints from the forum, I came up with the following ticket:
 
 ````
 # Skytrain Inc
@@ -381,4 +383,4 @@ Then, the XXE vulnerability allowed us to read a sensible configuration file, co
 
 Also, it is a bad practice to reuse password. In this case, the discovered credentials were for a database, but the password allowed us to connect via SSH. **The passwords should be changed and different**. 
 
-Finally, once we got in, we abused user permissions. I don't really know what could be done here since it was necessary to that user to have those permissions. We could maybe modify the script so that it's more secure. 
+Finally, once we got in, we abused user permissions. I don't really know what could be done here since it was necessary to that user to have those permissions. We could maybe modify the script so that it's more secure, for example by validating user input with the *validate()* function. 
