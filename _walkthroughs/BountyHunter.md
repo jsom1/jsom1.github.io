@@ -362,7 +362,7 @@ Let's see if it works (we have to be in developement's home directory to be able
 And it did! Here we used the *os* module to read the file, but it is probably possible use other commands to spawn */bin/bash*, get a reverse shell as root, and so on... Here's the reward:
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_bounty_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_bounty_pwn.png){: height="300px" width = 400px"}
 </div>
 
 <ins>**My thoughts**</ins>
