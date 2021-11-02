@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** 80/web application, ssh\\
 **Tools:** dirb, gobuster, Burp\\
 **Techniques:** XXE injection, abuse user permissions\\
-**Keywords:** Python, eval()\\ 
+**Keywords:** Python, eval\\ 
 **In a nutshell**: foothold: the web app is vulnerable to XXE injection, allowing us to retrieve credentials. Those credentials (for a database) can be used to SSH in. Privesc: the user can execute python and a custom script as root without providing a password.
 
 ## 1. Services enumeration
@@ -222,7 +222,7 @@ This returns the content of the file in what seems to be Base64 (probably becaus
 ![credentials]({{https://jsom1.github.io/}}/_images/htb_bounty_creds.png)
 </div>
 
-We're happy to find credentials to log in the database! However, *nmap* didn't reveal any database, and we saw in the *README* file that the application isn't connected to it. The only logical thing we can do now is try those credentials with SSH and hope that we're dealing with a lazy admin who uses the same password for different applications. After trying with the users admin and test with no success, we see it works for the users development:
+We're happy to find credentials to log in the database (eventhough I don't know why the command doesn't work witout the wrapper and the filter...)! However, *nmap* didn't reveal any database, and we saw in the *README* file that the application isn't connected to it. The only logical thing we can do now is try those credentials with SSH and hope that we're dealing with a lazy admin who uses the same password for different applications. After trying with the users admin and test with no success, we see it works for the users development:
 
 <div class="img_container">
 ![foothold]({{https://jsom1.github.io/}}/_images/htb_bounty_fh.png)
