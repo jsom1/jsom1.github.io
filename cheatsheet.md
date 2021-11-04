@@ -17,8 +17,32 @@ Here's the content so far:
 {:style="color:black; font-size: 150%;"}
 
 # 21 - FTP
+- Check if anonymous FTP is allowed (user *anonymous*, blank password)
+- Vulnerable versions: ProFTPD 1.3.3c
 
 # 80 - HTTP
+
+- Directories and files enumeration with **dirb** (-r for non recursive):
+
+````
+sudo dirb http://targetip -r
+
+
+- Directories and files enumeration with **gobuster**:
+
+````
+sudo gobuster
+
+
+- Directories and files enumeration with **wpscan** (if the CMS is Wordpress):
+
+````
+sudo gobuster
+`````
+
+
+
+- If the CMS is Wordpress: check **wp_admin_shell_upload**
 
 ## Directories and files enumeration
 
