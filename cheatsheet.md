@@ -53,7 +53,7 @@ Example: Basic Pentesting: 1
 
 ## XXE Injection
 
-Does the application parses XML? If yes, it might be vulnerable to XXE injection. POC:
+Does the application parses XML? If yes, it might be vulnerable to XXE injection. PoC:
 
 ````
 <?xml version="1.0"?>
@@ -80,7 +80,7 @@ Client-side vulnerability that works by manipulating a vulnerable web site so th
 ````
 <script>alert('test')</script>
 `````
-**Attention**: *alert()* is doesn't work on Chrome from verrsion 92 onward. In this case, we can use *print()* instead.
+**Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.
 
 ### Stored XSS
 The malicious script comes from the website's database. PoC: input <script>alert('test')</script> in a field, submit it and refresh the page. If the browser interprets it, it should open a JavaScript pop-up alert.
