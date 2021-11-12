@@ -18,8 +18,13 @@ Here's the content so far:
 
 # 21 - FTP
 
-- Check if anonymous FTP is allowed (user *anonymous*, blank password)
-- Known vulnerable versions: ProFTPD 1.3.3c, vsFTPd 2.3.4
+- Connect to the target and check if anonymous FTP is allowed (user *anonymous*, blank password)
+
+````
+sudo ftp targetip
+`````
+
+- Known vulnerable versions: ProFTPD 1.3.3c, vsFTPd 2.3.4, ... -> Search for Metasploit exploits
 
 # 80 - HTTP
 
@@ -75,12 +80,13 @@ Server-side vulnerability that targets tthe application's database.
 
 Client-side vulnerability that works by manipulating a vulnerable web site so that it returns malicious JavaScript to users. When the malicious code executes inside a victim's browser, the attacker can fully compromise their interaction with the application.
 
-**Detection**: submit simple unique input into every entry point in the applicationcon, identifying every location where the submitted input is returned in HTTP responses, and testing each location individually to determine whether suitably crafted input can be used to execute arbitrary JavaScript. Example:
+**Detection**: manually by submitting simple unique input into every entry point in the applicationcon, identifying every location where the submitted input is returned in HTTP responses, and testing each location individually to determine whether suitably crafted input can be used to execute arbitrary JavaScript. Example:
 
 ````
 <script>alert('test')</script>
 `````
-**Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.
+**Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.\\
+Automatically by using Burp's web vulnerability scanner.
 
 ### Stored XSS
 The malicious script comes from the website's database. PoC: input <script>alert('test')</script> in a field, submit it and refresh the page. If the browser interprets it, it should open a JavaScript pop-up alert.
