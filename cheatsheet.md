@@ -109,6 +109,10 @@ Principle: do http requests as the victim. In other words, induce a victim user 
 
 ## Login Bruteforcing
 
+## Directory traversal
+
+Example: Seal
+
 # 139, 445 - SMB
 
 - SMB (Server Message Block, protocol to share resources on Windows local networks) enumeration and null sessions:
