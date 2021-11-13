@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/htb_bounty_desc.png){: height="415px" width = 625px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_seal_desc.png){: height="415px" width = 625px"}
 </div>
 
 **Ports/services exploited:** 80/web application, TomCat, ssh\\
@@ -243,8 +243,22 @@ This copied the info into the folder:
 ![idrsa]({{https://jsom1.github.io/}}/_images/htb_seal_idrsa.png)
 </div>
 
-Finally, we can *cat* id_rsa, copy its content (including "-----BEGIN OPENSSH PRIVATE KEY-----" at the beginning and "-----END OPENSSH PRIVATE KEY-----" at the end of it) and paste it in a file on our kali machine (*sudo nano id_rsa* and paste it inside).
+Finally, we can *cat* id_rsa, copy its content (including "-----BEGIN OPENSSH PRIVATE KEY-----" at the beginning and "-----END OPENSSH PRIVATE KEY-----" at the end of it) and paste it in a file on our kali machine (*sudo nano id_rsa* and paste it inside).\\
+We should now be able to SSH as luis:
 
+<div class="img_container">
+![ssh]({{https://jsom1.github.io/}}/_images/htb_seal_ssh.png)
+</div>
+
+It worked, and we can grab the user flag!
+
+We once again want to elevate our privileges. As usual, let's have a look at what luis can do:
+
+<div class="img_container">
+![sudol]({{https://jsom1.github.io/}}/_images/htb_seal_sudol.png)
+</div>
+
+We see it can run *ansible-playbook* as root without providing a password. A little bit of Googling shows interesting articles, among which https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html. We learn we can write a *.yml* file to exploit this "misconfiguration":
 
 `````
 - name: Check the remote host uptime
@@ -253,12 +267,21 @@ Finally, we can *cat* id_rsa, copy its content (including "-----BEGIN OPENSSH PR
     - name: Execute the uptime command over Command module
       command: "chmod +s /bin/bash"
 `````
+We use *ansible-playbook* to run our file
 
-d
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_seal_root.png)
+</div>
+
+And we're root!
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
-
+not enough time. First time 2 privesc.
 
 <ins>**Fix the vulnerabilities**</ins>
 
