@@ -194,7 +194,7 @@ As usual, the output is huge but the interesting lines are the following:
 ![linpeas]({{https://jsom1.github.io/}}/_images/htb_seal_lp.png)
 </div>
 
-A *run.yml* file is mentionned. Let's look at that latter:
+A *run.yml* file is mentionned. It's not on the image above, but this file is also executed in a cronjob. Let's look at that latter:
 
 ````
 - hosts: localhost
@@ -210,7 +210,7 @@ A *run.yml* file is mentionned. Let's look at that latter:
       state: absent
       path: /opt/backups/files/
 ``````
-We see 3 tasks: one to copy files, one to do backups, and the last one to clean. The one that copies files take them from */var/lib/tomcat9/webapp/ROOT/admin/dashboard* and copies them to */opt/backups/files*. I once again had to look at the forums. What should stand out here is **copy_links=yes**, which means that symbolic links are allowed. Apparently, we can do a symlink to pull luis' .ssh directory.
+We see 3 tasks: one to copy files, one to do backups, and the last one to clean. The one that copies files take them from */var/lib/tomcat9/webapp/ROOT/admin/dashboard* and copies them to */opt/backups/files*. I once again had to look at the forums for a hint. What should stand out here is **copy_links=yes**, which means that symbolic links are allowed. I vaguely know what it is, so let's look for more information: *A symbolic link, also known as a symlink or soft link, is a special type of file that points to another file or directory.*. Apparently, we can create a symbolic link to pull luis' .ssh directory.
 
 We can have a look at the copy source to see what's there:
 
@@ -218,13 +218,15 @@ We can have a look at the copy source to see what's there:
 ![copy]({{https://jsom1.github.io/}}/_images/htb_seal_copy.png)
 </div>
 
-We see the directory uploads has read, write and execute permissions for anyone. We can then copy luis' .ssh directory as follows:
+We see the directory uploads has read, write and execute permissions for anyone. We can then copy luis' .ssh directory by creating a symbolic link as follows:
 
 ````
 ln -s /home/luis/.ssh /var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads
 `````
 
-And we see the file was copied in */backups*. I created a *.tmp* directory into */tmp* where I copied the output:
+*ln* is a command-line utility for creating links between files. By default, the *ln* command creates hard links. To create a symbolic link, use the *-s* (--symbolic) option.
+
+We see the file was copied in */backups*. I created a *.tmp* directory into */tmp* where I copied the output:
 
 ````
 cp /opt/backups/archives/backup-2021-11-13-11:05:32.gz /tmp/.tmp
