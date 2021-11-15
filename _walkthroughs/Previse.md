@@ -21,9 +21,9 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/web application, ssh\\
-**Tools:** dirb, hydra\\
+**Tools:** dirb, hydra, nikto, gobuster, burp\\
 **Techniques:** ?\\
-**Keywords:** Tomcat, ansible\\ 
+**Keywords:** ?\\ 
 **In a nutshell**: ?
 
 ## 1. Services enumeration
@@ -71,7 +71,7 @@ Let's start with XSS by inputting the following text into the username and passw
 <script>alert('xss')</script>
 `````
 
-We refresh the page and if a popup appears, it indicates a XSS vulnerability. It is not the case here. 
+When refreshing the page, the apparition of a popup would indicate a XSS vulnerability. It is not the case here. 
 We can also test for SQLi by inputting the following text:
 
 ````
@@ -88,6 +88,50 @@ In this case, the *hydra* command is the following:
 sudo hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.11.104 http-post-form "/login.php:username=^USER^&password=^PASS^:F=Invalid Username or Password:H=Cookie: PHPSESSID=nh5564crcqp4vdfs38c6l9r3cv" -V -f
 ``````
 
+Sadly, *hydra* doesn't find any password for the username "admin". We could still try "m4lwhere" as username, or even use a wordlist for it.\\
+At this point, we pretty much covered the possible attack vectors without success. Let's iterate over them again, but this time with other tools (such as *gobuster* instead of *dirb*), other wordlists, other optios, other SQLi tests, and so on...\\
+Since there is only http to focus on, we know there must be a vulnerability there and we will find it.
+
+We saw the login page is a *php* script. Let's search for *.php* file extensions:
+
+<div class="img_container">
+![php dirb]({{https://jsom1.github.io/}}/_images/htb_prev_dirb2.png)
+</div>
+
+There are a few *.php* files, and some of them are accessible (code 200). Even though */accounts.php* isn't accessible from the browser, we can *wget* it on our machine to have a look at it:
+
+````
+sudo wget http://10.10.11.104/accounts.php
+`````
+
+Once downloaded, we can *cat* it. I'm not showing the output here because there is nothing very interesting. The second script */config* is accessible but shows a blank page. The only interesting thing here is */nav.php*:
+
+<div class="img_container">
+![nav]({{https://jsom1.github.io/}}/_images/htb_prev_nav.png)
+</div>
+
+However, all those links bring us back to the */login.php* page... We'll now use *nikto* to complete our manual enumeration:
+
+<div class="img_container">
+![nikto]({{https://jsom1.github.io/}}/_images/htb_prev_nikto.png)
+</div>
+
+Nothing really stands out. Let's make sure there isn't another service running on a higher port by doing a full TCP scan:
+
+````
+sudo nmap -p 1-65535 10.10.11.104
+`````
+
+There are only http and ssh... We used *dirb* earlier to bruteforce directories, let's now try with *gobuster* and a different wordlist. We will also look for *.php* file extensions one again:
+
+````
+sudo gobuster dir -u http://10.10.11.104/ -w /usr/share/wordlists/dirb/big.txt
+sudo gobuster dir -u http://10.10.11.104/ -w /usr/share/wordlists/dirb/big.txt -x php
+`````
+
+Gobuster reveals a few different directories such as */.htaccess* and */.htpasswd*, but nothing really useful...
+
+I really wanted to do this machine on my own but sadly I had to look at the forums because I was stuck. It appears we were on the right track though: we discovered */nav.php* which had a few links. People say we have to click on those links and intercept the requests on Burp to spot something special. Let's do this:
 
 
 
