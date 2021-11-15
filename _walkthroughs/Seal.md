@@ -278,7 +278,7 @@ We use *ansible-playbook* to run our file
 And we're root!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png){: height=350px" width = 300x"}
+![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png){: height=250px" width = 200x"}
 </div>
 
 <ins>**My thoughts**</ins>
