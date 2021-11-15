@@ -23,8 +23,8 @@ output: html_document
 **Ports/services exploited:** 80/web application, TomCat, ssh\\
 **Tools:** Burp, linpeas\\
 **Techniques:** Directory Traversal\\
-**Keywords:** Tomcat, ansible\\
-**In a nutshell**: 
+**Keywords:** Tomcat, ansible, *.war*\\
+**In a nutshell**: There's a GitBucket instance running on this machine that is opened to anyone. Of of the commit contains a username and a cleartext password. Those credentials can be used on a webapp hosted on Tomcat. This application is vulnerable to directory traversal, allowing us to upload a malicious *.war* file and get a reverse shell as tomcat. Once we get a foothold, we find a *.yml* file that is used in a cronjob. This file creates copies of files and uses symbolic links, which allows us to copy a user's *id_rsa* file, eventually allowing us to ssh into the machine. Finally, this user can execute a program as sudo, and a simple custom file allows us to spawn a bash shell as root.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -278,12 +278,14 @@ We use *ansible-playbook* to run our file
 And we're root!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png){: height="200px" width = 190px"}
+![pwn]({{https://jsom1.github.io/}}/_images/htb_seal_pwn.png){: height=350px" width = 300x"}
 </div>
 
-
 <ins>**My thoughts**</ins>
-not enough time. First time 2 privesc.
+
+I started this box the day before it retired, so I pretty much rushed it and didn't appreciate it like I would have if I had more time. This is especially true for the directory traversal vulnerability that I exploited without thinking too much about it, based on what I found on the forums. Now that the box is done, I'm already starting a new one and won't spend more time trying to understand this one.\\
+Still, it was pretty interesting to see Tomcat and this traversal vulnerability. It's not something that I've seen often so far and I will think about it the next time I look for vunerabilities on a web server.  
 
 <ins>**Fix the vulnerabilities**</ins>
 
+First of all, passwords should never be commited on a platform like GitBucket o Github. Because I'm already working on another machine, I won't spend more time on this one...
