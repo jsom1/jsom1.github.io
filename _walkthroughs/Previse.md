@@ -194,7 +194,22 @@ function connectDB(){
 
 On the website, there's a *LOG DATA* tab that appears when we hover over *Management Menu*. There, we can request log data. Within the returned file, we see ourselves (I see netpal) as well as the previously seen user, *m4lwhere*. So, we know have a password and two potential users. Even though the password is for MySQL, we can try it with SSH. Indeed, passwords are often reused. Unfortunately, it's not the case here.
 
-After looking at the other files from the zip, there is something interesting in *logs.php*. This script uses the *exec()* function, and I know this could be a vulnerability since I used it another machine, TODO : trouver où.
+After looking at the other files from the zip, there is something interesting in *logs.php*. This script uses the *exec()* function, and this reminds me of another box, BountyHunter, which used the python function *eval()*. This function was being run in root context and could be used to import the os module, allowing us to read or write files.\\
+The present situation looks similar :
+
+<div class="img_container">
+![exec function]({{https://jsom1.github.io/}}/_images/htb_prev_exec.png)
+</div>
+
+This is the function that is being called when we request logs on the server. We see that the *delim* parameter is directly taken from the input field, without any kind of validation. That looks promising, as we could potentially POST a malicious command in this parameter, which would then by *executed* by the *exec()* function. Also, the message about the easier use of Python could be a clue.\\
+Let's request a log file and intercept the request with Burp to see the syntax. We can send it to the repeater to modify it afterwards:
+
+<div class="img_container">
+![post syntax]({{https://jsom1.github.io/}}/_images/htb_prev_burp3.png)
+</div>
+
+Line 14 shows the selected delim which is directly passed to the *logs.php* script. By researching more information about the python *exec()* command, I found the exact same article I read for BountyHunter, and talks about command injection in Python using *eval()* and *exec()*. It appears it is the same idea as the previous time: TODO
+
 
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
