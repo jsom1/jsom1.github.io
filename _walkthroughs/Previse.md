@@ -208,7 +208,10 @@ Let's request a log file and intercept the request with Burp to see the syntax. 
 ![post syntax]({{https://jsom1.github.io/}}/_images/htb_prev_burp3.png)
 </div>
 
-Line 14 shows the selected delim which is directly passed to the *logs.php* script. By researching more information about the python *exec()* command, I found the exact same article I read for BountyHunter, and talks about command injection in Python using *eval()* and *exec()*. It appears it is the same idea as the previous time: TODO
+Line 14 shows the selected delim which is directly passed to the *logs.php* script. By researching more information about the python *exec()* command, I found the exact same article I read for BountyHunter, and talks about command injection in Python using *eval()* and *exec()*. It appears it is the same idea as the previous time. After playing a little bit with the command, I came up with the following one to get a reverse shell:
+
+````
+````
 
 
 ## 3. Privilege escalation
