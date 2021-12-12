@@ -89,7 +89,7 @@ sudo hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.11.104 http-post-f
 ``````
 
 Sadly, *hydra* doesn't find any password for the username "admin". We could still try "m4lwhere" as username, or even use a wordlist for it.\\
-At this point, we pretty much covered the possible attack vectors without success. Let's iterate over them again, but this time with other tools (such as *gobuster* instead of *dirb*), other wordlists, other optios, other SQLi tests, and so on...\\
+At this point, we pretty much covered the possible attack vectors without success. Let's iterate over them again, but this time with other tools (such as *gobuster* instead of *dirb*), other wordlists, other options, other SQLi tests, and so on...\\
 Since there is only http to focus on, we know there must be a vulnerability there and we will find it.
 
 We saw the login page is a *php* script. Let's search for *.php* file extensions:
@@ -104,7 +104,7 @@ There are a few *.php* files, and some of them are accessible (code 200). Even t
 sudo wget http://10.10.11.104/accounts.php
 `````
 
-Once downloaded, we can *cat* it. I'm not showing the output here because there is nothing very interesting. The second script */config* is accessible but shows a blank page. The only interesting thing here is */nav.php*:
+Once downloaded, we can *cat* it. There's not much going on there, we just see it sends a post request to log in. The second script */config* is accessible but shows a blank page. The only interesting thing here is */nav.php*:
 
 <div class="img_container">
 ![nav]({{https://jsom1.github.io/}}/_images/htb_prev_nav.png)
@@ -131,9 +131,41 @@ sudo gobuster dir -u http://10.10.11.104/ -w /usr/share/wordlists/dirb/big.txt -
 
 Gobuster reveals a few different directories such as */.htaccess* and */.htpasswd*, but nothing really useful...
 
-I really wanted to do this machine on my own but sadly I had to look at the forums because I was stuck. It appears we were on the right track though: we discovered */nav.php* which had a few links. People say we have to click on those links and intercept the requests on Burp to spot something special. Let's do this:
+I really wanted to do this machine on my own but sadly I had to look at the forums because I was stuck. It appears we were on the right track though: we discovered */nav.php* which had a few links. People say we have to click on those links and intercept the requests on Burp to spot something special. Let's do this. We set up Burp once again, intercept the request when clicking on *ACCOUNTS* and send it to the repeater. This time, we indeed see a different content than the one we saw when *cat*ing the file:
 
+<div class="img_container">
+![Burp2]({{https://jsom1.github.io/}}/_images/htb_prev_burp2.png)
+</div>
 
+Apparently, we shoud be able to *render* the page in Burp but it generates an error for some reason. We can still see what we need to create an account by sending a POST request to */accounts.php*:
+
+<div class="img_container">
+![Test user creation]({{https://jsom1.github.io/}}/_images/htb_prev_testuser.png)
+</div>
+
+This doesn't seem to work, we get an invalid user/password when we try to log in. I'm not sure the POST request has the right syntax. I learned something basic that I didn't know: we can (it sounds obvious) also intercept the response on Burp and modify it:
+
+<div class="img_container">
+![intercept response to request]({{https://jsom1.github.io/}}/_images/htb_prev_req.png)
+</div>
+
+<div class="img_container">
+![modified response]({{https://jsom1.github.io/}}/_images/htb_prev_repmod.png)
+</div>
+
+Here, we replaced *302* by *200 OK* and forwarded it. Then, we see it actually works:
+
+<div class="img_container">
+![Create acc]({{https://jsom1.github.io/}}/_images/htb_prev_accs.png)
+</div>
+
+We fill the form and create the user. Burp intercepts the request, and we see the correct syntax:
+
+<div class="img_container">
+![Post]({{https://jsom1.github.io/}}/_images/htb_prev_post.png)
+</div>
+
+We indeed didn't have the right form. We can forward the request, which successfully creates a user. We then browse to the login page and login. At this point, we can see the different tabs. We see in *Management menu* that "MySQL server is online and connected", "There are 2 registered admins" and "There is 1 upoaded file". 
 
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
