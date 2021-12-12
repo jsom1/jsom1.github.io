@@ -165,7 +165,7 @@ We fill the form and create the user. Burp intercepts the request, and we see th
 ![Post]({{https://jsom1.github.io/}}/_images/htb_prev_post.png)
 </div>
 
-We indeed didn't have the right form. We can forward the request, which successfully creates a user. We then browse to the login page and login. At this point, we can see the different tabs. We see in *Management menu* that "MySQL server is online and connected", "There are 2 registered admins" and "There is 1 upoaded file". Browsing to *Files*, we indeed see the uploaded file:
+We indeed didn't have the right form. We can forward the request, which successfully creates a user. We then browse to the login page and login. At this point, we can see the different tabs. We see in *Management menu* that "MySQL server is online and connected", "There are 2 registered admins" and "There is 1 upoaded file". Browsing to *Files*, we indeed see the uploaded file (by a user called newguy):
 
 <div class="img_container">
 ![uploaded file]({{https://jsom1.github.io/}}/_images/htb_prev_uplfile.png)
@@ -192,7 +192,9 @@ function connectDB(){
 ?>
 `````
 
-On the website, there's a *LOG DATA* tab that appears when we hover over *Management Menu*. There, we can request log data. Within the returned file, we see ourselves (I see netpal) as well as the previously seen user, *m4lwhere*.
+On the website, there's a *LOG DATA* tab that appears when we hover over *Management Menu*. There, we can request log data. Within the returned file, we see ourselves (I see netpal) as well as the previously seen user, *m4lwhere*. So, we know have a password and two potential users. Even though the password is for MySQL, we can try it with SSH. Indeed, passwords are often reused. Unfortunately, it's not the case here.
+
+After looking at the other files from the zip, there is something interesting in *logs.php*. This script uses the *exec()* function, and I know this could be a vulnerability since I used it another machine, TODO : trouver où.
 
 ## 3. Privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
