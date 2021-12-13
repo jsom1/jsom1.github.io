@@ -44,13 +44,13 @@ SSH is most likely here to be used once we discover credentials on the web serve
 When browsing to *10.10.11.104*, we land on the following page:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_prev_site.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_prev_login.png)
 </div>
 
 It's a simple php login page with a username at the bottom (M4LWHERE). If we click on the username, it brings us to another page:
 
 <div class="img_container">
-![site2]({{https://jsom1.github.io/}}/_images/htb_prev_site2.png)
+![site2]({{https://jsom1.github.io/}}/_images/htb_prev_site.png)
 </div>
 
 We see in the URL that it is an *https* page, however *nmap* didn't reveal any *ssl/https* service. 
