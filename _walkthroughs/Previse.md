@@ -23,7 +23,8 @@ output: html_document
 **Ports/services exploited:** 80/web application\\
 **Tools:** dirb, hydra, nikto, gobuster, burp, JtR\\
 **Techniques:** reverse shell, hash cracking, $PATH manipulation\\
-**Keywords:** python eval() function, SETUID\\ 
+**Keywords:** python eval() function, SETUID
+
 **In a nutshell**: The machine is hosting a php web app on which we can create an account. The account page should normally not be reachable, but we can intercept the request's response with Burp and modify its status to 200 OK instead of 301 FOUND, allowing us to reach it and create an account. Once connected, we discover MySQL credentials and our way in: there's a script which uses the vulnerable *exec()* python function. This latter takes an unsanitized user input that can be used to get a reverse shell. At this point, we can access the MySQL database and retrieve a hashed password. Using JtR, we can crack it and either *ssh* or *su* as this user, giving us the user flag. This user can run a script as root, which is vulnerable to a "path injection". This latter uses the *gzip* binary without using an absolute path. Therefore, we can create our own malicious *gzip* file, add it to the $PATH variable and get it executed. It can be used to get a reverse shell or, in this case, to temporarily allow the current user to run */bin/bash* with root permissions via the SETUID bit.
 
 ## 1. Services enumeration
@@ -44,13 +45,13 @@ SSH is most likely here to be used once we discover credentials on the web serve
 When browsing to *10.10.11.104*, we land on the following page:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_prev_login.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_prev_login.png){: height="415px" width = 625px"}
 </div>
 
 It's a simple php login page with a username at the bottom (M4LWHERE). If we click on the username, it brings us to another page:
 
 <div class="img_container">
-![site2]({{https://jsom1.github.io/}}/_images/htb_prev_site.png)
+![site2]({{https://jsom1.github.io/}}/_images/htb_prev_site.png){: height="415px" width = 625px"}
 </div>
 
 We see in the URL that it is an *https* page, however *nmap* didn't reveal any *ssl/https* service. 
@@ -134,19 +135,19 @@ Gobuster reveals a few different directories such as */.htaccess* and */.htpassw
 I really wanted to do this machine on my own but sadly I had to look at the forums because I was stuck. It appears we were on the right track though: we discovered */nav.php* which had a few links. People say we have to click on those links and intercept the requests on Burp to spot something special. Let's do this. We set up Burp once again, intercept the request when clicking on *ACCOUNTS* and send it to the repeater. This time, we indeed see a different content than the one we saw when *cat*ing the file:
 
 <div class="img_container">
-![Burp2]({{https://jsom1.github.io/}}/_images/htb_prev_burp2.png)
+![Burp2]({{https://jsom1.github.io/}}/_images/htb_prev_burp2.png){: height="415px" width = 625px"}
 </div>
 
 Apparently, we shoud be able to *render* the page in Burp but it generates an error for some reason. We can still see what we need to create an account by sending a POST request to */accounts.php*:
 
 <div class="img_container">
-![Test user creation]({{https://jsom1.github.io/}}/_images/htb_prev_testuser.png)
+![Test user creation]({{https://jsom1.github.io/}}/_images/htb_prev_testuser.png){: height="415px" width = 625px"}
 </div>
 
 This doesn't seem to work, we get an invalid user/password when we try to log in. I'm not sure the POST request has the right syntax. I learned something basic that I didn't know: we can (it sounds obvious) also intercept the response on Burp and modify it:
 
 <div class="img_container">
-![intercept response to request]({{https://jsom1.github.io/}}/_images/htb_prev_req.png)
+![intercept response to request]({{https://jsom1.github.io/}}/_images/htb_prev_req.png){: height="415px" width = 625px"}
 </div>
 
 <div class="img_container">
@@ -156,7 +157,7 @@ This doesn't seem to work, we get an invalid user/password when we try to log in
 Here, we replaced *302 FOUND* by *200 OK* and forwarded it. Then, we see it actually works:
 
 <div class="img_container">
-![Create acc]({{https://jsom1.github.io/}}/_images/htb_prev_accs.png)
+![Create acc]({{https://jsom1.github.io/}}/_images/htb_prev_accs.png){: height="415px" width = 625px"}
 </div>
 
 We fill the form and create the user. Burp intercepts the request, and we see the correct syntax:
@@ -168,7 +169,7 @@ We fill the form and create the user. Burp intercepts the request, and we see th
 We indeed didn't have the right form. We can forward the request, which successfully creates a user. We then browse to the login page and login. At this point, we can see the different tabs. We see in *Management menu* that "MySQL server is online and connected", "There are 2 registered admins" and "There is 1 upoaded file". Browsing to *Files*, we indeed see the uploaded file (by a user called newguy):
 
 <div class="img_container">
-![uploaded file]({{https://jsom1.github.io/}}/_images/htb_prev_uplfile.png)
+![uploaded file]({{https://jsom1.github.io/}}/_images/htb_prev_uplfile.png){: height="415px" width = 625px"}
 </div>
 
 We can download the file and look at its content:
@@ -306,7 +307,7 @@ More details about the previous commands:
 And we've got the root flag!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_prev_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_prev_pwn.png){: height="150px" width = 160px"}
 </div>
 
 <ins>**My thoughts**</ins>
