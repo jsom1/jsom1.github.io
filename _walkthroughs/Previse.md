@@ -307,7 +307,7 @@ More details about the previous commands:
 And we've got the root flag!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_prev_pwn.png){: height="150px" width = 160px"}
+![pwn]({{https://jsom1.github.io/}}/_images/htb_prev_pwn.png){: height="380px" width = 390px"}
 </div>
 
 <ins>**My thoughts**</ins>
