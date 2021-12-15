@@ -102,6 +102,24 @@ We add this subdomain to our */etc/hosts* (*sudo echo "10.10.11.111 admin.forge.
 ![subdomain]({{https://jsom1.github.io/}}/_images/htb_forge_subdom.png)
 </div>
 
+It seems we can't access it from a different IP address, but maybe we can use the file upload option and provide the subdomain address to access resources on *admin.forge.htb*... In this manner, it is *forge.htb* that would request *admin.forge.htb*.
+
+By Googling "only localhost is allowed", the first string completion propistion is "only localhost is allowed bypass". By looking at this, the first links all mention SSRF (Server Side Request Forgery).\\
+I've learned about it some time ago but don't really remember how it works nor what it is exactly, so here's a quick explanation from <https://owasp.org/www-community/attacks/Server_Side_Request_Forgery>:\\
+*The target application may have functionality for importing data from a URL, publishing data to a URL or otherwise reading data from a URL that can be tampered with. The attacker modifies the calls to this functionality by supplying a completely different URL or by manipulating how URLs are built (path traversal etc.).\\
+When the manipulated request goes to the server, the server-side code picks up the manipulated URL and tries to read data to the manipulated URL. By selecting target URLs the attacker may be able to read data from services that are not directly exposed on the internet. The attacker may also use this functionality to import untrusted data into code that expects to only read data from trusted sources, and as such circumvent input validation.*
+
+On another page, there are a few indications about what we should try to do if we suspect a SSRF vulnerability, such as:
+
+- Accessing to local files by using *file://* in the URL
+- Trying to access local IP
+- Local IP bypass
+- DNS spoofing (domains pointing to 127.0.0.1)
+- DNS Rebinding (resolves to an IP and next time to a local IP: http://rbnd.gl0.eu/dnsbin). This is useful to bypass configurations which resolves the given domain and check it against a white-list and then try to access it again (as it has to resolve the domain again a different IP can be served by the DNS).
+- Accessing private content (filtered by IP or only accessible locally, like /admin path).
+
+
+
 
 
 ## 3. Horizontal privilege escalation
