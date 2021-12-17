@@ -123,6 +123,7 @@ Principle: do http requests as the victim. In other words, induce a victim user 
 
 ## SSRF (server-side request forgery)
 
+The target application may have functionality for importing data from a URL, publishing data to a URL or otherwise reading data from a URL that can be tampered with. The attacker modifies the calls to this functionality by supplying a completely different URL or by manipulating how URLs are built (path traversal etc.).\ When the manipulated request goes to the server, the server-side code picks up the manipulated URL and tries to read data to the manipulated URL. By selecting target URLs the attacker may be able to read data from services that are not directly exposed on the internet. The attacker may also use this functionality to import untrusted data into code that expects to only read data from trusted sources, and as such circumvent input validation.
 
 Example: <a href="/_walkthroughs/Forge">Forge</a>
 
@@ -131,7 +132,6 @@ Example: <a href="/_walkthroughs/Forge">Forge</a>
 ## Directory traversal
 
 Directory traversal (also known as file path traversal) is a web security vulnerability that allows an attacker to read arbitrary files on the server that is running an application. This might include application code and data, credentials for back-end systems, and sensitive operating system files. In some cases, an attacker might be able to write to arbitrary files on the server, allowing them to modify application data or behavior, and ultimately take full control of the server.
-
 
 Example: <a href="/_walkthroughs/Seal">Seal</a>
 
