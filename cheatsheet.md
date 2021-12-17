@@ -97,7 +97,7 @@ Client-side vulnerability that works by manipulating a vulnerable web site so th
 **Detection**: manually by submitting simple unique input into every entry point of the application, identifying every location where the submitted input is returned in HTTP responses, and testing each location individually to determine whether suitably crafted input can be used to execute arbitrary JavaScript. Example:
 
 ````
-<script>alert('test')</script>
+#<script>alert('test')</script>
 `````
 **Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.\\
 Automatically by using Burp's web vulnerability scanner.
