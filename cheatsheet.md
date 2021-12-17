@@ -18,11 +18,12 @@ Here's the content so far:
 
 # 21 - FTP
 
-- Connect to the target and check if anonymous FTP is allowed (user *anonymous*, blank password)
+- Is anonymous FTP allowed (user *anonymous*, blank password)?
 
 ````
 sudo ftp targetip
 `````
+Example: <a href="/_walkthroughs/ServMon">ServMon</a>
 
 - Known vulnerable versions: ProFTPD 1.3.3c, vsFTPd 2.3.4, ... -> Search for Metasploit exploits
 
@@ -51,16 +52,17 @@ sudo wpscan --url targetIP # basic scan
 sudo wpscan --url targetIP -e u # enumerate users
 sudo wpscan --url targetIP -passwords file/path/passwords.txt # password attack
 `````
-Example: Basic Pentesting: 1
+Example: <a href="/_walkthroughs/basicpentest">Basic Pentesting: 1 (VulnHub)</a>
 
 - Subdomains enumeration with **ffuf**:
 
 ````
-sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://forge.htb/ -H "Host: FUZZ.forge.htb" -t 200 -fl 10
+sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://targetIP/ -H "Host: FUZZ.targetIP" -t 200 -fl 10
 `````
 Example: <a href="/_walkthroughs/Forge">Forge</a>
 
-- If the CMS is Wordpress: check **wp_admin_shell_upload**. Example: Basic Pentesting: 1
+- If the CMS is Wordpress: check **wp_admin_shell_upload**.
+Example: <a href="/_walkthroughs/basicpentest">Basic Pentesting: 1 (VulnHub)</a>
 
 
 ## XXE Injection
@@ -81,13 +83,18 @@ Example: <a href="/_walkthroughs/BountyHunter">BountyHunter</a>
 
 ## SQL Injection
 
-Server-side vulnerability that targets tthe application's database.
+Server-side vulnerability that targets the application's database.
+Input strings (into every possible form of the app) that could trigger an error message. Examples:
+
+````
+admin' or 1=1;#
+````
 
 ## XSS (cross-site scripting)
 
 Client-side vulnerability that works by manipulating a vulnerable web site so that it returns malicious JavaScript to users. When the malicious code executes inside a victim's browser, the attacker can fully compromise their interaction with the application.
 
-**Detection**: manually by submitting simple unique input into every entry point in the applicationcon, identifying every location where the submitted input is returned in HTTP responses, and testing each location individually to determine whether suitably crafted input can be used to execute arbitrary JavaScript. Example:
+**Detection**: manually by submitting simple unique input into every entry point of the application, identifying every location where the submitted input is returned in HTTP responses, and testing each location individually to determine whether suitably crafted input can be used to execute arbitrary JavaScript. Example:
 
 ````
 <script>alert('test')</script>
@@ -95,13 +102,13 @@ Client-side vulnerability that works by manipulating a vulnerable web site so th
 **Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.\\
 Automatically by using Burp's web vulnerability scanner.
 
-### Stored XSS
+**Stored XSS**\\
 The malicious script comes from the website's database. PoC: input <script>alert('test')</script> in a field, submit it and refresh the page. If the browser interprets it, it should open a JavaScript pop-up alert.
 
-### Reflected XXS 
+**Reflected XXS**\\
 Same principle, but the script isn't stored in a database. Instead, it comes from the HTTP request. Example: if the site/application has a research field, it does an http GET request with an URL parameter (*https://www.insecure.com/search?q=keyboard*). PoC: https://www.insecure.com/search?q=<script>alert</script>. We can then send this link to someone. When he/she visits the URL, the script executes in the user's browser.
 
-### DOM (Document Object Model) based XSS 
+**DOM (Document Object Model) based XSS**\\
 The vulnerability resides in the client-side code (not the server-side). It happens when an application contains some client-side JavaScript that processes data from an untrusted source in an unsafe way, usually by writing the data back to the DOM. Example:\\
 *var search = document.getElementById('search').value;\\
 var results = document.getElementById('results');\\
@@ -113,6 +120,11 @@ If we can control the value of the input field, we ca craft a malicious value th
 ## CSRF (cross-site request forgery)
 
 Principle: do http requests as the victim. In other words, induce a victim user to perform actions they don't intend to do.
+
+## SSRF (server-side request forgery)
+
+
+Example: <a href="/_walkthroughs/Forge">Forge</a>
 
 ## Login Bruteforcing
 
