@@ -75,7 +75,7 @@ Let's now try to upload a local file from our machine. In this example, I upload
 </div>
 
 We see the file was successfully uploaded. However, if we click on the link, we get a "Not Found" error. This is because we see it was uploaded in */uploads*, and not in */upload*. *Dirb* and *gobuster* found this directory, but indicated it returned the HTTP code 301 (Moved Permanently or redirect).\\
-Next, let's try to add the *.jpg* extension to *linpeas.sh* and try again. The file is also successfully uploaded but this time, clicking the link shows another error message: "The image http://forge.htb/uploads/A1uTy4XXSvCfrHXvxeao cannot be displayed because it contains errors". A few seconds later, it's not being found anymore... Maybe the file is uploaded in */uploads* where it is subject to some tests, and if it fails, it gets removed?
+Next, let's try to add the *.jpg* extension to *linpeas.sh* and try again. If we can successfuly upload it and see it, we might be able to upload a reverse shell payload file with a *.png* extention. The file is also successfully uploaded but this time, clicking the link shows another error message: "The image http://forge.htb/uploads/A1uTy4XXSvCfrHXvxeao cannot be displayed because it contains errors". A few seconds later, it's not being found anymore... Maybe the file is uploaded in */uploads* where it is subject to some tests, and if it fails, it gets removed? Anyways, that's probably a dead end.
 
 As usual, I had to look at the forum at this point because I was stuck. Apparently, we're supposed to enumerate subdomains. I don't remember how we're supposed to do that, and a quick search mentionned that *wfuzz* is a good tool. I tried with the following syntax (which is supposed to work):
 
@@ -118,7 +118,7 @@ On another page, there are a few indications about what we should try to do if w
 - DNS Rebinding (resolves to an IP and next time to a local IP: http://rbnd.gl0.eu/dnsbin). This is useful to bypass configurations which resolves the given domain and check it against a white-list and then try to access it again (as it has to resolve the domain again a different IP can be served by the DNS).
 - Accessing private content (filtered by IP or only accessible locally, like /admin path).
 
-
+The situation we're facing looks similar to what's described here. In addition, the box' name *forge* could be a hint for SSRF. 
 
 
 
