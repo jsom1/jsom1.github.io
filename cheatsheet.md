@@ -28,7 +28,7 @@ sudo ftp targetip
 
 # 80 - HTTP
 
-## Directories and files enumeration
+## Enumeration (Directories, files, subdomains, ...)
 
 - Directories and files enumeration with **dirb** (-r for non recursive):
 
@@ -42,7 +42,7 @@ sudo dirb http://targetIP -r
 sudo gobuster dir -u http://targetIP/ -w /usr/share/wordlists/...wordlist
 sudo gobuster dir -u http://targetIP/ -w /usr/share/wordlists/...wordlist -x php # looks for php files
 ``````
-Example: BountyHunter
+Example: <a href="/_walkthroughs/BountyHunter">BountyHunter</a>
 
 - Directories and files enumeration with **wpscan** (for Wordpress):
 
@@ -52,6 +52,13 @@ sudo wpscan --url targetIP -e u # enumerate users
 sudo wpscan --url targetIP -passwords file/path/passwords.txt # password attack
 `````
 Example: Basic Pentesting: 1
+
+- Subdomains enumeration with **ffuf**:
+
+````
+sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://forge.htb/ -H "Host: FUZZ.forge.htb" -t 200 -fl 10
+`````
+Example: <a href="/_walkthroughs/Forge">Forge</a>
 
 - If the CMS is Wordpress: check **wp_admin_shell_upload**. Example: Basic Pentesting: 1
 
@@ -69,7 +76,7 @@ Does the application parses XML? If yes, it might be vulnerable to XXE injection
 <data>&file;</data>
 `````
 
-Example: BountyHunter
+Example: <a href="/_walkthroughs/BountyHunter">BountyHunter</a>
 
 
 ## SQL Injection
@@ -114,7 +121,7 @@ Principle: do http requests as the victim. In other words, induce a victim user 
 Directory traversal (also known as file path traversal) is a web security vulnerability that allows an attacker to read arbitrary files on the server that is running an application. This might include application code and data, credentials for back-end systems, and sensitive operating system files. In some cases, an attacker might be able to write to arbitrary files on the server, allowing them to modify application data or behavior, and ultimately take full control of the server.
 
 
-Example: Seal
+Example: <a href="/_walkthroughs/Seal">Seal</a>
 
 # 139, 445 - SMB
 
