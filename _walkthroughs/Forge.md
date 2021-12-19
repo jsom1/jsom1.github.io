@@ -96,13 +96,14 @@ This time the scan is successful and returns one subdomain: *admin.forge.htb*:
 ![ffuf]({{https://jsom1.github.io/}}/_images/htb_forge_ffuf.png)
 </div>
 
-We add this subdomain to our */etc/hosts* (*sudo echo "10.10.11.111 admin.forge.htb" >> /etc/hosts*) file and browse to it:
+We add this subdomain to our */etc/hosts* (*sudo echo "10.10.11.111 admin.forge.htb" >> /etc/hosts*) file. The first thing I did was to try *dirb* and *gobuster* once again agaisnt *admin.forge.htb*, but dirb didn't return anything, and gobuster didn't even work (*error: the server returns a status code that matches the provided options for non-existing urls*).\\
+Let's browse to that address:
 
 <div class="img_container">
 ![subdomain]({{https://jsom1.github.io/}}/_images/htb_forge_subdom.png)
 </div>
 
-It seems we can't access it from a different IP address, but maybe we can use the file upload option and provide the subdomain address to access resources on *admin.forge.htb*... In this manner, it is *forge.htb* that would request *admin.forge.htb*.
+It seems we can't access it from a different IP address. Could that be the reasonn why gobuster failed? Anyways, maybe we can use the file upload option and provide the subdomain address to access resources on *admin.forge.htb*... In this manner, it is *forge.htb* that would request *admin.forge.htb*.
 
 By Googling "only localhost is allowed", the first string completion propistion is "only localhost is allowed bypass". By looking at this, the first links all mention SSRF (Server Side Request Forgery).\\
 I've learned about it some time ago but don't really remember how it works nor what it is exactly, so here's a quick explanation from <https://owasp.org/www-community/attacks/Server_Side_Request_Forgery>:\\
