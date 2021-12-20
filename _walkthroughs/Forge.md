@@ -115,13 +115,13 @@ When the manipulated request goes to the server, the server-side code picks up t
 The situation we're facing looks similar to what's described here. In addition, the box' name *forge* could be a hint for SSRF. That sounds good, but I still had no idea about how to proceed and had to look for help. I was close to find the solution: let's use Burp and intercept the request when we try to upload from a URL and see what happens:
 
 <div class="img_container">
-![Burp]({{https://jsom1.github.io/}}/_images/htb_forge_burp.png){: height="400px" width = 5000px"}
+![Burp]({{https://jsom1.github.io/}}/_images/htb_forge_burp.png){: height="550px" width = 650px"}
 </div>
 
 I send the request to the repeater and sent it to the the response. We see the URL is encoded and we see that it contains a blacklisted address. This is where we should have thought about changing the URL, for example by using capital letters:
 
 <div class="img_container">
-![Burp2]({{https://jsom1.github.io/}}/_images/htb_forge_burp2.png){: height="400px" width = 5000px"}
+![Burp2]({{https://jsom1.github.io/}}/_images/htb_forge_burp2.png){: height="550px" width = 650px"}
 </div>
 
 This time, we see it was successfully uploaded. Then, instead of clicking the given link in the browser, we should have thought about *curl*ing it:
