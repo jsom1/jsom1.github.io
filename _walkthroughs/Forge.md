@@ -20,12 +20,12 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_forge_desc.png){: height="300px" width = 320px"}
 </div>
 
-**Ports/services exploited:** ?\\
-**Tools:** wfuzz, ffuf\\
+**Ports/services exploited:** 80/web application\\
+**Tools:** wfuzz, ffuf, FTP\\
 **Techniques:** subdomain enumeration, SSRF (server side request forgery)\\
 **Keywords:** ?
 
-**In a nutshell**: ?
+**In a nutshell**: 
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -90,46 +90,104 @@ The other tool that I tried is **ffuf** (sudo apt-get install ffuf) with the fol
 sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://forge.htb/ -H "Host: FUZZ.forge.htb" -t 200 -fl 10
 `````
 
-This time the scan is successful and returns one subdomain: *admin.forge.htb*:
+This time the scan is successful and returns one subdomain: *admin.forge.htb* (*admin* is the subdomain, *forge* is the primary domain and *.htb* is the top-level domain):
 
 <div class="img_container">
 ![ffuf]({{https://jsom1.github.io/}}/_images/htb_forge_ffuf.png)
 </div>
 
-We add this subdomain to our */etc/hosts* (*sudo echo "10.10.11.111 admin.forge.htb" >> /etc/hosts*) file. The first thing I did was to try *dirb* and *gobuster* once again agaisnt *admin.forge.htb*, but dirb didn't return anything, and gobuster didn't even work (*error: the server returns a status code that matches the provided options for non-existing urls*).\\
+Why would there be a subdomain? The most common use-case of a subdomain is for creating a testing version of a website. Changes are done on the subdomain before publishing them live on the internet. It is similar to having a dev and a prod line.
+
+Let's add this subdomain to our */etc/hosts* (*sudo echo "10.10.11.111 admin.forge.htb" >> /etc/hosts*) file. The first thing I did was to try *dirb* and *gobuster* once again agaisnt *admin.forge.htb*, but dirb didn't return anything, and gobuster didn't even work (*error: the server returns a status code that matches the provided options for non-existing urls*).\\
 Let's browse to that address:
 
 <div class="img_container">
 ![subdomain]({{https://jsom1.github.io/}}/_images/htb_forge_subdom.png)
 </div>
 
-It seems we can't access it from a different IP address. Could that be the reasonn why gobuster failed? Anyways, maybe we can use the file upload option and provide the subdomain address to access resources on *admin.forge.htb*... In this manner, it is *forge.htb* that would request *admin.forge.htb*.
+It seems we can't access it from a different IP address. Could that be the reason why gobuster failed? Anyways, maybe we can use the file upload option and provide the subdomain address to access resources on *admin.forge.htb*... In this manner, it is *forge.htb* that would request *admin.forge.htb*. I tried using that address to upload a file, but once again we get the message "URL contains a blacklisted address".
 
 By Googling "only localhost is allowed", the first string completion propistion is "only localhost is allowed bypass". By looking at this, the first links all mention SSRF (Server Side Request Forgery).\\
-I've learned about it some time ago but don't really remember how it works nor what it is exactly, so here's a quick explanation from <https://owasp.org/www-community/attacks/Server_Side_Request_Forgery>:\\
+I'm not familiar at all with this topic and don't know how it works, so here's a quick explanation from <https://owasp.org/www-community/attacks/Server_Side_Request_Forgery>:\\
 *The target application may have functionality for importing data from a URL, publishing data to a URL or otherwise reading data from a URL that can be tampered with. The attacker modifies the calls to this functionality by supplying a completely different URL or by manipulating how URLs are built (path traversal etc.).\\
 When the manipulated request goes to the server, the server-side code picks up the manipulated URL and tries to read data to the manipulated URL. By selecting target URLs the attacker may be able to read data from services that are not directly exposed on the internet. The attacker may also use this functionality to import untrusted data into code that expects to only read data from trusted sources, and as such circumvent input validation.*
 
-On another page, there are a few indications about what we should try to do if we suspect a SSRF vulnerability, such as:
+The situation we're facing looks similar to what's described here. In addition, the box' name *forge* could be a hint for SSRF. That sounds good, but I still had no idea about how to proceed and had to look for help. I was close to find the solution: let's use Burp and intercept the request when we try to upload from a URL and see what happens:
 
-- Accessing to local files by using *file://* in the URL
-- Trying to access local IP
-- Local IP bypass
-- DNS spoofing (domains pointing to 127.0.0.1)
-- DNS Rebinding (resolves to an IP and next time to a local IP: http://rbnd.gl0.eu/dnsbin). This is useful to bypass configurations which resolves the given domain and check it against a white-list and then try to access it again (as it has to resolve the domain again a different IP can be served by the DNS).
-- Accessing private content (filtered by IP or only accessible locally, like /admin path).
+<div class="img_container">
+![Burp]({{https://jsom1.github.io/}}/_images/htb_forge_burp.png)
+</div>
 
-The situation we're facing looks similar to what's described here. In addition, the box' name *forge* could be a hint for SSRF. 
+I send the request to the repeater and sent it to the the response. We see the URL is encoded and we see that it contains a blacklisted address. This is where we should have thought about changing the URL, for example by using capital letters:
 
+<div class="img_container">
+![Burp2]({{https://jsom1.github.io/}}/_images/htb_forge_burp2.png)
+</div>
 
+This time, we see it was successfully uploaded. Then, instead of clicking the given link in the browser, we should have thought about *curl*ing it:
 
-## 3. Horizontal privilege escalation
-{:style="color:DarkRed; font-size: 170%;"}
+````
+sudo curl http://forge.htb/uploads/WAxEuGrfveJ9MV453crc
+````
 
+<div class="img_container">
+![curl]({{https://jsom1.github.io/}}/_images/htb_forge_curl.png)
+</div>
+
+This way, we can somehow access the page. In particular, we see another directory, */annoucements*. I tried *curl*ing again to access it, but it didn't work. Let's try to specify it in the URL upload: *http://ADMIN.FORGE.HTB/announcements*. We then copy the link location and *curl* it:
+
+<div class="img_container">
+![creds]({{https://jsom1.github.io/}}/_images/htb_forge_creds.png)
+</div>
+
+First, we discover FTP credentials. We indeed saw FTP in nmap's output, but it was filtered. We now have the confirmation it is there.\\
+Then, it is said that the */upload* endpoint supports ftp, ftps, http and https protocols. We knew it supported -and so far thought it only accepted- http or https protocols, but the fact it also supports FTP might be the way to use the credentials.\\
+Finally, we see we can upload images by passing a *?u* parameter in the URL.
+
+Let's try to connect to FTP by providing the correct URL: *http://ADMIN.FORGE.HTB/upload?u=ftp://user:heightofsecurity123!@FORGE.HTB*. By *curl*ing to the provided link, we get the following:
+
+<div class="img_container">
+![user]({{https://jsom1.github.io/}}/_images/htb_forge_user.png)
+</div>
+
+Note that I also grabbed the user flag. To do so, I used the following URL: *http://ADMIN.FORGE.HTB/upload?u=ftp://user:heightofsecurity123!@FORGE.HTB/user.txt*. 
+
+At this point, I was stuck and had to look at the forum. The solution was kind of obvious: we can retrieve the public and private SSH keys and use them to connect. By default, the private key is stored in *~/.ssh/id_rsa*, and the public one is in *~/.ssh/id_rsa.pub*. To do that, we will use the following URL commands: 
+
+```
+*http://ADMIN.FORGE.HTB/upload?u=ftp://user:heightofsecurity123!@FORGE.HTB/.ssh/id_rsa*
+*http://ADMIN.FORGE.HTB/upload?u=ftp://user:heightofsecurity123!@FORGE.HTB/.ssh/id_rsa.pub*
+`````
+
+The content of those file is the following:
+
+<div class="img_container">
+![ssh key]({{https://jsom1.github.io/}}/_images/htb_forge_key.png)
+</div>
+
+We've got a user (*user*) and the private key, that's everything we need to connect. We can copy this latter into a file, for example *id_rsa*. Then, we can SSH into the machine:
+
+<div class="img_container">
+![ssh error]({{https://jsom1.github.io/}}/_images/htb_forge_error.png)
+</div>
+
+I got that exact same error in OpenAdmin, and I had to change the file permissions:
+
+````
+sudo chmod 600 id_rsa
+`````
+
+<div class="img_container">
+![ssh]({{https://jsom1.github.io/}}/_images/htb_forge_ssh.png)
+</div>
+
+We are now officially in and can look for a way up to root!
 
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
+
+
 
 
 <ins>**My thoughts**</ins>
