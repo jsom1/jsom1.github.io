@@ -187,8 +187,74 @@ We are now officially in and can look for a way up to root!
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
+Let's start by looking at this user's permissions:
 
+<div class="img_container">
+![sudol]({{https://jsom1.github.io/}}/_images/htb_forge_sudol.png)
+</div>
 
+The user can execute python3 and a script called *remote-manage.py*. Let's have a look at that latter:
+
+````
+#!/usr/bin/env python3
+import socket
+import random
+import subprocess
+import pdb
+
+port = random.randint(1025, 65535)
+
+try:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('127.0.0.1', port))
+    sock.listen(1)
+    print(f'Listening on localhost:{port}')
+    (clientsock, addr) = sock.accept()
+    clientsock.send(b'Enter the secret passsword: ')
+    if clientsock.recv(1024).strip().decode() != 'secretadminpassword':
+        clientsock.send(b'Wrong password!\n')
+    else:
+        clientsock.send(b'Welcome admin!\n')
+        while True:
+            clientsock.send(b'\nWhat do you wanna do: \n')
+            clientsock.send(b'[1] View processes\n')
+            clientsock.send(b'[2] View free memory\n')
+            clientsock.send(b'[3] View listening sockets\n')
+            clientsock.send(b'[4] Quit\n')
+            option = int(clientsock.recv(1024).strip())
+            if option == 1:
+                clientsock.send(subprocess.getoutput('ps aux').encode())
+            elif option == 2:
+                clientsock.send(subprocess.getoutput('df').encode())
+            elif option == 3:
+                clientsock.send(subprocess.getoutput('ss -lnt').encode())
+            elif option == 4:
+                clientsock.send(b'Bye\n')
+                break
+except Exception as e:
+    print(e)
+    pdb.post_mortem(e.__traceback__)
+finally:
+    quit()
+`````
+
+This script opens a listener on a random port (between 1025 and 65535). It is then possible to connect to it and authenticate. If the provided password matches *secretadminpassword*, we can 1) View processes, 2) View free memory, 3) View listening sockets and 4) quit.\\
+At this end of the script, we see *pdb.post_mortem(e__traceback__)*: I didn't know what that was, and *pdb* appears to be a debugger for python. I'm not sure what this command does exacty (does it open a debugger?), so let's try this script and then connect to the randomly generated port:
+
+<div class="img_container">
+![listener]({{https://jsom1.github.io/}}/_images/htb_forge_listener.png)
+</div>
+
+It started a listener on port 33390. Since it is only opened locally, we must connect to it as the current user. To do so, we can simply open a new terminal window and open a second ssh connection (*sudo ssh -i id_rsa user@forge.htb*). From there, we use netcat to connect to the listener:
+
+<div class="img_container">
+![Program test]({{https://jsom1.github.io/}}/_images/htb_forge_prog.png)
+</div>
+
+Note that I couldn't juste type the password, as the first letter would generate an error and close the connection. Therefore, I just copied/pasted it. Once connected and as expected, the 4 options are proposed. In this case, I pressed 1 to see the processes. This is great, but nothing interesting stands out...
+
+We probably have to do something with the debugger, so let's try to generate an error to see what the command does. But how can we generate an error? Looking at the script, the only thing I see is *option = int(clientsock.recv(1024).strip())*. From Python's doc, we learn that *s.recv(1024)*, or in our case *clientsock.recv(1024)*, means that the socket is going to attempt to receive data, in a buffer size of 1024 bytes at a time. 
 
 <ins>**My thoughts**</ins>
 
