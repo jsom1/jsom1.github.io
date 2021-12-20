@@ -294,6 +294,6 @@ That was my first experience with SSRF and I'm very happy to have learned about 
 
 <ins>**Fix the vulnerabilities**</ins>
 
-As usual, user inputs should be sanitized. In this case in particular, we shouldn't be able to use *ADMIN.FORGE.HTB* instead of *admin.forge.htb*. Once sanitized (convert any input into lowercase), the input should be validated.\\
+As usual, user inputs should be sanitized. In this case in particular, we shouldn't be able to use *ADMIN.FORGE.HTB* instead of *admin.forge.htb*. Once sanitized (convert any input into lowercase), the input should be validated. Another way to prevent SSRF I read about is to use whitelist any domain or address that the application accesses (instead of blacklisting like it is the case here).\\
 Regarding privilege escalation, there is no reason for *user* to be able to execute *remote-manage.py* with sudo without providing a password and this should be changed. Those are the two most obvious changes that should be done, but there are probably other things that could prevent the exploitation of this machine.
 
