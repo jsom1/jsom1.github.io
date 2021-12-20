@@ -20,12 +20,12 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_forge_desc.png){: height="300px" width = 320px"}
 </div>
 
-**Ports/services exploited:** 80/web application\\
-**Tools:** wfuzz, ffuf, FTP\\
+**Ports/services exploited:** 80/web application, 21/FTP\\
+**Tools:** wfuzz, ffuf\\
 **Techniques:** subdomain enumeration, SSRF (server side request forgery)\\
-**Keywords:** ?
+**Keywords:** pdb (python debugger)
 
-**In a nutshell**: 
+**In a nutshell**: A web server hosts an application that has a functionality to upload files by providing a URL, making it a typical candidate for SSRF. By manipulating the URL, we can access a directory that shouldn't be accessible. This latter contains credentials and information that can be used to perform SSRF with the *FTP* protocol, allowing us to retrieve SSH public/private keys and connect to the machine as a normal user. This user then has "sudo permissions" on a custom script which can be used to spawn pdb (python debugger). The debugger can be used to modify permissions of */bin/bash*, allowing us to spawn it as root.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -171,7 +171,7 @@ We've got a user (*user*) and the private key, that's everything we need to conn
 ![ssh error]({{https://jsom1.github.io/}}/_images/htb_forge_error.png)
 </div>
 
-I got that exact same error in OpenAdmin, and I had to change the file permissions:
+I got that exact same error in <a href="/_walkthroughs/OpenAdmin">OpenAdmin</a>, and I had to change the file permissions as follows:
 
 ````
 sudo chmod 600 id_rsa
@@ -274,7 +274,7 @@ Since we can execute python commands in the root context, we can probably change
 os.system (‘chmod u+s /bin/bash’)
 `````
 
-Once this is done, we can exit the debugger and execute */bin/bash*:
+Once this is done, we can exit the debugger and execute */bin/bash*. Note that *+s* is a special mode called the SETUID (Set owner User ID up on execution) bit. It applies to executables and allows to allocate temporarily (during execution) to a user the rights of the file owner. In other words, it will allow us to run /bin/bash as root. This is very similar to what we did in <a href="/_walkthroughs/Previse">Previse</a>.
 
 <div class="img_container">
 ![root]({{https://jsom1.github.io/}}/_images/htb_forge_root.png)
@@ -289,8 +289,11 @@ We're root, and we can grab the flag!
 
 <ins>**My thoughts**</ins>
 
-I like this kind of box, where we know where we have to start (here on port 80).
+That was my first experience with SSRF and I'm very happy to have learned about it. It's still not 100% clear to me, but it should be enough to make me think about this vector the next time I encounter a similar situation. From what I understand, this vulnerability can be present in applications that offer the possibility to import/read data from a URL. By manipulating this URL or by providing a new one, we try to modify this functionality. In particular, we try to make the server connect back to itself and display internal resources. This box was a good opportunity to practice with SSRF.\\
 
 
 <ins>**Fix the vulnerabilities**</ins>
+
+As usual, user inputs should be sanitized. In this case in particular, we shouldn't be able to use *ADMIN.FORGE.HTB* instead of *admin.forge.htb*. Once sanitized (convert any input into lowercase), the input should be validated.\\
+Regarding privilege escalation, there is no reason for *user* to be able to execute *remote-manage.py* with sudo without providing a password and this should be changed. Those are the two most obvious changes that should be done, but there are probably other things that could prevent the exploitation of this machine.
 
