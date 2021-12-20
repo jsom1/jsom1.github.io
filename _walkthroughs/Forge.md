@@ -51,7 +51,7 @@ sudo echo "10.10.11.111 forge.htb" >> /etc/hosts
 Then, we can browse to *http://forge.htb* to discover what's hosted on the web server. The default page consists of a gallery of images and doesn't seem to have anything useful. In the upper right corner of the page, there's a *Upload an image* button. When clicking on it, we're redirected to */upload* and are presented with the following options:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_forge_site.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_forge_site.png){: height="300px" width = 320px"}
 </div>
 
 We can either upload a local file, or upload one from an url (in this case there's a blank space in which we can input an url). At this point, there are many things we can do: test for directory traversal vulnerabilities, try to upload a local file, and so on... While thinking about the possibilites, let's use *dirb* and *gobuster* to bruteforce directories. I'm using two different tools here to reduce the risk of missing something. Also, we see references to javascript when inspecting the page (right click on it -> Inspect element. In the Debugger tab, we see a script *main.js* in */static/js*. Therefore, we can ask *gobuster* to look for *.js* extensions specifically with the *-x* flag:
@@ -71,10 +71,10 @@ Next, let's try the functionnalities to upload a local file and one from an url,
 Let's now try to upload a local file from our machine. In this example, I uploaded *linpeas.sh*:
 
 <div class="img_container">
-![upload]({{https://jsom1.github.io/}}/_images/htb_forge_upload.png)
+![upload]({{https://jsom1.github.io/}}/_images/htb_forge_upload.png){: height="300px" width = 320px"}
 </div>
 
-We see the file was successfully uploaded. However, if we click on the link, we get a "Not Found" error. This is because we see it was uploaded in */uploads*, and not in */upload*. *Dirb* and *gobuster* found this directory, but indicated it returned the HTTP code 301 (Moved Permanently or redirect).\\
+We see the file was successfully uploaded. However, if we click on the link, we get a "Not Found" error. We also see it was uploaded in */uploads*, and not in */upload*. *Dirb* and *gobuster* found this directory, but indicated it returned the HTTP code 301 (Moved Permanently or redirect).\\
 Next, let's try to add the *.jpg* extension to *linpeas.sh* and try again. If we can successfuly upload it and see it, we might be able to upload a reverse shell payload file with a *.png* extention. The file is also successfully uploaded but this time, clicking the link shows another error message: "The image http://forge.htb/uploads/A1uTy4XXSvCfrHXvxeao cannot be displayed because it contains errors". A few seconds later, it's not being found anymore... Maybe the file is uploaded in */uploads* where it is subject to some tests, and if it fails, it gets removed? Anyways, that's probably a dead end.
 
 As usual, I had to look at the forum at this point because I was stuck. Apparently, we're supposed to enumerate subdomains. I don't remember how we're supposed to do that, and a quick search mentionned that *wfuzz* is a good tool. I tried with the following syntax (which is supposed to work):
@@ -115,13 +115,13 @@ When the manipulated request goes to the server, the server-side code picks up t
 The situation we're facing looks similar to what's described here. In addition, the box' name *forge* could be a hint for SSRF. That sounds good, but I still had no idea about how to proceed and had to look for help. I was close to find the solution: let's use Burp and intercept the request when we try to upload from a URL and see what happens:
 
 <div class="img_container">
-![Burp]({{https://jsom1.github.io/}}/_images/htb_forge_burp.png)
+![Burp]({{https://jsom1.github.io/}}/_images/htb_forge_burp.png){: height="400px" width = 5000px"}
 </div>
 
 I send the request to the repeater and sent it to the the response. We see the URL is encoded and we see that it contains a blacklisted address. This is where we should have thought about changing the URL, for example by using capital letters:
 
 <div class="img_container">
-![Burp2]({{https://jsom1.github.io/}}/_images/htb_forge_burp2.png)
+![Burp2]({{https://jsom1.github.io/}}/_images/htb_forge_burp2.png){: height="400px" width = 5000px"}
 </div>
 
 This time, we see it was successfully uploaded. Then, instead of clicking the given link in the browser, we should have thought about *curl*ing it:
@@ -283,7 +283,7 @@ Once this is done, we can exit the debugger and execute */bin/bash*. Note that *
 We're root, and we can grab the flag!
 
 <div class="img_container">
-![pw]({{https://jsom1.github.io/}}/_images/htb_forge_pwn.png)
+![pw]({{https://jsom1.github.io/}}/_images/htb_forge_pwn.png){: height="400px" width = 5000px"}
 </div>
 
 
