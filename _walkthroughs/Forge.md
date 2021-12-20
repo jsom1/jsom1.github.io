@@ -268,9 +268,23 @@ And in the other window, we get the debugger:
 </div>
 
 I looked at the debuggger documentation, and tried a few commands. For example, *l 5, 10* lists lines 1 through 5 of the program. Then, I wanted to see if we can list files of the current directory. To do so, we need to import the *os* module, and then we can use the *listdir()* function.\\
-Since we can execute python commands in the root context, we can probably change permissions on */bin/bash* and execute it as root. The Python command for changing file permissions is *os.chmod(path, permissions)*
+Since we can execute python commands in the root context, we can probably change permissions on */bin/bash* and execute it as root. The Python command for changing file permissions is *os.chmod(path, permissions)*. It didn't work with that syntax, but after some research, we can execute:
 
+````
+os.system (‘chmod u+s /bin/bash’)
+`````
 
+Once this is done, we can exit the debugger and execute */bin/bash*:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_forge_root.png)
+</div>
+
+We're root, and we can grab the flag!
+
+<div class="img_container">
+![pw]({{https://jsom1.github.io/}}/_images/htb_forge_pwn.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
