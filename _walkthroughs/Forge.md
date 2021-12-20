@@ -193,7 +193,7 @@ Let's start by looking at this user's permissions:
 ![sudol]({{https://jsom1.github.io/}}/_images/htb_forge_sudol.png)
 </div>
 
-The user can execute python3 and a script called *remote-manage.py*. Let's have a look at that latter:
+The user can execute python3 and a script called *remote-manage.py* as sudo, without providing a password. Let's have a look at that latter:
 
 ````
 #!/usr/bin/env python3
@@ -246,7 +246,7 @@ At this end of the script, we see *pdb.post_mortem(e__traceback__)*: I didn't kn
 ![listener]({{https://jsom1.github.io/}}/_images/htb_forge_listener.png)
 </div>
 
-It started a listener on port 33390. Since it is only opened locally, we must connect to it as the current user. To do so, we can simply open a new terminal window and open a second ssh connection (*sudo ssh -i id_rsa user@forge.htb*). From there, we use netcat to connect to the listener:
+It started a listener on port 16967. Since it is only opened locally, we must connect to it as the current user. To do so, we can simply open a new terminal window and open a second ssh connection (*sudo ssh -i id_rsa user@forge.htb*). From there, we use netcat to connect to the listener:
 
 <div class="img_container">
 ![Program test]({{https://jsom1.github.io/}}/_images/htb_forge_prog.png)
@@ -254,7 +254,24 @@ It started a listener on port 33390. Since it is only opened locally, we must co
 
 Note that I couldn't juste type the password, as the first letter would generate an error and close the connection. Therefore, I just copied/pasted it. Once connected and as expected, the 4 options are proposed. In this case, I pressed 1 to see the processes. This is great, but nothing interesting stands out...
 
-We probably have to do something with the debugger, so let's try to generate an error to see what the command does. But how can we generate an error? Looking at the script, the only thing I see is *option = int(clientsock.recv(1024).strip())*. From Python's doc, we learn that *s.recv(1024)*, or in our case *clientsock.recv(1024)*, means that the socket is going to attempt to receive data, in a buffer size of 1024 bytes at a time. 
+We probably have to do something with the debugger, so let's try to generate an error to see what the command does. But how can we generate an error? Looking at the script, the only thing I see is *option = int(clientsock.recv(1024).strip())*. From Python's doc, we learn that *s.recv(1024)*, or in our case *clientsock.recv(1024)*, means that the socket is going to attempt to receive data, in a buffer size of 1024 bytes at a time.\\
+However, 1 character = 1 byte, so I doubt we have to input a >1024 characters string... I then tried typing an unlisted option (like 5, 6, etc...), but nothing happened. However, the debugger opened when we input characters!:
+
+<div class="img_container">
+![chars]({{https://jsom1.github.io/}}/_images/htb_forge_chars.png)
+</div>
+
+And in the other window, we get the debugger:
+
+<div class="img_container">
+![pdb]({{https://jsom1.github.io/}}/_images/htb_forge_pdb.png)
+</div>
+
+I looked at the debuggger documentation, and tried a few commands. For example, *l 5, 10* lists lines 1 through 5 of the program. Then, I wanted to see if we can list files of the current directory. To do so, we need to import the *os* module, and then we can use the *listdir()* function.\\
+Since we can execute python commands in the root context, we can probably change permissions on */bin/bash* and execute it as root. The Python command for changing file permissions is *os.chmod(path, permissions)*
+
+
+
 
 <ins>**My thoughts**</ins>
 
