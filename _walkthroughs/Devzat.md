@@ -149,6 +149,8 @@ Well, it works but nothing happens. We just print the the function, but don't ex
 a few different commands to see if we can get something useful. Note that we have to input Go commands.
 
 
+subdomain enum ffuf + gobuster avec autre wordlist
+
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
