@@ -21,9 +21,9 @@ output: html_document
 </div>
 
 **Ports/services exploited:** ?\\
-**Tools:** ?\\
+**Tools:** dirb, gobuster\\
 **Techniques:** ?\\
-**Keywords:** ?
+**Keywords:** Golang (Go)?
 
 **In a nutshell**: ?
 
@@ -87,18 +87,66 @@ After exiting, I thought we could maybe issue some commands such as *ls* and con
 
 This time, it's a little bit different, and we see the last connection as well as the chat history. 
 I didn't see at first the *run /help to see what you can do*, so I issued a *ls* as intended. In return, we get a list of commands and a message indicating this is not a shell.
-By running the */help* command, we discove the app is on Github (github.com/quackduck/devzat). Let's go there to see how it's organized:
+By running the */help* command, we discover the app is on Github (github.com/quackduck/devzat). Let's head there to see how it's organized:
 
 <div class="img_container">
 ![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png)
 </div>
 
-The first thing I noticed here is that there are 3 branches, although I was expecting two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). If we scroll down the page, we see...
+The first thing I noticed here is that there are 3 branches, although the website mentionned two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). Given the fact that there are 10 contributors, that it's roughly 7 months old and the application itself, it wasn't built just to be used in a HtB machine. Therefore, the stable release is probably safe and if it is this version that is running on the machine, it might not be the way to a foothold...\\
+However, it was mentionned that "The chat is developed in its own branch and aside from the stable release". Therefore, it's possible that it's a development version running, and that it contains vulnerabilities on purpose. Let's look at the other branches to see if something stands out. It's not the case.
+
+Let's get back to the website and look for additional clues there. In particular, we will run *dirb* to find other directories:
+
+````
+sudo dirb http://devzat.htb -r
+`````
+
+*Dirb* found */assets*, */images*, */javascript* and */server-status*. The first one (*/assets*) contains 4 subfolders (*css*, *js*, *sass* and *webfonts*), but there's nothing interesting. The only other directory that we can access is */images*, and there's nothing there either. Let's try with *gobuster* as well:
+
+````
+sudo dirb gobuster dir -u http://devzat.htb/ -w /usr/share/wordlists/dirb/big.txt
+`````
+
+*Gobuster* found two additional directories, */.htaccess* and */.htpasswd*, but none of them are accessible.\\
+To be sure I wasn't going in the wrong direction, I launched a full TCP scan with the following command:
+
+````
+sudo nmap -p- 10.10.11.118
+`````
+
+There could have been another service running on a higher port, but it is not the case. I also made sure there wasn't any existing exploits for html5up, SSH-2.0 and even Go. So, we have to find something on the website or within the chat application itself...
+
+In the Github repo, there's the following screenshot:
+
+<div class="img_container">
+![app screenshot]({{https://jsom1.github.io/}}/_images/htb_dz_screen.png)
+</div>
+
+We see some functionalities and among them, the possibility to execute markdown in the chat. Would there be a way to execute "malicious" commands in the chat? Looking at the commands, we see how to write code:
+
+TODO : créer image
+
+To know how this code was written in markdown, we can look inside the Go script *commands.go* (https://github.com/quackduck/devzat/blob/main/commands.go). It's done the following way:
+
+````
+func exampleCodeCMD(_ string, u *user, _ bool) {
+	u.room.broadcast(devbot, "\n```go\npackage main\nimport \"fmt\"\nfunc main() {\n   fmt.Println(\"Example!\")\n}\n```")
+}
+````
+
+Markdown code is delimited by the three backticks, so here it's *go\npackage main\nimport \"fmt\"\nfunc main() {\n   fmt.Println(\"Example!\")\n}\n*. Let's try to paste that command in the chat to see how it renders:
+
+TODO : créer image
 
 
-Voir autres branches
-inpsect scripts
+Because we type this command in the chat directly, it is not necessary to escape characters such as '"'. We can remove them and try again:
 
+TODO : créer image
+
+Well, it works but nothing happens. We just print the the function, but don't execute it.
+
+a few different commands to see if we can get something useful. Note that we have to input Go commands.
 
 
 ## 3. Vertical privilege escalation
