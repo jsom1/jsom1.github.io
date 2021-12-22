@@ -117,39 +117,49 @@ sudo nmap -p- 10.10.11.118
 
 There could have been another service running on a higher port, but it is not the case. I also made sure there wasn't any existing exploits for html5up, SSH-2.0 and even Go. So, we have to find something on the website or within the chat application itself...
 
-In the Github repo, there's the following screenshot:
+Sometimes subdomains can be used as a testing environment, and it coud be the case here. We will use **ffuf** to find potential subdomains:
+
+```
+sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://devzat.htb/ -H "Host: FUZZ.devzat.htb" -t 200 -fl 10
+`````
 
 <div class="img_container">
-![app screenshot]({{https://jsom1.github.io/}}/_images/htb_dz_screen.png)
+![ffuf]({{https://jsom1.github.io/}}/_images/htb_dz_ffuf.png)
 </div>
 
-We see some functionalities and among them, the possibility to execute markdown in the chat. Would there be a way to execute "malicious" commands in the chat? Looking at the commands, we see how to write code:
-
-TODO : créer image
-
-To know how this code was written in markdown, we can look inside the Go script *commands.go* (https://github.com/quackduck/devzat/blob/main/commands.go). It's done the following way:
+Interesting, it found a subdomain: *pets.devzat.htb*. Let's add it to our hosts file:
 
 ````
-func exampleCodeCMD(_ string, u *user, _ bool) {
-	u.room.broadcast(devbot, "\n```go\npackage main\nimport \"fmt\"\nfunc main() {\n   fmt.Println(\"Example!\")\n}\n```")
-}
+sudo echo "10.10.11.118 pets.devzat.htb" >> /etc/hosts
 ````
 
-Markdown code is delimited by the three backticks, so here it's *go\npackage main\nimport \"fmt\"\nfunc main() {\n   fmt.Println(\"Example!\")\n}\n*. Let's try to paste that command in the chat to see how it renders:
+and browse to it:
 
-TODO : créer image
+<div class="img_container">
+![pet]({{https://jsom1.github.io/}}/_images/htb_dz_pet.png)
+</div>
+ 
+This has nothing to do with the application, but it's definitely a good find. By scrolling down the page, we see we can create another entry in the list (I added a cat called netpal):
+ 
+<div class="img_container">
+![pet 2]({{https://jsom1.github.io/}}/_images/htb_dz_pet2.png)
+</div>
 
+Since we can input text on the page (as the pet's name), there are a few things we can check. For example, does this application parses XML? If it were the case, it could be vulnerable to XXE injection. Or also, is user input sanitized? Unsanitized user input is a trigger of many vulnerabilies, such as SSRF, CSRF, XSS, SQL injections, and so on... To learn more about how the application handles our input, we can start by inspecting the page by right clicking on it > inspect element. In the debugger tab, we see a few java scripts and references to an api (*/api/pet*):
 
-Because we type this command in the chat directly, it is not necessary to escape characters such as '"'. We can remove them and try again:
+<div class="img_container">
+![Inspect page]({{https://jsom1.github.io/}}/_images/htb_dz_inspect.png)
+</div>
 
-TODO : créer image
+We also see *App.svelte*, and we can learn more about it with a quick Google search:
 
-Well, it works but nothing happens. We just print the the function, but don't execute it.
+"*Svelte is a radical new approach to building user interfaces. Whereas traditional frameworks like React and Vue do the bulk of their work in the browser, Svelte shifts that work into a compile step that happens when you build your app.\\
+Instead of using techniques like virtual DOM diffing, Svelte writes code that surgically updates the DOM when the state of your app changes."*
 
-a few different commands to see if we can get something useful. Note that we have to input Go commands.
+In other words, it's a tool to develop web applications. *DOM* makes me think about DOM-based XSS... Let's search for any existing *Svelte* vulnerability. We find nothing on Metasploit (*searchsploit svelte*), but Googling *Svelte exploit* returns a promising link (https://snyk.io/vuln/npm:svelte).\\
+Apparently, **svelte < 2.9.8 is vulnerable to XSS**.\\
+More precisely, spread attributes in the ssr files are unsanitized and can therefore be attack vectors for untrusted user input.
 
-
-subdomain enum ffuf + gobuster avec autre wordlist
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
