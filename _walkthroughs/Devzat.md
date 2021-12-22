@@ -78,20 +78,26 @@ ssh -l [username] devzat.htb -p 8000
 ![app test]({{https://jsom1.github.io/}}/_images/htb_dz_chat.png)
 </div>
 
-TODO : créer image dessus.
 Oh, this is really cool! Unfortunately I'm alone and nobody is going to reply, but I wanted to input something to see what would happen. 
-After exiting, I thought we could maybe issue some commands such as *ls* and connected back to it:
+After exiting, I thought we could maybe issue some commands such as *ls* and connected back to the chat to try it:
 
 <div class="img_container">
 ![app test2]({{https://jsom1.github.io/}}/_images/htb_dz_chat2.png)
 </div>
 
-TODO : créer image dessus.
-This time, it's a little bit different, and we see the last connction as well as the chat history. 
+This time, it's a little bit different, and we see the last connection as well as the chat history. 
 I didn't see at first the *run /help to see what you can do*, so I issued a *ls* as intended. In return, we get a list of commands and a message indicating this is not a shell.
-I finally ran the */help* command, which returns interesting information once again:
+By running the */help* command, we discove the app is on Github (github.com/quackduck/devzat). Let's go there to see how it's organized:
+
+<div class="img_container">
+![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png)
+</div>
+
+The first thing I noticed here is that there are 3 branches, although I was expecting two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). If we scroll down the page, we see...
 
 
+Voir autres branches
+inpsect scripts
 
 
 
