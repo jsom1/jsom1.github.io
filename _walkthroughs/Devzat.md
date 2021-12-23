@@ -139,26 +139,45 @@ and browse to it:
 ![pet]({{https://jsom1.github.io/}}/_images/htb_dz_pet.png)
 </div>
  
-This has nothing to do with the application, but it's definitely a good find. By scrolling down the page, we see we can create another entry in the list (I added a cat called netpal):
+This has nothing to do with the application, but it's definitely a good find. By scrolling down the page, we see we can create another entry in the list:
  
 <div class="img_container">
 ![pet 2]({{https://jsom1.github.io/}}/_images/htb_dz_pet2.png)
 </div>
 
-Since we can input text on the page (as the pet's name), there are a few things we can check. For example, does this application parses XML? If it were the case, it could be vulnerable to XXE injection. Or also, is user input sanitized? Unsanitized user input is a trigger of many vulnerabilies, such as SSRF, CSRF, XSS, SQL injections, and so on... To learn more about how the application handles our input, we can start by inspecting the page by right clicking on it > inspect element. In the debugger tab, we see a few java scripts and references to an api (*/api/pet*):
+Since we can input text on the page (as the pet's name), there are a few things we can check. For example, does this application parses XML? If it were the case, it could be vulnerable to XXE injection. Or also, is user input sanitized? Unsanitized user input is a trigger of many vulnerabilies, such as SSRF, CSRF, XSS, SQL injections, and so on... We see in the image I added a cat and entered a javascript command as its name. If by refreshing the page a windows pops up, that would mean it might be vulnerable to XSS (it's not the case here). To learn more about how the application handles our input, we can start by inspecting the page by right clicking on it > inspect element. In the debugger tab, we see a few java scripts and references to an api (*/api/pet*):
 
 <div class="img_container">
 ![Inspect page]({{https://jsom1.github.io/}}/_images/htb_dz_inspect.png)
 </div>
 
-We also see *App.svelte*, and we can learn more about it with a quick Google search:
+We also see *App.svelte*, and we can learn more about this latter with a quick Google search:
 
 "*Svelte is a radical new approach to building user interfaces. Whereas traditional frameworks like React and Vue do the bulk of their work in the browser, Svelte shifts that work into a compile step that happens when you build your app.\\
 Instead of using techniques like virtual DOM diffing, Svelte writes code that surgically updates the DOM when the state of your app changes."*
 
-In other words, it's a tool to develop web applications. *DOM* makes me think about DOM-based XSS... Let's search for any existing *Svelte* vulnerability. We find nothing on Metasploit (*searchsploit svelte*), but Googling *Svelte exploit* returns a promising link (https://snyk.io/vuln/npm:svelte).\\
+In other words, it's a tool to develop web applications. Let's search for any existing *Svelte* vulnerability. We find nothing on Metasploit (*searchsploit svelte*), but Googling *Svelte exploit* returns a promising link (https://snyk.io/vuln/npm:svelte).\\
 Apparently, **svelte < 2.9.8 is vulnerable to XSS**.\\
-More precisely, spread attributes in the ssr files are unsanitized and can therefore be attack vectors for untrusted user input.
+More precisely, *spread attributes in the ssr files are unsanitized and can therefore be attack vectors for untrusted user input.*.
+
+Let's quickly review the 3 types of XSS:
+
+- Stored XSS: when the exploit payload is stored in a database, or cached by a server. The application then retrieves this payload and shows it to anyone that views/refresh the page. Therefore, it can attack all users of the site. This kind of vulnerability often exists in forum software (comment sections or product reviews for example).
+- Reflected XSS: the payload is in a crafted request or a link. The application takes this value and places it into the page content. Therefore, it only affects the person submitting the request or viewing the link. Reflected XSS often occur in search fields and results, and anywhere user input is included in error messages.
+- DOM-based XSS: similar to the previous two, but they take place within the page's Document Object Model (DOM). This happens because the browser parses the page's HTML content and generates an internal DOM representation. JavaScript can interact with this DOM. DOM-based XSS occurs when a page's DOM is modified with user-controller values, and it can either be sored or reflected. The difference is that DOM-based XSS occur when a browser parses the page's content and inserted JavaScript is executed. 
+
+So, we don't know what version of Svelte is running, but we can still try to see if the application is vulnerable to XSS. We can identify XSS vulnerabilities by inputting special characters in input fields. The idea is to see if any of those special characters return unfiltered, which would mean that user input isn't properly sanitized.\\
+
+The most common special characters are the following:
+
+````
+< > ' " { } ;
+`````
+
+Why those? Because HTML uses "<" and ">" to denote elements. JavaScript uses "{" and "}" in function declarations. Single and double quotes are used to denote strings and finally, semicolons are used to mark the end of a statement. So, if the application doesn't remove or encode these characters, it may be vulnerable to XSS.\\
+The most common encodings are HTML and URL encodings. URL encoding is also referred to as percent encoding and is used to convert non-ASCII characters in URLS. For example, a *space* is encoded into *%20*. HTML encoding is used to display characters that normally have special meanings, such as tag elements. For example, "<" is encoded as *&lt;*. When the browser encounters this latter, it doesn't interpret it as the start of an element, but displays the character as-is.
+
+The location where our input is being included affects the type of character we have to use. If it's added between *div* tags, we have to include our own script tags, and we're not able to use "<" and ">" in our payload. If the payload is inserted into an existing JavaScript tag, we might only need quotes and semicolons.
 
 
 ## 3. Vertical privilege escalation
