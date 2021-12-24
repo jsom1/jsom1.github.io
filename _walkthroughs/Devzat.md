@@ -232,8 +232,52 @@ Unfortunately, it didn't find anything else. After trying with other wordlists, 
 - */config*: nothing interesting
 - */description*: "unnamed repository; edit this file 'description' to name the repository"
 - ...
+- */logs*: contains commit logs of the HEAD and master branches
 
-Some of those directories contain subdirectories, containing scripts, commit logs, and so on... But there's still nothing interesting in particular.
+After doing some research on the web, I found a tool to dump a git repository from a website (https://github.com/internetwache/GitTools). It says "*This tool can be used to download as much as possible from the found .git repository from webservers which do not have directory listing enabled*. This sounds promising... This tool isn't installed on Kali by default, so we must first install it:
+
+````
+sudo git clone http://github.com/internetwache/GitTools GitTools
+`````
+This command clones the repository in a folder called "GitTools". We can now use it with the given syntax:
+
+````
+sudo bash GitTools/Dumper/gitdumper.sh http://pets.devzat.htb/.git gitpet
+````
+
+This will dump what it can from the given website into a directory called "gitpet":
+
+<div class="img_container">
+![git dumper]({{https://jsom1.github.io/}}/_images/htb_dz_gitdumper.png)
+</div>
+
+It is said in the tool's github repo that *git Extractor* can be used in combination with *Git Dumper* in case the downloaded repository is incomplete. Let's try that:
+
+````
+sudo bash GitTools/Extractor/extractor.sh /gitpet gitpetextr
+````
+Let's see in *gitpetextr* what it was able to recover:
+
+<div class="img_container">
+![dumped commits]({{https://jsom1.github.io/}}/_images/htb_dz_commits.png)
+</div>
+
+There's a username and URL in *go.mod*, *git.devzat.htb/catherine/petshop*. But there's something more interesting in *main.go*:
+
+````
+func loadCharacter(species string) string {
+        cmd := exec.Command("sh", "-c", "cat characteristics/"+species)
+        stdoutStderr, err := cmd.CombinedOutput()
+        if err != nil {
+                return err.Error()
+        }
+        return string(stdoutStderr)
+}
+````
+
+We see the function *loadCharacter* uses *exec.Command()*, and maybe we could use it somehow to execute other commands. Previously, we were trying to use the *name* parameter to inject code. Let's try to add the *species* paramater and issue a command. To do so, we start Burp once again and send the request to the repeater. There, we add *species* and see what happens. To test that, we can try to ping ourselves.
+
+
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
