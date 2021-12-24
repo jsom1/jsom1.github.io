@@ -221,7 +221,19 @@ By default, *dirb* uses the *common.txt* wordlist. Let's use it again but with a
 sudo dirb http://pets.devzat.htb /usr/share/wordists/dirb/big.txt
 `````
 
+Unfortunately, it didn't find anything else. After trying with other wordlists, I found one that returned a few new directories: */usr/share/seclists/Discovery/Web-Content/common.txt*. It returns for example */.git*, */.git/config*, and so on. When dirb found */.git/HEAD*, I didn't even think about visiting */.git*... By doing so, we see the following:
 
+<div class="img_container">
+![dirb directories]({{https://jsom1.github.io/}}/_images/htb_dz_direct.png)
+</div>
+
+- */COMMIT_EDITMSG*: there's a message saying "back again to localhost only"
+- */branches*: blank page
+- */config*: nothing interesting
+- */description*: "unnamed repository; edit this file 'description' to name the repository"
+- ...
+
+Some of those directories contain subdirectories, containing scripts, commit logs, and so on... But there's still nothing interesting in particular.
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
