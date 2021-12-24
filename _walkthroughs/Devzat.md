@@ -177,7 +177,50 @@ The most common special characters are the following:
 Why those? Because HTML uses "<" and ">" to denote elements. JavaScript uses "{" and "}" in function declarations. Single and double quotes are used to denote strings and finally, semicolons are used to mark the end of a statement. So, if the application doesn't remove or encode these characters, it may be vulnerable to XSS.\\
 The most common encodings are HTML and URL encodings. URL encoding is also referred to as percent encoding and is used to convert non-ASCII characters in URLS. For example, a *space* is encoded into *%20*. HTML encoding is used to display characters that normally have special meanings, such as tag elements. For example, "<" is encoded as *&lt;*. When the browser encounters this latter, it doesn't interpret it as the start of an element, but displays the character as-is.
 
-The location where our input is being included affects the type of character we have to use. If it's added between *div* tags, we have to include our own script tags, and we're not able to use "<" and ">" in our payload. If the payload is inserted into an existing JavaScript tag, we might only need quotes and semicolons.
+The location where our input is being included affects the type of character we have to use. If it's added between *div* tags, we have to include our own script tags, and we're not able to use "<" and ">" in our payload. If the payload is inserted into an existing JavaScript tag, we might only need quotes and semicolons. Unfortunately, we don't have access to the underlying code and have to test until we find something that works.\\
+In the previous image, I inputted a typical JavaScript XSS payload. However, nothing happens when we refresh the page...
+
+Let's submit this payload again and use Burp to get more information:
+
+<div class="img_container">
+![Burp]({{https://jsom1.github.io/}}/_images/htb_dz_burp.png)
+</div>
+
+Note that I already sent the payload to the repeater and sent the request so that we see the response. We see our payload is:
+
+````
+{
+  "name":"<script>alert('test')</script>"
+}
+`````
+
+This input is then sent as a POST request to /api/pet. In the response, we see it was added successfully on *my genious go pet server*. Also, the Content-Type is set to text/plain, and it's not harmful... It's simply rendered as simple text by the browser. It would be vulnerable if it was *text/html*.\\
+
+After trying a lot of different inputs without success, I thought about checking this subdomain for other directories:
+
+````
+sudo dirb http://pets.devzat.htb -r
+`````
+
+<div class="img_container">
+![dirb]({{https://jsom1.github.io/}}/_images/htb_dz_dirb.png)
+</div>
+
+So, there are */.git/HEAD*, */build*, */css* and */server-status*. */css* contains parameters for the site's layout, so it's not very interesting. */server-status* returns code 403 and isn't accessible. */.git/HEAD* returns "*ref: refs/heads/master*", and */build* contains 2 scripts: *main.js* and *main.js.map*. In the first line of the latter, we see *{"version":3}*, and this might be the version of Svelte (so it's maybe not vulnerable to XSS). 
+
+By replacing */.git/HEAD* by */.git/refs/heads/master*, we see the following:
+
+<div class="img_container">
+![hash]({{https://jsom1.github.io/}}/_images/htb_dz_hash.png)
+</div>
+
+I copied this text and used an online hash analyzer to detect the type of hash, which is possibly SHA1. However, no tools can decode it. Anyways, I don't think this is important, because this looks like a commit's hash.\\
+By default, *dirb* uses the *common.txt* wordlist. Let's use it again but with another wordlist, for example *big.txt*:
+
+````
+sudo dirb http://pets.devzat.htb /usr/share/wordists/dirb/big.txt
+`````
+
 
 
 ## 3. Vertical privilege escalation
