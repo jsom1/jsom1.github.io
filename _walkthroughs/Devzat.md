@@ -332,10 +332,13 @@ ctrl+Z
 stty -echo
 fg
 ````
-It appears the flag is on Catherine's Desktop, and we can't read it as Patrick... We have to find a way to change users.
+It appears the flag is on Catherine's Desktop, and we can't read it as Patrick... We have to find a way to switch user.
 
 ## 3. Horizontal privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
+
+In fact, we don't necessarily have to to do a horizontal privesc. If we can find a way to root directly, we will also be able to read the file on Catherine's desktop. Anyways, we start at the same place in either case, which is **enumeration**.
+
 
 
 ## 4. Vertical privilege escalation
