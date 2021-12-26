@@ -21,11 +21,13 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/http\\
-**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump, linpeas\\
+**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump, linpeas, proxychains\\
 **Techniques:** enumeration, port forwarding\\
-**Keywords:** Golang (Go), Docker?
+**Keywords:** Golang (Go), Docker, InfluxDB
 
-**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell.
+**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell. By running linpeas on the machine, we discover there's a docker container running. We can then use *nmap* against it via SSH tunnelling and proxychains, revealing that an InfluxDB is running in the container.
+
+Let's look on the web if we can find anything about it by searching "influxDB admin 1.7.5 exploit". The first link that comes up looks promising.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -408,13 +410,13 @@ Where:
 - *-n*: tells nmap to never do reverse DNS
 - *-sTV*: TCP connect and version detection scan
 
-So this commands sends *the nmap* command through the tunnel, and *devzat* executes it against the docker container running locally. The two commands above and the result is the following:
+So this commands sends *the nmap* command through the tunnel, and *devzat* executes it against the docker container running locally. The output is then sent back to us. The two commands above and the result is the following:
 
 <div class="img_container">
 ![proxychains]({{https://jsom1.github.io/}}/_images/htb_dz_proxy.png)
 </div>
 
-
+Finally, we see the container is running *influxDB*. From Wikipedia, *"InfluxDB is an open-source time series database (TSDB) developed by the company InfluxData. It is written in the Go programming language for storage and retrieval of time series data in fields such as operations monitoring, application metrics, Internet of Things sensor data, and real-time analytics"*. 
 
 
 ## 4. Vertical privilege escalation
