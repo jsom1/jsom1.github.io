@@ -25,7 +25,7 @@ output: html_document
 **Techniques:** enumeration, port forwarding\\
 **Keywords:** Golang (Go), Docker?
 
-**In a nutshell**: ?
+**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -374,11 +374,45 @@ The output is very lengthy and I always stuggle to find the important informatio
 </div>
 
 There's a Docker container running on the machine, with the IP *172.17.0.2*. This latter is connected to *devzat* by the port 8086 (same port on *devzat* and on the container).\\
-Ideally, we'd like to know what's running inside this container. We could theoretically do it from patrick's terminal with *nmap*, but it isn't installed there and even if we transfer it from Kali, we wouldn't be able to run it (I tried and got a *permission denied*). So, we have to do it through **port forwarding**.
+Ideally, we'd like to know what's running inside this container. We can't issue commands such as *docker container ls* (*Got permission denied while trying to connect to the Docker daemon socket*)... We could theoretically use *nmap* from patrick's terminal, but it isn't installed there. I tried transferring it from Kali but it says *command 'nmap' not found* when I tried to run it, and we can't install it directly from there because we're not root.\\
+So, the only way I thik of is **port forwarding**.
 
+I don't know much about it, so I'll follow a guide (https://netsec.ws/?p=278) on **dynamic port forwarding**. We start by installing **proxychains**:
 
+````
+sudo apt-get install proxychains
+`````
 
+Once installed, we make sure there's a socks4 proxy on 127.0.0.1 followed by an unused port (*cat /etc/proxychains.conf*). In my case, there is indeed *socks4 127.0.0.1 9050*. This is necessary so that proxychains can tunnel the program, in our case *nmap*, through our port forward. Note that after a few tries, I had to replace *9050* in the configuration file by *9999*, since *9050* was already listening.\\
+Once this is done, we can connect from Kali to *devzat* with the following command:
 
+````
+sudo ssh -i id_rsa -f -N -D 9999 patrick@devzat.htb
+`````
+
+Where the options are the following:
+
+- *-i id_rsa*: specifies patick's ssh private key
+- *-f*: asks SSH to background immediately upon connection, avoiding the need to open another terminal window to issue the next command.
+- *-N*: instructs SSH to not send any remote commands.
+- *-D*: the dynamic port to use (specified in the *proxychais.conf* file)
+
+Since we used th *-f* flag, we can issue the next command in the same terminal window. Now, we want to execute *nmap* through this SSH tunnel. Because *nmap* is much slower than normal via proxychains, we will only scan the port *8060* that was mentionned in *linpeas*' output. The command we issue from Kali is the following:
+
+````
+sudo proxychains nmap -sTV -n -PN -p 8086 127.0.0.1
+`````
+
+Where:
+
+- *-n*: tells nmap to never do reverse DNS
+- *-sTV*: TCP connect and version detection scan
+
+So this commands sends *the nmap* command through the tunnel, and *devzat* executes it against the docker container running locally. The two commands above and the result is the following:
+
+<div class="img_container">
+![proxychains]({{https://jsom1.github.io/}}/_images/htb_dz_proxy.png)
+</div>
 
 
 
@@ -390,6 +424,7 @@ Ideally, we'd like to know what's running inside this container. We could theore
 
 <ins>**My thoughts**</ins>
 
+hard time. Lesson: don't jumpp straight into something, first enumerate the surface. Good oppportunity to finally practice port forwarding.
 
 <ins>**Fix the vulnerabilities**</ins>
 
