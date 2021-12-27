@@ -21,11 +21,11 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/http\\
-**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump, linpeas, proxychains\\
-**Techniques:** enumeration, port forwarding\\
+**Tools:** dirb, gobuster, git dumper, git extractor, tcpdump, linpeas, proxychains, chisel\\
+**Techniques:** enumeration, port forwarding, ssh tunnelling\\
 **Keywords:** Golang (Go), Docker, InfluxDB
 
-**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell. By running linpeas on the machine, we discover there's a docker container running. We can then use *nmap* against it via SSH tunnelling and proxychains, revealing that an InfluxDB is running in the container.
+**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell. By running linpeas on the machine, we discover there's a docker container running. We can then use *nmap* against it via SSH tunnelling and proxychains, revealing that an InfluxDB is running in the container. The version of InfluxDB (1.7.5) is vunerable to ...
 
 Let's look on the web if we can find anything about it by searching "influxDB admin 1.7.5 exploit". The first link that comes up looks promising.
 
@@ -418,6 +418,27 @@ So this commands sends *the nmap* command through the tunnel, and *devzat* execu
 
 Finally, we see the container is running *influxDB*. From Wikipedia, *"InfluxDB is an open-source time series database (TSDB) developed by the company InfluxData. It is written in the Go programming language for storage and retrieval of time series data in fields such as operations monitoring, application metrics, Internet of Things sensor data, and real-time analytics"*. 
 
+There's nothing about it on Metasploit (*searchsploit influxdb*), but there are many promising links that appear if we search for "influxdb admin 1.7.5" on the web. In short, here's a description of the vulnerability:\\
+"*InfluxDB before 1.7.6 has an authentication bypass vulnerability in the authenticate function in services/httpd/handler.go because a JWT token may have an empty SharedSecret (aka shared secret)*".
+
+The first link is a github repo which contains a python script for this vulnerability. It is stated that "*Exploit check if server is vulnerable, then it tries to get a remote query shell. It has built in a username bruteforce service.*". We start by cloning it and installing the required dependencies:
+
+````
+sudo git clone https://github.com/LorenzoTullini/InfluxDB-Exploit-CVE-2019-20933.git influxexploitgit
+cd influxexploitgit
+sudo pip install -r requirements.txt
+`````
+
+The usage is then *python __main__.py*. The script uses *127.0.0.1* and *8086* by default, and we have to run it on *devzat*. I tried sending the command in the SSH tunnel, but it doesn't work (*sudo proxychains python3 __main.py__*). The problem seems to be related to DNS. I tried making it work for a few hours, before looking at another writeup. It's a little bit frustratring, but the person uses another tool in the writeup and in the end, it's a good opportunity to learn about a new one.\\
+So, let's try to use **chisel**, which is described as a "*package that contains a fast TCP/UDP tunnel, transported over HTTP, secured via SSH. It contains single executable including both client and server. Chisel is mainly useful for passing through firewalls, though it can also be used to provide a secure endpoint into your network.*".
+
+We startby installing it:
+
+````
+sudo apt install chisel
+`````
+
+...
 
 ## 4. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
