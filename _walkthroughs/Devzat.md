@@ -488,7 +488,7 @@ That was painful, but we finally have the user flag!
 ## 4. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
-The first thing I wanted to do was the usual *sudo -l* since we have catherine's password, however she isn't allowed to run sudo. Let's run *linpeas* once again (the box had been resetted and I had to reupload it. Catherine can't do it, so it is necessary to log back as patrick, upload it, and *su catherine*).\\
+The first thing I wanted to do was the usual *sudo -l* since we have catherine's password, however she isn't allowed to run sudo. Let's run *linpeas* once again (the box had been resetted and I had to reupload it). Catherine can't do it, so it is necessary to log back as patrick, upload it, and *su catherine*).\\
 I'm still pretty bad at privilege escalation and struggle to spot the interesting things in the output. I had to look for help and apparently, we have to look at writable files. Here's *linpeas*' output regarding them:
 
 <div class="img_container">
@@ -528,11 +528,37 @@ func fileCommand(u *user, args []string) {
         }
 ````
 
+We see we have to provide a file to read and the password. This function is used in the *file* command on the *devzat* app, which is defined as: *commandInfo{"file", "Paste a files content directly to chat \[alpha\]", fileCommand, 1, false, nil}*. After connecting back to *devzat* (*ssh -l catherine  devzat.htb -p 8000*), I saw the command isn't there. After looking into *main/commands.go*, I realized it's only in dev... Maybe the dev version is running locally? Let's see what ports are openend:
+
+````
+netstat -tulpn
+``````
+
+<div class="img_container">
+![netstat]({{https://jsom1.github.io/}}/_images/htb_dz_netstat.png)
+</div>
+
+Port 53 is DNS, 8086 is the port used to communicate with the container, 22 is SSH, 8443 we don't know, 5000 we don't know, 8000 and 80 are http. So, it could be one of the two unknown ports. Let's try to use the app with port 8443:
+
+````
+ssh -l catherine devzat.htb -p 8443
+`````
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_dz_root.png)
+</div>
+
+And it worked! We see a conversation between Patrick and Catherine confirming the new feature has been implemented, and Patrick says how to use it and where to get the password (even though we already have it). It was probably intended to be the other way around: first connect to to local dev instance, find this information and then look into the backups. Anyways, we can read any files now and that's how we get root.
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_dz_pwn.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
 
-hard time. Lesson: don't jumpp straight into something, first enumerate the surface. Good oppportunity to finally practice port forwarding.
+Well, I had a hard but great time on this box! The lesson I learned is to first enumerate all the attack surface. I often quickly find something that looks promising and focus on that only. Most of time, it's a dead end and I lost a lot of time.\\
+This box was a great opportunity to practice with SSH tunnelling and port forwarding. Moreover, I learned a few new tools such as git dumper, git extractor and chisel.
 
 <ins>**Fix the vulnerabilities**</ins>
 
