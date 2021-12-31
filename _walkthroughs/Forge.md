@@ -25,7 +25,7 @@ output: html_document
 **Techniques:** subdomain enumeration, SSRF (server side request forgery)\\
 **Keywords:** pdb (python debugger)
 
-**In a nutshell**: A web server hosts an application that has a functionality to upload files by providing a URL, making it a typical candidate for SSRF. By manipulating the URL, we can access a directory that shouldn't be accessible. This latter contains credentials and information that can be used to perform SSRF with the *FTP* protocol, allowing us to retrieve SSH public/private keys and connect to the machine as a normal user. This user then has "sudo permissions" on a custom script which can be used to spawn pdb (python debugger). The debugger can be used to modify permissions of */bin/bash*, allowing us to spawn it as root.
+**TL;DR**: A web server hosts an application that has a functionality to upload files by providing a URL, making it a typical candidate for SSRF. By manipulating the URL, we can access a directory that shouldn't be accessible. This latter contains credentials and information that can be used to perform SSRF with the *FTP* protocol, allowing us to retrieve SSH public/private keys and connect to the machine as a normal user. This user then has "sudo permissions" on a custom script which can be used to spawn pdb (python debugger). The debugger can be used to modify permissions of */bin/bash*, allowing us to spawn it as root.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
