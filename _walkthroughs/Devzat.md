@@ -92,7 +92,7 @@ I didn't see at first the *run /help to see what you can do*, so I issued a *ls*
 By running the */help* command, we discover the app is on Github (github.com/quackduck/devzat). Let's head there to see how it's organized:
 
 <div class="img_container">
-![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height=80px" width = 100px"}
+![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height=180px" width = 200px"}
 </div>
 
 The first thing I noticed here is that there are 3 branches, although the website mentionned two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). Given the fact that there are 10 contributors, that it's roughly 7 months old and the application itself, it wasn't built just to be used in a HtB machine. Therefore, the stable release is probably safe and if it is this version that is running on the machine, it might not be the way to a foothold...\\
