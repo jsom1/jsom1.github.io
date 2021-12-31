@@ -25,7 +25,7 @@ output: html_document
 **Techniques:** enumeration, port forwarding, ssh tunnelling\\
 **Keywords:** Golang (Go), Docker, InfluxDB
 
-**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell. By running linpeas on the machine, we discover there's a docker container running. We can then use *nmap* against it via SSH tunnelling and proxychains, revealing that an InfluxDB is running in the container. The version of InfluxDB (1.7.5) is vunerable to ...
+**In a nutshell**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell. By running linpeas on the machine, we discover there's a docker container running. We can then use *nmap* against it via SSH tunnelling and proxychains, revealing that an InfluxDB is running in the container. The version of InfluxDB (1.7.5) is vunerable to an authentication bypass exploit, giving us access to the database. This database contains credentials that allow us to switch to the user who has the flag. Finally, we discover that the dev version of the app is running locally and contains a special command - which isn't on the prod version - which allows us to read any file on the system.
 
 Let's look on the web if we can find anything about it by searching "influxDB admin 1.7.5 exploit". The first link that comes up looks promising.
 
@@ -551,14 +551,15 @@ ssh -l catherine devzat.htb -p 8443
 And it worked! We see a conversation between Patrick and Catherine confirming the new feature has been implemented, and Patrick says how to use it and where to get the password (even though we already have it). It was probably intended to be the other way around: first connect to to local dev instance, find this information and then look into the backups. Anyways, we can read any files now and that's how we get root.
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_dz_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_dz_pwn.png){: height="380px" width = 390px"}
 </div>
 
 
 <ins>**My thoughts**</ins>
 
 Well, I had a hard but great time on this box! The lesson I learned is to first enumerate all the attack surface. I often quickly find something that looks promising and focus on that only. Most of time, it's a dead end and I lost a lot of time.\\
-This box was a great opportunity to practice with SSH tunnelling and port forwarding. Moreover, I learned a few new tools such as git dumper, git extractor and chisel.
+This box was a great opportunity to practice with SSH tunnelling and port forwarding. I still don't know why I wasn't able to execute the python exploit with Proxychains... Moreover, I learned a few new tools such as git dumper, git extractor and chisel.
 
 <ins>**Fix the vulnerabilities**</ins>
 
+As most of the time with web applications, user input should be sanitized. Regarding the container, the version of InfluxDB should be upgraded to > 1.7.5, which would prevent the exploitation. Finally, having a dev version of the app running locally is fine, however there shouldn't be plain text passwords in configuration files and/or scripts. There could also be some restrictions regarding the files a user can read on *devzat* in dev.
