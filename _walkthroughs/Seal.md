@@ -23,8 +23,9 @@ output: html_document
 **Ports/services exploited:** 80/web application, TomCat, ssh\\
 **Tools:** Burp, linpeas\\
 **Techniques:** Directory Traversal\\
-**Keywords:** Tomcat, ansible, *.war*\\
-**In a nutshell**: There's a GitBucket instance running on this machine that is opened to anyone. Of of the commit contains a username and a cleartext password. Those credentials can be used on a webapp hosted on Tomcat. This application is vulnerable to directory traversal, allowing us to upload a malicious *.war* file and get a reverse shell as tomcat. Once we get a foothold, we find a *.yml* file that is used in a cronjob. This file creates copies of files and uses symbolic links, which allows us to copy a user's *id_rsa* file, eventually allowing us to ssh into the machine. Finally, this user can execute a program as sudo, and a simple custom file allows us to spawn a bash shell as root.
+**Keywords:** Tomcat, ansible, *.war*
+
+**TL;DR**: There's a GitBucket instance running on this machine that is opened to anyone. Of of the commit contains a username and a cleartext password. Those credentials can be used on a webapp hosted on Tomcat. This application is vulnerable to directory traversal, allowing us to upload a malicious *.war* file and get a reverse shell as tomcat. Once we get a foothold, we find a *.yml* file that is used in a cronjob. This file creates copies of files and uses symbolic links, which allows us to copy a user's *id_rsa* file, eventually allowing us to ssh into the machine. Finally, this user can execute a program as sudo, and a simple custom file allows us to spawn a bash shell as root.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
