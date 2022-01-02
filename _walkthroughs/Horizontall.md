@@ -71,14 +71,39 @@ The scans directory is where all results from scans performed by AutoRecon will 
 *_commands.log contains a list of every command AutoRecon ran against the target. This is useful if one of the commands fails and you want to run it again with modifications.
 _manual_commands.txt contains any commands that are deemed "too dangerous" to run automatically, either because they are too intrusive, require modification based on human analysis, or just work better when there is a human monitoring them.*
 
-Note that the scan took **48 minutes** to run. Despite the length (which can most likely be reduced with parameters), it is interesting because it creates a directory structure that encourages one to have a certain methodology.\\
-Let's look at the results in the */results/10.10.11.105* directory. We'll start by looking at the *scans* results so that we see something similar to *nmap*:
+Note that the scan took **48 minutes** to run. Despite the length (which can most likely be reduced with parameters), it is interesting because it creates a directory structure that encourages one to have a certain methodology. This can be especially useful if we have to write a report afterwards.
 
+Let's look at the results in the */results/10.10.11.105* directory. We'll start by looking at the *scans* results:
 
+<div class="img_container">
+![scans]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_scans.png)
+</div>
 
+We see Autorecon performed a full TCP scan as well as a quick one, and also a top 100 udp ports scan. Because ports 22 and 80 are open, it created directories containing additional information about them. Let's look at *nmap's* output:
+
+<div class="img_container">
+![nmap]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_nmap.png)
+</div>
+
+Note that we see exactly what *nmap* command the tool used. Finally, we see there's SSH on port 22 and a web server on port 80. Even though I like seeing web servers, they have a very large attack surface and it's not always easy to find a vulnerability...
 
 ## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
+
+Before visiting the web page, let's look into the */tcp80* directory. It's awesome, the folder contains results of directories bruteforce with different wordlists, and another *nmap* scan specifically for port 80.\\
+This latter many http scripts and shows that it didn't find any CSRF vulnerabilities, could't determine the underlying framework or CMS, didn't find any DOM-based or stored XSS, and so on... Even though it didn't find anything we can use, it's still very useful to have this information so that we don't have to do these checks manually ourselves.
+
+We saw in the *nmap* result that there was a redirect to *horizontall.htb*, so let's add it to our */etc/hosts* file and browse to it to see this website.
+
+````
+sudo echo "10.10.11.105 horizontall.htb" >> /etc/hosts
+``````
+
+<div class="img_container">
+![site]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_site.png)
+</div>
+
+The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happes when we click on *Send*.
 
 ## 3. Horizontal privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
