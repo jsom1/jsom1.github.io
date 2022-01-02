@@ -103,7 +103,14 @@ sudo echo "10.10.11.105 horizontall.htb" >> /etc/hosts
 ![site]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_site.png)
 </div>
 
-The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happens when we click on *Send*.
+The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happens when we click on *Send*.\\
+Something *nmap* didn't say is wether it found any subdomain or not. Let's try this manually with the following command:
+
+````
+sudo wfuzz -c -f res.tst -Z -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt --sc 200,202,204,301,302,307,4003 http://FUZZ.horizontall.htb
+`````
+
+The script crashes with the error "could not resolve host: ftp.horizontall.htb". I added this host into my */etc/hosts* file, but can't FTP there.
 
 ## 3. Horizontal privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
