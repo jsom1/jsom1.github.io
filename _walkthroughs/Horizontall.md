@@ -103,7 +103,7 @@ sudo echo "10.10.11.105 horizontall.htb" >> /etc/hosts
 ![site]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_site.png)
 </div>
 
-The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happes when we click on *Send*.
+The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happens when we click on *Send*.
 
 ## 3. Horizontal privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
