@@ -17,7 +17,7 @@ output: html_document
  </div> 
 
 <div class="img_container">
-![desc]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_desc.png){: height="300px" width = 320px"}
+![desc]({{https://jsom1.github.io/}}/_images/htb_hor_desc.png){: height="300px" width = 320px"}
 </div>
 
 **Ports/services exploited:** 80/http\\
@@ -76,13 +76,13 @@ Note that the scan took **48 minutes** to run. Despite the length (which can mos
 Let's look at the results in the */results/10.10.11.105* directory. We'll start by looking at the *scans* results:
 
 <div class="img_container">
-![scans]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_scans.png)
+![scans]({{https://jsom1.github.io/}}/_images/htb_hor_scans.png)
 </div>
 
 We see Autorecon performed a full TCP scan as well as a quick one, and also a top 100 udp ports scan. Because ports 22 and 80 are open, it created directories containing additional information about them. Let's look at *nmap's* output:
 
 <div class="img_container">
-![nmap]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_nmap.png)
+![nmap]({{https://jsom1.github.io/}}/_images/htb_hor_nmap.png)
 </div>
 
 Note that we see exactly what *nmap* command the tool used. Finally, we see there's SSH on port 22 and a web server on port 80. Even though I like seeing web servers, they have a very large attack surface and it's not always easy to find a vulnerability...
@@ -100,7 +100,7 @@ sudo echo "10.10.11.105 horizontall.htb" >> /etc/hosts
 ``````
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_site.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_hor_site.png)
 </div>
 
 The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happens when we click on *Send*.\\
@@ -111,13 +111,13 @@ sudo wfuzz -c -f res.tst -Z -w /usr/share/seclists/Discovery/DNS/subdomains-top1
 `````
 
 <div class="img_container">
-![wfuzz]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_wfuzz.png)
+![wfuzz]({{https://jsom1.github.io/}}/_images/htb_hor_wfuzz.png)
 </div>
 
 Finally we have something! I first tried with the *top1million-5000.txt* and *top1million-20000.txt* wordlists, but that wasn't enough. The parameter *--hc 301* is used because we don't want to see *301* requests - that would spam the terminal. So, let's have a look at that subdomain:
 
 <div class="img_container">
-![site 2]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_site2.png)
+![site 2]({{https://jsom1.github.io/}}/_images/htb_hor_site2.png)
 </div>
 
 There's only this "Welcome" message. We don't see it in the picture, but the browser's tab says "Welcome to your API". Let's use *dirb* once again to enumerate this new domain:
@@ -127,13 +127,13 @@ sudo dirb http://api-prod.horizontall.htb
 `````
 
 <div class="img_container">
-![dirb]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_dirb.png)
+![dirb]({{https://jsom1.github.io/}}/_images/htb_hor_dirb.png)
 </div>
 
 There are a few directories, and */admin* looks promising. Let's look at it:
 
 <div class="img_container">
-![admin]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_admin.png)
+![admin]({{https://jsom1.github.io/}}/_images/htb_hor_admin.png)
 </div>
 
 From a quick Google search, *"Strapi is an open-source headless CMS used for building fast and easily manageable APIs written in JavaScript"*. 
@@ -162,13 +162,13 @@ Because I used the *top10000* wordlist, it was taking a lot of time and I interr
 Before looking at the RCE exploit (we still don't know the version), let's look at the */reviews* directory revealed by *dirb*:
 
 <div class="img_container">
-![reviews]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_reviews.png)
+![reviews]({{https://jsom1.github.io/}}/_images/htb_hor_reviews.png)
 </div>
 
 There are reviews from users, and we can see the raw data as well as the request's headers. I tried adding a review by sending a POST request using *Burp*, but it generates an error I couldn't resolve:
 
 <div class="img_container">
-![burp]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_burp.png)
+![burp]({{https://jsom1.github.io/}}/_images/htb_hor_burp.png)
 </div>
 
 If that would have worked, we could maybe have included a payload in the *data* that would have been executed when the browser renders the reviews (XSS). Since it's not the case, we'll finally have a look at that exploit we saw earlier. There are 2 exploit-DB versions, one for authenticated users, and one for unauthenticated users. The code of the latter is the following:
@@ -253,7 +253,7 @@ if __name__ == ("__main__"):
 We see the exloit first determines the version by making a GET request to */admin/init*. We can do the check manually and finally get the version!
 
 <div class="img_container">
-![strapi version]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_version.png)
+![strapi version]({{https://jsom1.github.io/}}/_images/htb_hor_version.png)
 </div>
 
 I realize it could have been a good idea to perform an additional *dirb* scan on */admin*. This way we would have found the version if a few seconds. After determining the version, the script changes the password and retrieve the Json web token (*jwt*) from the request. It then uses it to install a plugin on the admin panel.\\
@@ -261,13 +261,13 @@ The exploit's descriptions is the following: *"The Strapi framework prior to 3.0
 I don't see the *execa* function in the script, but let's try the exploit and see what happens. We can get the exploit from exploit-DB by clicking on "View raw", copying it and pasting it in a new file (sudo nano *name.py*) on Kali. I named it *strapiexploit.py* and placed it in */results/10.10.11.105/exploit*. Let's try it:
 
 <div class="img_container">
-![exploit]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_exploit.png)
+![exploit]({{https://jsom1.github.io/}}/_images/htb_hor_exploit.png)
 </div>
 
 We see it works and gives us a kind of prompt. I tried here to issue *whoami*, but we get a message indicating it's a blind RCE and that there's no output. We have to find the intended syntax to execute code. Note that we also got credentials and should now be able to access the admin panel (use *admin@horizontall.htb/SuperStrongPassword1* on */admin*). We land on the following page:
 
 <div class="img_container">
-![admin panel]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_dashboard.png)
+![admin panel]({{https://jsom1.github.io/}}/_images/htb_hor_dashboard.png)
 </div>
 
 There's a file upload possibility, and maybe it's possible to upload a reverse shell payload on execute it? Before exploring this lead however, let's see if we can get the previous exploit to work. I found a Github repo (https://github.com/diego-tella/CVE-2019-19609-EXPLOIT) containing an exploit for this vulnerability. The code is the following:
@@ -327,7 +327,7 @@ sudo nc -nlvp 4444
 And we see the exploit worked:
 
 <div class="img_container">
-![revsh]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_revsh.png)
+![revsh]({{https://jsom1.github.io/}}/_images/htb_hor_revsh.png)
 </div>
 
 Note that we first have a simple reverse shell, so we can use the following command to use python to upgrade it into a fully interactive tty
@@ -339,7 +339,7 @@ python -c 'import pty;pty.spawn("/bin/bash");'
 The first thing I did was to check the users and see if we can already get the flag or if we will have to go through horizontal privesc. It turns out it's not the case!
 
 <div class="img_container">
-![user flag]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_user.png)
+![user flag]({{https://jsom1.github.io/}}/_images/htb_hor_user.png)
 </div>
 
 And that's it for the user!
@@ -382,14 +382,14 @@ and the following one on *strapi*:
 Note that the syntax for the last command is *./chisel client [kali_IP]:[kali_port] R:[port_to_listen_connection]:127.0.0.1:[port_to_forward]*. So, we redirect everything on port 8000 on the target onto port 6001 on Kali. If everything works fine, we should be able to see the page content in our browser on Kali:
 
 <div class="img_container">
-![web page]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_laravel.png)
+![web page]({{https://jsom1.github.io/}}/_images/htb_hor_laravel.png)
 </div>
 
 I find it awesome and way easier to read than the output we got by using *wget*. In a glance, we see Laravel v8. There are a few results with *searchsploit*, but the version isn't mentionned. Let's look on the internet instead. By searching "laravel v8 exploit", we see a lot of results and RCEs. I read somewhere that "*If Laravel is in debugging mode you will be able to access the code and sensitive data. For example http://127.0.0.1:8000/profiles*".\\
 We can try in our browser, and indeed we see the same thing:
 
 <div class="img_container">
-![debug]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_debug.png)
+![debug]({{https://jsom1.github.io/}}/_images/htb_hor_debug.png)
 </div>
 
 Furthermore, it is said that this is usually needed for exploiting other Laravel RCE CVEs. We learn that the error page in the debugging mode is handled by Ignition, and that this latter in version <= 2.5.1 is vulnerable. There are a few existing exploits, let's try https://github.com/nth347/CVE-2021-3129_exploit. We start by cloning it and making it executable, and then we use it with the syntax given in the article:
@@ -402,13 +402,13 @@ sudo ./exploit.py http://127.0.0.1:6001 Monolog/RCE1 "whoami"
 `````
 
 <div class="img_container">
-![root]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_root.png)
+![root]({{https://jsom1.github.io/}}/_images/htb_hor_root.png)
 </div>
 
 Note that I immediately tried to read the root flag, and it worked. At this point we could probably get a reverse shell or read the SSH keys, but I've spent a lot of time on this box and I am satisfied being able to read the flag!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_pwn.png){: height="380px" width = 390px"}
+![pwn]({{https://jsom1.github.io/}}/_images/htb_hor_pwn.png){: height="380px" width = 390px"}
 </div>
 
 
