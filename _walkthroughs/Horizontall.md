@@ -126,6 +126,10 @@ There's only this "Welcome" message. We don't see it in the picture, but the bro
 sudo dirb http://api-prod.horizontall.htb
 `````
 
+<div class="img_container">
+![dirb]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_dirb.png)
+</div>
+
 There are a few directories, and */admin* looks promising. Let's look at it:
 
 <div class="img_container">
@@ -404,7 +408,7 @@ sudo ./exploit.py http://127.0.0.1:6001 Monolog/RCE1 "whoami"
 Note that I immediately tried to read the root flag, and it worked. At this point we could probably get a reverse shell or read the SSH keys, but I've spent a lot of time on this box and I am satisfied being able to read the flag!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/horizontall/htb_hor_pwn.png){: height="380px" width = 390px"}
 </div>
 
 
