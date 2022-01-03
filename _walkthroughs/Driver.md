@@ -9,7 +9,7 @@ output: html_document
 
  <div id="boxinfo">
  <div id="textbox">
- <p class="alignleft">**Difficulty**: Easy (?/10)</p>
+ <p class="alignleft">**Difficulty**: Easy</p>
  <p class="aligncenter">**Type**: CTF</p>
  <p class="alignright">**OS**: Windows</p>
  </div>
@@ -38,18 +38,30 @@ sudo autorecon 10.10.11.105
 `````
 
 See *autorecon*'s official documentation or <a href="/_walkthroughs/Horizontall">Horizontall</a> for an explanation of the results. 
-Here's the *nmap* output (performed by *autorecon*): 
+Here's the *nmap* output, performed by *autorecon*. The script took 1.5 hour to run! 
 
 <div class="img_container">
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_driver_nmap.png)
 </div>
 
+The following services are running:
+
+- Microsoft IIS 10.0 web server on port 80
+- Microsoft End Point Mapper (EPMAP), also known as MS-RPC, on port 135. It is used to remotely manage services such as DHCP server or DNS
+- Microsoft-DS Active Directory (AD, Windows shares) or Microsoft-DS SMB (file sharing) on port 445
+- WinRM or Wsman on port 5985, for remote management
+- Something on port 7680 that could be, according to the internet, used by WUDO (Windows Update Delivery Optimization) in Windows LANs.
+
+Also, the target OS is likely to be Microsoft Windows Server 2008 R2 at 90% or Windows 10 at 85%. It's not shown in *nmap*'s output above, but it also ran a few scripts such as *smb-os-discovery*, *smb-security-mode*, and so on. There was nothing interesting though.
 
 
 ## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
-We'll start by browsing to *10.10.11.106*:
+Let's go through each directory *autorecon* created for those services, starting with http (*cat /results/10.10.11.106/scans/tcp80/tcp_80_http_nmap.txt*).\\
+*Autorecon* performed an additional targeted *nmap* scan for port 80. This latter would inform us if it found any web vulnerability such as XSS or CSRF. it's not the case here, nothing stands out. It also performed directory bruteforcing with *feroxbuster* and different wordlists, but there's nothing interesting either. 
+
+Next, we'll browse to *10.10.11.106* to have a look at that web page:
 
 <div class="img_container">
 ![site]({{https://jsom1.github.io/}}/_images/htb_driver_site.png)
@@ -80,6 +92,7 @@ Also, we notice in the URLs that the site is made of PHP scripts. This can be us
 
 
 
+
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
@@ -93,6 +106,7 @@ Also, we notice in the URLs that the site is made of PHP scripts. This can be us
 
 Original box
 Interesting to see that printers can present a security risk if not properly secured or updated.
+2nd time I use autorecon, looks great but ton of information - easy to get lost. 
 
 <ins>**Fix the vulnerabilities**</ins>
 
