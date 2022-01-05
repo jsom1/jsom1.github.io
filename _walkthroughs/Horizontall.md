@@ -415,8 +415,10 @@ Note that I immediately tried to read the root flag, and it worked. At this poin
 
 <ins>**My thoughts**</ins>
 
-First of all, I found that even though this box is rated as easy, it's not that easy. It's probably rated so because we're "only" using CVEs without modifications, but compared to blue for example, it's much more difficult.\\
-I didn't particularly liked this box, because I don't feel like I learned a lot in terms of technical skills. Instead, I learned about *strapi* and *laravel* (that can still be useful). However, it was a good opportunity to train port forwarding and use *chisel* once again. Also, it was nice to use *autorecon* and see a different, more structured approach than I have usually.
+First of all, I found that even though this box is rated as easy, it's not that easy. It's probably rated so because we're "only" using CVEs without modifications, but compared to <a href="/_walkthroughs/Blue">Blue</a> or <a href="/_walkthroughs/Lame">Lame</a> for example, it's much more difficult.\\
+I didn't particularly like this box because I don't feel like I learned a lot in terms of technical skills. Instead, I learned about *strapi* and *laravel* (that can still be useful). However, it was a good opportunity to train port forwarding and use *chisel* once again. Also, it was nice to use *autorecon* and see a different, more structured approach than I usually have.
+
+I didn't explore the file upload functionality on the admin panel, so there might be other ways to do it. I spent too much time on this box and I'm already looking forward to the next one, so I won't explore this possibility!
 
 <ins>**Fix the vulnerabilities**</ins>
 
