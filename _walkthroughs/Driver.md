@@ -21,7 +21,7 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/http, 445/SMB\\
-**Tools:** autorecon, msfvenom, responder, hashcat\\
+**Tools:** autorecon, msfvenom, responder, hashcat, evil-winrm\\
 **Techniques:** SCF (Shell Command Files) attacks\\
 **Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution)
 
@@ -131,7 +131,7 @@ Command=ToggleDesktop
 This code has to be placed inside a text file and then uploaded into a network share. So, if the files we submit on the server are indeed uploaded in a share, then it could work! What's interesting is that saving the file as SCF will make the file to be executed when the user browses to it. In our case, there is obviously not someone who will manually review the file (even though it is said so on the server), but there's most likely a cronjob reading it.\\
 Also, adding a "@" before the file name will place the file at the top of the list (@example.scf).
 
-Then, the article says we have to use *responder* to capture the hashes of the users who will browse to that share and execute our file. I didn't know about this tool at all, but it is available on Github (<a href="https://github.com/lgandx/Responder">link</a>) where we learn that "*Responder is a LLMNR, NBT-NS and MDNS poisoner, with built-in HTTP/SMB/MSSQL/FTP/LDAP rogue authentication server supporting NTLMv1/NTLMv2/LMv2, Extended Security NTLMSSP and Basic HTTP authentication*". Well, I don't really understand what that means but we'll use it as a black box. It turns out that *responder* is already installed on Kali. Let's look at the help page with *responder -h*. We see the usage is:
+Then, the article says we have to use *responder* to capture the hashes of the users who will browse to that share and execute our file. I didn't know about this tool at all, but it is available on Github (<a href="https://github.com/lgandx/Responder">link</a>) where we learn that "*Responder is a LLMNR, NBT-NS and MDNS poisoner, with built-in HTTP/SMB/MSSQL/FTP/LDAP rogue authentication server supporting NTLMv1/NTLMv2/LMv2, Extended Security NTLMSSP and Basic HTTP authentication*". Well, I don't really understand what that means but it doesn't matter since we'll use it as a blackbox. It turns out that *responder* is already installed on Kali. Let's look at the help page with *responder -h*. We see the usage is:
 
 ````
 responder -I eth0 -w -r -f
@@ -162,7 +162,7 @@ Before uploading the file on the server, we start *responder*:
 ````
 sudo responder -I tun0 -w -r -f
 `````
-Note that we want to listen on thee *tun0* interface, which is associated with HtB. Let's look at the results:
+Note that we want to listen on the *tun0* interface, which is associated with the HtB network. Let's look at the results:
 
 <div class="img_container">
 ![responder]({{https://jsom1.github.io/}}/_images/htb_driver_resp.png)
@@ -172,20 +172,39 @@ Note that we want to listen on thee *tun0* interface, which is associated with H
 ![hash]({{https://jsom1.github.io/}}/_images/htb_driver_hash.png)
 </div>
 
-It worked! We see the user *tony* authenticated and *responder* captured the NTLMv2 hash. In the article, it is then said that this technique can be combined with SMB relay (we saw an exploit earlier) to get meterpreter reverse shells. Before doing so however, let's just try to crack the hash. If we manage to do so, we might also be able to use *evil-winrm* since we saw port 5985 is open (I used it in <a href="/_walkthroughs/Atom">Atom</a>, where there's more information about it).
-
-hashcat -m tony.hash /usr/share/wordlists/rockyou.txt --force
-
-
-win-rm syntax:
+It worked! We see the user *tony* authenticated and *responder* captured the NTLMv2 hash. If any other user would browse to the uploaded file location, we would also get their hashes. In the article, it is then said that this technique can be combined with SMB relay (we saw an exploit earlier) to get meterpreter reverse shells. Before doing so however, let's just try to crack the hash. If we manage to do so, we might also be able to use *evil-winrm* since we saw port 5985 is open (I used it in <a href="/_walkthroughs/Atom">Atom</a>, where there's more information about it).\\
+First, we save the hash into a file (*driver_hash.txt* for example, and we copy everything, starting at "tony::DRIVER:...") and then use *hashcat* to crack it with the following syntax:
 
 ````
-evil-winrm -u username -p 'password' -i targetip
+sudo hashcat -m 5600 driver_hash.txt /usr/share/wordlists/rockyou.txt -o cracked.txt
 `````
 
+Note that 5600 corresponds to NTLMv2. We can then view the cracked password in *cracked.txt*:
+
+<div class="img_container">
+![cracked pw]({{https://jsom1.github.io/}}/_images/htb_driver_cracked.png)
+</div>
+
+Good, so we have the credentials tony:litony. Let's try to use them with *evil-winrm*:
+
+````
+sudo evil-winrm -u tony -p 'liltony' -i 10.10.11.106
+`````
+
+<div class="img_container">
+![user]({{https://jsom1.github.io/}}/_images/htb_driver_user.png)
+</div>
+
+This is it for the user! 
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
+
+One thing I've been wondering so far is where exactly the file is being uploaded. We've seen the file upload is being handled by the *fw_up.php* script, so let's look at it to get more information.
+
+
+
+
 
 
 <div class="img_container">
@@ -195,9 +214,10 @@ evil-winrm -u username -p 'password' -i targetip
 
 <ins>**My thoughts**</ins>
 
-Original box
+Original box, long time no windows. 
 Interesting to see that printers can present a security risk if not properly secured or updated.
 2nd time I use autorecon, looks great but ton of information - easy to get lost. 
+Cracked the hash and used evil-winrm, but probably possible to get a meterpreter shell by using the relay exploit.
 
 <ins>**Fix the vulnerabilities**</ins>
 
