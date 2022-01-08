@@ -200,9 +200,13 @@ This is it for the user!
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
-One thing I've been wondering so far is where exactly the file is being uploaded. We've seen the file upload is being handled by the *fw_up.php* script, so let's look at it to get more information.
+One thing I've been wondering so far is where exactly the file is being uploaded. We've seen the file upload is being handled by the *fw_up.php* script, so let's look at it to get more information. In Linux, the web server directory is located in */var/www*. In Windows, the root for an IIS server is usually C:\inetpub\wwwroot. It's the case here, and here's the interesting part of the script:
 
+<div class="img_container">
+![fw_up.php]({{https://jsom1.github.io/}}/_images/htb_driver_script.png)
+</div>
 
+We see the upload location is **.
 
 
 
