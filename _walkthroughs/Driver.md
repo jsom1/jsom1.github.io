@@ -25,7 +25,7 @@ output: html_document
 **Techniques:** SCF (Shell Command Files) attacks\\
 **Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution), Powershell, PrintNightmare, Invoke-Nightmare
 
-**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash. The hash can be cracked wiithin seconds, and we can then use the credentials with *evil-winrm* to get a PowerShell shell on the box. From there, enumeration reveals that *spoolsv* is listening, which is a service affected by many vulnerabilities known as *PrintNightmare*. One of them is exploited by a powershell script called *Invoke-Nightmare*, which allows us to add a user with admin privileges. Once this is done, we can use *evil-winrm* once eagain to connect with SYSTEM privileges.
+**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash. The hash can be cracked within seconds, and we can then use the credentials with *evil-winrm* to get a PowerShell shell on the box. From there, enumeration reveals that *spoolsv* is listening, which is a service affected by many vulnerabilities known as *PrintNightmare*. One of them is exploited by a powershell script called *Invoke-Nightmare*, which allows us to add a user with admin privileges. Once this is done, we can use *evil-winrm* once eagain to connect with SYSTEM privileges.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -70,19 +70,19 @@ By searching "MFP Firmware Update Center" on the internet, we learn that it stan
 We can look at the documentation to see that the default credentials are *admin/admin*:
 
 <div class="img_container">
-![default creds]({{https://jsom1.github.io/}}/_images/htb_driver_creds.png)
+![default creds]({{https://jsom1.github.io/}}/_images/htb_driver_creds.png){: height="200px" width = 400px"}
 </div>
 
 So, let's see if the site uses the default credentials:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_driver_site2.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_driver_site2.png){: height="300px" width = 400px"}
 </div>
 
 And it does. Apparently, they conduct tests MFPs firmware updates and/or drivers. The only working button is *Firmware Updates* and it takes us to the following page:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_driver_site3.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_driver_site3.png){: height="200px" width = 400px"}
 </div>
 
 So, this is where we can upload a file. This latter is then supposedly being reviewed and tested.
