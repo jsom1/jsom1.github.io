@@ -70,19 +70,19 @@ By searching "MFP Firmware Update Center" on the internet, we learn that it stan
 We can look at the documentation to see that the default credentials are *admin/admin*:
 
 <div class="img_container">
-![default creds]({{https://jsom1.github.io/}}/_images/htb_driver_creds.png){: height="200px" width = 400px"}
+![default creds]({{https://jsom1.github.io/}}/_images/htb_driver_creds.png){: height="400px" width = 800px"}
 </div>
 
 So, let's see if the site uses the default credentials:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_driver_site2.png){: height="300px" width = 400px"}
+![site]({{https://jsom1.github.io/}}/_images/htb_driver_site2.png){: height="500px" width = 600px"}
 </div>
 
 And it does. Apparently, they conduct tests MFPs firmware updates and/or drivers. The only working button is *Firmware Updates* and it takes us to the following page:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_driver_site3.png){: height="200px" width = 400px"}
+![site]({{https://jsom1.github.io/}}/_images/htb_driver_site3.png){: height="300px" width = 500px"}
 </div>
 
 So, this is where we can upload a file. This latter is then supposedly being reviewed and tested.
