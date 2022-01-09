@@ -23,7 +23,7 @@ output: html_document
 **Ports/services exploited:** 80/http, 445/SMB\\
 **Tools:** autorecon, msfvenom, responder, hashcat, evil-winrm\\
 **Techniques:** SCF (Shell Command Files) attacks\\
-**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution)
+**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution), Powershell
 
 **TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash.
 
@@ -195,7 +195,9 @@ sudo evil-winrm -u tony -p 'liltony' -i 10.10.11.106
 ![user]({{https://jsom1.github.io/}}/_images/htb_driver_user.png)
 </div>
 
-This is it for the user! 
+Note that it's not a classical Windows terminal. The *PS* stands for Powershell, which is a "*cross-platform task automation solution made up of a command-line shell, a scripting language, and a configuration management framework*". It is cross-platform because it also works on Linux and macOS. The commands are different that what we'd use usually, in Powerhsell we use *cmdlets* (except for base commands such as *cd*, *dir*, *type*, and so on...).
+
+So, this is it for the user! 
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
@@ -206,8 +208,12 @@ One thing I've been wondering so far is where exactly the file is being uploaded
 ![fw_up.php]({{https://jsom1.github.io/}}/_images/htb_driver_script.png)
 </div>
 
-We see the upload location is **.
+We see the upload location is *C:\\firmwares\\*. I didn't know why there were 2 *\\* and from a quick research, it appears that double backslash at the very beginning of a path indicates a UNC path. We saw that notion in the exploit earlier, so let's get more information about it: UNC (Universal Naming Convention) is a format specifying the location of resources on a LAN. It uses the format *\\server-name\shared-resource-pathname*. For example, we could access the file test.txt in the directory DIR on the shared server SHAREDSERV with the command *\\SHAREDSERV\DIR\test.txt*. 
 
+However, there's nothing in that directory. There's probably a cleaning script that is ran by a cronjob. Is this an 
+
+
+Retrieves the connections established from the SMB client to the SMB servers.
 
 
 
