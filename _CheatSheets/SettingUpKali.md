@@ -67,8 +67,20 @@ sudo apt-get install wine32
 ````
 
 
+# Download privesc scripts
+- Windows-privesc-check (https://github.com/pentestmonkey/windows-privesc-check):
+````
+sudo wget https://github.com/pentestmonkey/windows-privesc-check/blob/master/windows-privesc-check2.exe
+sudo wget https://raw.githubusercontent.com/pentestmonkey/windows-privesc-check/master/windows_privesc_check.py
+````
 
+- Linux_privesc_check (http://pentestmonkey.net/tools/audit/unix-privesc-check): it has do be downloaded manually from the website. Then, we unzip it:
+````
+sudo tar -xf /home/kali/Downloads/unix-privesc-check-1.4.tar.gz
+````
 
+- LinPEAS
+- WinPEAS
 
 
 
