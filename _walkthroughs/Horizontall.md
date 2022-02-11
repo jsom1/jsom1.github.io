@@ -25,7 +25,7 @@ output: html_document
 **Techniques:** enumeration, port forwarding\\
 **Keywords:** Strapi CMS, CVE-2019-18818, CVE-2019-19609, laravel
 
-**TL;DR**: There's a web server running on the host, but the web page is completely unresponsive. Having nothing to do there, we quickly find a subdomain which uses Strapi, an open-source CMS used for building fast and easily manageable APIs. The version of Strapi (3.8.8) is vulnerable to RCE, and we quickly find existing exploits for this vulnerability, giving us a basic reverse shell. Looking at the processes and ports, we see something on port 8000. By using chisel for port forwarding, we discover it's running laravel (a web application framework) V8, which is in turn vulnerable to RCE. There is also an existing exploit that allows us to read files with root permissions on the target.
+**TL;DR**: There's a web server running on the host, but the web page is completely unresponsive. Having nothing to do there, we quickly find a subdomain which uses Strapi, an open-source CMS used for building fast and easily manageable APIs. The version of Strapi (3.8.8) is vulnerable to RCE, and there are existing exploits for this vulnerability, giving us a basic reverse shell. Looking at the processes and ports, we see something on port 8000. By using chisel for port forwarding, we discover it's running laravel (a web application framework) V8, which is in turn vulnerable to RCE. There is also an existing exploit that allows us to read files with root permissions on the target.
 
 
 ## 1. Services enumeration
