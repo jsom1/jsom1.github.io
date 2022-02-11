@@ -240,7 +240,7 @@ finally:
 `````
 
 This script opens a listener on a random port (between 1025 and 65535). It is then possible to connect to it and authenticate. If the provided password matches *secretadminpassword*, we can 1) View processes, 2) View free memory, 3) View listening sockets and 4) quit.\\
-At this end of the script, we see *pdb.post_mortem(e__traceback__)*: I didn't know what that was, and *pdb* appears to be a debugger for python. I'm not sure what this command does exacty (does it open a debugger?), so let's try this script and then connect to the randomly generated port:
+At the end of the script, we see *pdb.post_mortem(e__traceback__)*: I didn't know what that was, and *pdb* appears to be a debugger for python. I'm not sure what this command does exacty (does it open a debugger?), so let's try this script and then connect to the randomly generated port:
 
 <div class="img_container">
 ![listener]({{https://jsom1.github.io/}}/_images/htb_forge_listener.png)
