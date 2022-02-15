@@ -6,29 +6,66 @@ output: html_document
 ---
 
 # Setting up Kali
-{:.no_toc}
 
 Once in a while, we may have to reinstall Kali and start from fresh. This cheatsheets aims to provide a basic working pentesting environment.
 
-Here's the content so far:
+# Change hostname
 
-1. TOC
-{:toc}
-{:style="color:black; font-size: 150%;"}
+Edit */etc/hosts* and add:
+
+````
+127.0.1.1    <hostName>
+`````
+
+Edit */etc/hostname* and add:
+
+````
+<hostName>
+`````
 
 # Change password
-This is the first thing to do:
+
 ````
 passwd
 `````
 
 # Change the keyboard
+
 It is US by default, we can change it by right-clicking on the Desktop > Applications > Settings > keyboard > layout. 
 There, we add a new keyboard layout and put it at the top of the list (or remove the unwanted one).
+
+# Create a directory structure
+
+In the home directory, create a directory for enumeration, exploits, privesc, BOFs, and so on...
 
 # Install useful Firefox addons
 On Firefox, open the Application menu > Add-ons and themes. In particular, we want to instal **FoxyProxy (standard)** and **Cookie-editor**. 
 Foxyproxy is useful to simply turn on and off a proxy from the browser. Oncce installed, we add a proxy for Burp. Title: _Burp_, Proxy Type: _HTTP_, Proxy IP address: _127.0.0.1_, Port: _8080_.
+
+# Install Burp
+
+````
+sudo apt install burpsuite
+`````
+Before using Burp, it is necessary to install Burp CA certificate in Firefox (or any other browser). Once the proxy listener is active and the browser has been configured to work with Burp (with FoxyProxy for example), go to *http://burpsuite* > click *CA Certificate* in the top right corner > open Firefox' preferences > Privacy and Security > Certificates > View certificates > Authorities > Import. Tick *This certificate can identify web sites*.
+
+# Install seclists' wordlists
+
+````
+sudo apt install seclists
+`````
+
+# Install Gobuster
+
+````
+sudo apt install gobuster
+`````
+
+# Install Docker
+
+````
+sudo apt install docker.io
+`````
 
 # Create a file containing badchars (for buffer overflows)
 ````
