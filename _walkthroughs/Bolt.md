@@ -114,7 +114,7 @@ We see the various layers the image is made of, and the manifest. The manifest g
 ![docker image config]({{https://jsom1.github.io/}}/_images/htb_bolt_config.png)
 </div>
 
-We see the image was built for an amd64 architecture, this is why I specified *--platform linux/arm/v7* when I tried to run the image. I first tried without this argument but got an error regarding the architecture. We also see commands that are executed within the container. For example, it moves a file to "/", runs the application, installs pip3, then uses it to install the requirements, and finally exposes the port 5005 of the container.\\
+We see the image was built for an amd64 architecture, this is why I specified *--platform linux/arm/v7* when I tried to run the image. I first tried without this argument but got an error regarding the architecture. There is a *hostname* value, but I don't know how this could be useful at the moment. We also see commands that are executed within the container. For example, it moves a file to "/", runs the application, installs pip3, then uses it to install the requirements, and finally exposes the port 5005 of the container.\\
 I was hoping we could find something interesting there, but it doesn't seem to be the case.
 
 Let's have a look at the *https* web server on port 443. We browse to *https://bolt.htb*. We land on a blank page (*https://bolt.htb/auth/login?redirect=%2F*)... Let's start a *dirb* scan once again:
@@ -134,13 +134,7 @@ Unsurprisingly it doesn't work, and we see we have to contact an administrator t
 
 
 
-Passbolt (voit sur nmap) is an open source password manager designed for collaboration. You can securely generate, store, manage and monitor your team credentials.
 
-Get access to all of your logins and passwords from multiple browsers or even your mobile phone. Create strong random passwords, thanks to the fully customizable password generator, and share them instantly with your team. 
-
-Passbolt is built on top of an open API made for developers and agile teams. Passbolt is extensible and yet usable by everyone. No technical knowledge is required to use it.
-
-voir https....bolt.htb/passbolt/passbolt_api -> home / login on peut mettre mail. Check sur site principal les personnes et faire custom listes avec (voir format (atbolt.htb) mail dans contact)
 
 ## 3...
 
