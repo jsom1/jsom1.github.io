@@ -227,6 +227,16 @@ It worked for eddie, and the flag appears to be in his home directory!
 ## 4. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
+After looking around and at the forum for help, we have to look at the emails. This makes sense as we saw many references to emails. In */var/mail*, we can look at eddie's mail:
+
+<div class="img_container">
+![eddie email]({{https://jsom1.github.io/}}/_images/htb_bolt_eddiemail.png)
+</div>
+
+The password management server is *passbolt*, and apparently eddie should have a backup of his private key to access the server. He also downloaded the extension for passbolt in his browser. Let's look at */home/eddie/.config/google-chrome/Default/Local Extension Settings/didegimhafipceonhjepacocaffmoppf*. Note that since Python isn't installed, we can't use it to spawn a bash shell and the one we have is inconvenient (it doesn't have auto complete for example). I tried to connect with SSH and it worked. It's not necessary but makes it easier. There, there's a log file that we can inspect:
+
+
+
 
 
 
