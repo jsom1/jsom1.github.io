@@ -44,7 +44,7 @@ We see SSH running on port 22, and two web servers on port 80 (http) and 443 (ht
 Let's see the http web page:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_bolt_site.png){: height="300px" width = 320px"}
+![site]({{https://jsom1.github.io/}}/_images/htb_bolt_site.png){: height="320px" width = 340px"}
 </div>
 
 The first thing we see is "*Administration using Admin LTE*". From the internet, it is a *fully responsive administration template, based on Bootstrap 4.6 framework and the JS/jQuery plugin*. Before we do anything else, we can start a *dirb* scan:
@@ -59,7 +59,7 @@ sudo dirb http://10.10.11.114 -r
 We see the directories more or less match the tabs of the main page. By scrolling down the page, we see three people from the team:
 
 <div class="img_container">
-![people]({{https://jsom1.github.io/}}/_images/htb_bolt_ppl.png){: height="300px" width = 320px"}
+![people]({{https://jsom1.github.io/}}/_images/htb_bolt_ppl.png){: height="320px" width = 340px"}
 </div>
 
 Those names may be used in a later brute force attempt. In the *Contact Us* tab, we see two more people (*Christoper M. Wood* and *Neil D. Sims*). Also, *Bonnie Green*'s name is now displayed as *Bonnie M. Green*. There are also two generic contact addresses, *support@bolt.htb* and *sales@bolt.htb*. From this information, we can already build a text files containing the following addresses:
@@ -71,7 +71,7 @@ Those names may be used in a later brute force attempt. In the *Contact Us* tab,
 We can then look at the login page:
 
 <div class="img_container">
-![login]({{https://jsom1.github.io/}}/_images/htb_bolt_login.png)
+![login]({{https://jsom1.github.io/}}/_images/htb_bolt_login.png){: height="320px" width = 340px"}
 </div>
 
 We start by trying a few obvious credentials such as *admin*/*admin* and so on. Unfortunately, it doesn't work here. At this point, we could try to brute force the login with *Hydra*, but since we don't have a username (we have a list of potential usernames), let's see if there isn't a tidier way. We see we can create an account, so let's try to fill this form and use Burp to intercept the request:
@@ -137,7 +137,7 @@ Hashcat quickly finds the password:
 Let's try the combination *admin/deadbolt* on the login page:
 
 <div class="img_container">
-![admin dashboard]({{https://jsom1.github.io/}}/_images/htb_bolt_db.png)
+![admin dashboard]({{https://jsom1.github.io/}}/_images/htb_bolt_db.png){: height="320px" width = 340px"}
 </div>
 
 Great, we successfuly logged in to the admin dashboard. However, there seems to be nothing to do (we can't upload anything for example) or nothing interesting... There's a To Do list, but nothing useful. We also have access to a mailbox which is spammed by *Alexander Pierce* with mails regarding *AdminLTE 3.0 Issue - Trying to find a solution to this problem...*. Unfortunately, we can't open those mails. We have to find something else.
@@ -151,13 +151,13 @@ sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt 
 ![ffuf]({{https://jsom1.github.io/}}/_images/htb_bolt_ffuf.png)
 </div>
 
-We discover two subdomains, *demo* and *mail*, that we can add to our hosts file. Let's browse to them to see what they contain. The subdomain *mail.bolt.htb* consists of a login page, but the disovered credentials don't work there. On the second subdomain, we see the same login page as we saw earlier. This time however, we can create an account and we're asked for an invite code... I had to look at the forum to find the answer: we can apparently get the invite code in one of the Docker image layer we inspected previously.
+We discover two subdomains, *demo* and *mail*, that we can add to our hosts file. Let's browse to them to see what they contain. The subdomain *mail.bolt.htb* consists of a login page, but the disovered credentials don't work there. On the second subdomain, we see the same login page as we saw earlier. This time however, we can create an account and we're asked for an invite code (that wasn't the case earlier)... I had to look at the forum to find the answer: we can apparently get the invite code in one of the Docker image layer we inspected previously.
 
 <div class="img_container">
 ![invite code]({{https://jsom1.github.io/}}/_images/htb_bolt_inv.png)
 </div>
 
-I didn't see this at first because when *cat-ing* the file, the output is absolutely huge. Thanks to the forum tip, I knew it was there and used nano to slowly scroll until I find it. I afterwards realized the clue was right in front of me on the dashboard, and I didn't even see it:
+I missed this because when *cat-ing* the file, the output is absolutely huge. Thanks to the forum tip, I knew it was there and used nano to slowly scroll down until I found it. I afterwards realized the clue was in fact right in front of me on the dashboard, and I didn't even see it:
 
 <div class="img_container">
 ![clue]({{https://jsom1.github.io/}}/_images/htb_bolt_clue.png)
@@ -172,7 +172,7 @@ Anyways, now that we have the code, let's create an account:
 Once we registered, we can log in to the same dashboard that we logged in as *admin* earlier:
 
 <div class="img_container">
-![admin dashboard 2]({{https://jsom1.github.io/}}/_images/htb_bolt_db2.png)
+![admin dashboard 2]({{https://jsom1.github.io/}}/_images/htb_bolt_db2.png){: height="320px" width = 340px"}
 </div>
 
 This time however, we have more options available in the menu on the left. We see email verification is required for some actions, so let's try to log in into *mail.bolt.htb* with the credentials we just created. It works, but we get no email so far. If we change the settings on the dashboard (for example *Name:netpal*, *Experience:no experience* and *Skills:no skills*) and submit, we indeed receive an email:
@@ -181,7 +181,7 @@ This time however, we have more options available in the menu on the left. We se
 ![email]({{https://jsom1.github.io/}}/_images/htb_bolt_email.png)
 </div>
 
-After clicking on the link, we receive a second email which confirms the changes. This mail also contains the *Name* field (in my case *netpal*). I had to look at the forum once again and feel like I could have figure it out myself... Not the right method exactly, but the principle: we just saw the content of the *Name* field appears in the email confirmation. We can try to inject something in this parameter. However, I never heard about the exact technique we're supposed to use, **SSTI injection** (Server-Side Template Injection). After reading about it on <https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection>, we can detect the vulnerability by using injecting *{{config}}* in the *Name* field. Let's try it: we input it, submit the settings, and confirm the change by clicking the link in the email we received. We then receive a second email:
+After clicking on the link, we receive a second email which confirms the changes. This mail also contains the *Name* field (in my case *netpal*). I had to look at the forum once again and feel like I could have figure it out myself... Not the right method exactly, but the principle: we just saw the content of the *Name* field appears in the email confirmation. We can try to inject something in this parameter. However, I never heard about the exact technique we're supposed to use, **SSTI injection** (Server-Side Template Injection). After reading about it on <https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection>, we can detect the vulnerability by injecting *\\{{config\\}}* in the *Name* field. Let's try it: we input it, submit the settings, and confirm the change by clicking the link in the email we received. We then receive a second email:
 
 <div class="img_container">
 ![ssti]({{https://jsom1.github.io/}}/_images/htb_bolt_ssti.png)
@@ -190,7 +190,7 @@ After clicking on the link, we receive a second email which confirms the changes
 It works! There are many other commands we could try, for example we could execute the id command with the following syntax:
 
 ````
-{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() }}
+\\{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() \\}}
 `````
 However, let's go straight for a reverse shell with the following command (we also start a netcat listener before executing it):
 
@@ -328,7 +328,7 @@ We get a password that we can try to become root:
 And we're finally root!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_bolt_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_bolt_pwn.png){: height="380px" width = 390px"}
 </div>
 
 Sadly the machine retired before I was able to finish this box, but I still learned a lot.
