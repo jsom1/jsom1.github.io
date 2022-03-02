@@ -127,6 +127,15 @@ The target application may have functionality for importing data from a URL, pub
 
 Example: <a href="/_walkthroughs/Forge">Forge</a>
 
+## SSTI (server-side template injection)
+
+Some web applications use template engines to dissociate the visual display (HTML, CSS, ...) from the application logic (PHP, python, ...). Those engines create templates in the application, which are a mix of "hard-coded" data (the page layout's code) and dynamic variables. When the application is used, the template engine repalces the variables stored in the template, transforms it into a web page (HTML) and sends it to the client.\\
+An SSTI vulnerability arises when users inputs are directly passed in a template, and executed by the template engine.\\
+
+Detection: as for XXS and SQLi, SSTI vulnerabilities can be discovered by fuzzing the application's fields.
+
+Example: <a href="/_walkthroughs/Bolt">Bolt</a>
+
 ## Login Bruteforcing
 
 ## Directory traversal
