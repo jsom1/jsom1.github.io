@@ -114,11 +114,11 @@ Well, that sounds promising and comes from <a href="https://www.exploit-db.com/e
 If the connecting user is an administrator and network logins are allowed to the target machine, this module will execute an arbitrary
 payload. To exploit this, the target system	must try to	authenticate to this module. The easiest way to force a SMB authentication attempt 
 is by embedding a UNC path (\\\\SERVER\\SHARE) into a web page or email message. When the victim views the web page or email, their 
-system will automatically connect to the server specified in the UNC share (the IP address of the system running this module) and attempt to authenticate.
+system will automatically connect to the server specified in the UNC share (the IP address of the system running this module) and attempt to authenticate*".
 
 By searching *searchsploit smb relay*, we find an existing exploit. On *Metasploit*, this latter is rated excellent. However, looking at its options it seems we need to have access to the *ADMIN$* share, which we don't... As usual, I had to look for hints on the forum and it turns out we have to look at **SCF File Attacks**. I'll resume the article available <a href="https://pentestlab.blog/2017/12/13/smb-share-scf-file-attacks/">here</a>: 
 
-Even if an SMB share doesn't contain anything, it could be configured with writ permissions for unauthenticated users. If this is the case, it is possible to obtain password hashes of domain users, or meterpreter shells. SCF (Shell Command Files) can be used to open a Windows explorer or other limited operations, but it can also be used to access a specific UNC path, allowing a malicious user to build an attack. For example, the SCF syntax to toggle the Desktop is the following:
+Even if an SMB share doesn't contain anything, it could be configured with write permissions for unauthenticated users. If this is the case, it is possible to obtain password hashes of domain users, or meterpreter shells. SCF (Shell Command Files) can be used to open a Windows explorer or other limited operations, but it can also be used to access a specific UNC path, allowing a malicious user to build an attack. For example, the SCF syntax to toggle the Desktop is the following:
 
 ````
 [Shell]
