@@ -21,12 +21,11 @@ output: html_document
 </div>
 
 **Ports/services exploited:** 80/http\\
-**Tools:** ffuf\\
-**Techniques:** **SSTI injection** (Server-Side Template Injection)\\
-**Keywords:** 
+**Tools:** ffuf, hashcat, JtR\\
+**Techniques:** SSTI injection (Server-Side Template Injection)\\
+**Keywords:** Docker, SSTI, password cracking, PGP 
 
-**TL;DR**: 
-
+**TL;DR**: a web server is running on the target and offers the possibility to download a testing Docker image. This latter contains cleartext credentials as well as an invitation code which allows us to create an account on the server. This latter uses a template that we can modify and that is vulnerable to SSTI injection, allowing us to get a reverse shell as the *www-data* user. By enumeratin the target, we find cleartext credentials once again which give us access to a mysql database as well as a regular user account. From there, further enumeration gives us the users private key, which can be used to crack an encrypted message discovered in the mysql database. This message contains the root user's password.
 
 
 ## 1. Services enumeration
@@ -332,9 +331,17 @@ And we're finally root!
 ![pwn]({{https://jsom1.github.io/}}/_images/htb_bolt_pwn.png)
 </div>
 
+Sadly the machine retired before I was able to finish this box, but I still learned a lot.
 
 <ins>**My thoughts**</ins>
 
+I didn't spend as much time as I would have wanted on this machine, and I feel like I could have learned more out of it (in particular about SSTI). Still, I really enjoyed this machine as it made me use different tools and required quite a lot of enumeration. I also didn't know about SSTI and I'm happy to add it to my toolbox.\\
+Overall, I had a pretty hard time doing this box but had fun. I also think this box comes close to a real-life scenario.
 
 <ins>**Fix the vulnerabilities**</ins>
 
+Looking at the vulnerabilities in the order in which we encountered them, the following actions should be taken:
+We gained access to the admin dashboard and found an invitation code in the Docker image. The admin password was in cleartext, and this shouldn't be the case.\\
+Once we created an account thanks to the invitation code, we were able to exploit an SSTI vulnerability. Regarding this latter, it can be dealt with in the following manners: first, users shouldn't be able to to modify or create templates. If this is necessary for some reasons, users input should be sanitized (with regex, white listing, and so on...). It could also be possible to use a sandbox environment to isolate the application. Finally, it is possible to use a "logic-less" template, which separate as much as possible the visualization and code execution.\\
+Next, we were able to switch from *www-data* to a regular user because a disovered database password was used by that user. Password reuse is very common and a bad habit, so they should be changed.\\
+Finally, we escalated our privileges thanks to the user's private key which had been previously downloaded and stored in a log file. We were able to use that key to decrypt a message that contained the root user password. I think the private key shouldn't be kept there.
