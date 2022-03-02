@@ -189,7 +189,7 @@ We can detect SSTI vulnerabilities by fuzzing the application's fields. From <ht
 ![ssti]({{https://jsom1.github.io/}}/_images/htb_bolt_ssti.png)
 </div>
 
-It works! There are many other commands we could try, for example we could execute the id command with the following syntax:
+It works! There are many other commands we could try, for example we could execute the id command with the following syntax (attention: the backslashes are to be removed! I couldn't figure how to escape the curly braces correctly):
 
 ````
 \{\{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('id').read() \}\}
