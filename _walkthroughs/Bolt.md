@@ -233,11 +233,104 @@ After looking around and at the forum for help, we have to look at the emails. T
 ![eddie email]({{https://jsom1.github.io/}}/_images/htb_bolt_eddiemail.png)
 </div>
 
-The password management server is *passbolt*, and apparently eddie should have a backup of his private key to access the server. He also downloaded the extension for passbolt in his browser. Let's look at */home/eddie/.config/google-chrome/Default/Local Extension Settings/didegimhafipceonhjepacocaffmoppf*. Note that since Python isn't installed, we can't use it to spawn a bash shell and the one we have is inconvenient (it doesn't have auto complete for example). I tried to connect with SSH and it worked. It's not necessary but makes it easier. There, there's a log file that we can inspect:
+The password management server is *passbolt*, and apparently eddie should have a backup of his private key to access the server. He also downloaded the extension for passbolt in his browser. Let's look at */home/eddie/.config/google-chrome/Default/Local Extension Settings/didegimhafipceonhjepacocaffmoppf*. Note that since Python isn't installed, we can't use it to spawn a bash shell and the one we have is inconvenient (it doesn't have auto complete for example). I tried to connect with SSH and it worked. It's not necessary but makes it easier. There, there's a log file (*000003.log*) that we can inspect:
 
+<div class="img_container">
+![private key]({{https://jsom1.github.io/}}/_images/htb_bolt_pkey.png)
+</div>
 
+This file indeed contains eddie's private key. We copy this key, paste it in a new file (*eddiepkey*) and remove all the cariage returns and new lines (*\\r\\n*). In the end, it looks like the following:
 
+<div class="img_container">
+![clean key]({{https://jsom1.github.io/}}/_images/htb_bolt_cleankey.png)
+</div>
 
+I'm not very familiar with public and private keys, so I looked it up and we can use JtR to recover a password from this private key. Before cracking it however, we must first convert the file containing it into a format that John can use. We can use *gpg2john* for that:
+
+````
+sudo gpg2john eddiepkey > eddiejkey
+````
+
+We can look at the content of the new file to see what it did:
+
+<div class="img_container">
+![john key]({{https://jsom1.github.io/}}/_images/htb_bolt_jkey.png)
+</div>
+
+We can now use John to crack it:
+
+````
+sudo john --wordlist=/usr/share/wordlists/rockyou.txt --format=gpg eddiejkey
+`````
+
+After 3 minutes, John finds the password:
+
+<div class="img_container">
+![password]({{https://jsom1.github.io/}}/_images/htb_bolt_pw.png)
+</div>
+
+Great, we have a password... At that point, I didn't know what to do and had to look at the forum. It appears I missed something and was supposed to find an encrypted message in the mysql database. However, I couldn't access it as *www-data*. Let's try now with eddie:
+
+````
+mysql -D passboltdb -u passbolt -p 'rT2;jW7<eY8!dX8%'
+`````
+
+Well, I have the same error but it turns out I had the wrong command... It works with the following:
+
+```
+mysql -D passboltdb -u passbolt -p
+````
+
+And then we enter the password when prompted... Once logged in, we can look at the available tables:
+
+<div class="img_container">
+![mysql]({{https://jsom1.github.io/}}/_images/htb_bolt_mysql.png)
+</div>
+
+The *secrets* table contains the encrypted message we were supposed to find, and we can display it by issuing *select * from secrets;*:
+
+<div class="img_container">
+![message]({{https://jsom1.github.io/}}/_images/htb_bolt_mess.png)
+</div>
+
+We copy this message and paste it in a file (*encmess*) on our Kali machine. We start by import eddie's private key:
+
+````
+sudo pgp --import eddiepkey
+`````
+
+A window appears and we have to enter the password we discovered (*merrychristmas*):
+
+<div class="img_container">
+![import]({{https://jsom1.github.io/}}/_images/htb_bolt_import.png)
+</div>
+<div class="img_container">
+![import2]({{https://jsom1.github.io/}}/_images/htb_bolt_import2.png)
+</div>
+
+Finally, we can decrypt the message:
+
+````
+sudo gpg -d encmess
+````
+
+The windows pops once again, we enter *merrychristmas* and got the decrypted message:
+
+<div class="img_container">
+![decrypted]({{https://jsom1.github.io/}}/_images/htb_bolt_decr.png)
+</div>
+
+We get a password that we can try to become root:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_bolt_root.png)
+</div>
+
+And we're finally root!
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_bolt_pwn.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
