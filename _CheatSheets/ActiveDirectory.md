@@ -224,6 +224,11 @@ AD uses mainly 2 authentication protocols:
 - Kerberos authentication: default authentivation protocol in AD. Kerberos uses a ticket system.
 
 
+## Kerberoast
 
+1) Get users with SPNs
+2) Get service tickets
+3) Extract tickets with Mimikatz
+4) Crack tickets with tgsrepcrack.py
 
 
