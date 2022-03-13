@@ -1,12 +1,3 @@
-# Upgrading a non-interactive shell
-
-## Python
-Most common method on Linux hosts, as there is usually a python interpreter installed.
-````
-python -c 'import pty;pty.spawn("/bin/bash")'
-````
-
-
 # File transfers 
 
 ## Downloads (from Kali to the victim)
