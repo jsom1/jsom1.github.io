@@ -209,7 +209,8 @@ for i in range(0, len(str), n):
     print "Str = Str + " + '"' + str[i:i+n] + '"'
 `````
 
-Then, it can be included in the macro (Warning: use either _.docm_ or _.doc_ to save the document, and not _.docx_ since it doesn't support embedded macros):
+Then, it can be included in the macro (Warning: use either _.docm_ or _.doc_ to save the document, and not _.docx_ since it doesn't support embedded macros).
+On Word, open View > Macro > change the value in the drop-down menu to the name of the document (document) and create the macro:
 
 ````
 Sub AutoOpen()
@@ -243,4 +244,7 @@ We can open a netcat listener on Kali and wait for the victim to open and run th
 
 ## Object linking and embedding
 ...
+
+## Other Office applications (Publisher) - Evading Protected View
+In the previous techniques, if the document is sent in an email or as a download link over the internet, it will not be executed because of Protected View, another layer of protection. Even though the user could enable editing and thus run the malicious document, but this is not very likely. This mechanism can be avoided by using other Microsoft Office applications, such as Publisher. It works the same way as Word or Excel. The downside is that it is less frequently installed.
 
