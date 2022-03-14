@@ -210,7 +210,7 @@ for i in range(0, len(str), n):
 `````
 
 Then, it can be included in the macro (Warning: use either _.docm_ or _.doc_ to save the document, and not _.docx_ since it doesn't support embedded macros).
-On Word, open View > Macro > change the value in the drop-down menu to the name of the document (document) and create the macro:
+On Word, open View > Macro > change the value in the drop-down menu to the name of the document the macro will be inserted into. Finally, create the macro:
 
 ````
 Sub AutoOpen()
