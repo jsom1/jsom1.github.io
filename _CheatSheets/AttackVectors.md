@@ -146,7 +146,7 @@ Example: <a href="/_walkthroughs/Seal">Seal</a>
 
 # 139, 445 - SMB
 
-- SMB (Server Message Block, protocol to share resources on Windows local networks) enumeration and null sessions:
+- SMB (Server Message Block, protocol to share resources on Windows local networks) enumeration and null sessions. Base commands:
 
 ````
 sudo nmblookup -A targetIP
@@ -154,5 +154,18 @@ sudo nbtscan targetIP
 sudo smbclient -L targetIP
 sudo smbmap -H targetIP
 ````
+
+Those commands are automated by *enum4linux*:
+
+`````
+sudo /usr/share/enum4linux/enum4linux.pl <targetIP>
+``````
+
+Run all nmap's SMB vulnerability checks:
+
+````
+sudo nmap --script smb-enum-shares -p139,445 <targetIP>
+`````
+Example: <a href="/_walkthroughs/Love">Love</a>
 
 
