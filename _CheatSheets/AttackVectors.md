@@ -166,6 +166,13 @@ Run all nmap's SMB vulnerability checks:
 ````
 sudo nmap --script smb-enum-shares -p139,445 <targetIP>
 `````
+
+If any of those methods discovered an accessible share, we can connect to it with *smbclient*:
+
+````
+sudo smbclient "\\\\<targetIP>\<shareName>"
+`````
+
 Example: <a href="/_walkthroughs/Love">Love</a>
 
 
