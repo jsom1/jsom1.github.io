@@ -164,6 +164,7 @@ sudo /usr/share/enum4linux/enum4linux.pl <targetIP>
 Run all nmap's SMB vulnerability checks:
 
 ````
+sudo nmap --script smb-vuln* <targetIP>
 sudo nmap --script smb-enum-shares -p139,445 <targetIP>
 `````
 
