@@ -1,0 +1,37 @@
+---
+title: "Windows Privesc"
+author: "Me"
+date: "March 15, 2022"
+output: html_document
+---
+
+# Windows Privesc
+{:.no_toc}
+
+1. TOC
+{:toc}
+{:style="color:black; font-size: 150%;"}
+
+
+## Unquoted service paths
+A service running as SYSTEM/Administrator with a space in an unquoted path might be a candidate to PE.\\
+The reason is that for executable files (stored in *C:\Program Files*) paths, anything that comes after a whitespace is treated as a potential argument or option for the executable.
+Another requirement is that we need to have write permissions to the service's main directory and/or subdirectories.
+
+Example: we have a service in *C:\Program Files\My Program\My Service\service.exe*. If it is unquoted, when Windows starts it, it will try to run it executable from the following paths:
+
+````
+C:\Program.exe
+C:\Program Files\My.exe
+C:\Program Files\My Program\My.exe
+C:\Program Files\My Program\My service\service,exe
+`````
+So, we can simply create a malicious executable and place it in one of those directories. When the service runs, the malicous exe should be executed.
+However, we can't simply name it *Program.exe* and place it in *C:\*, or *My.exe* and place it in *C:\Program Files*. This is because it is very unlikely that we have write permissions in those directories.
+It is more likely that the service's main directory (*C:\Program Files\My Program*) or subdirectory (*C:\Program Files\My Program\My service*) is misconfigured.
+
+## UAC bypass
+
+
+
+
