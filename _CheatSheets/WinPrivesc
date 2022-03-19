@@ -12,8 +12,33 @@ output: html_document
 {:toc}
 {:style="color:black; font-size: 150%;"}
 
+# Manual commands
 
-## Unquoted service paths
+````
+// OS AND ARCHITECTURE
+systeminfo
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+
+// USERS
+whoami
+hostname
+whoami /priv                          // Checks user privileges
+net users                             // Shows users on the system
+qwinsta                               // Checks if anyone else is logged in
+net localgroup                        // Shows local groups
+net localgroup Administrators         // Checks if any user is in admin group
+
+// PASSWORDS
+findstr /s /C:"filetosearchfor.txt" "C:*"
+findstr /si password *.txt               // Searches for passwords in .txt files
+findstr /si password *.ini               // Searches for passwords in .ini files
+findstr /si password *.xml               // Searches for passwords in .xml files
+dir /s *pass* == *cred* == *.config*     // Searches for listed strings in config files
+findstr /spin "password" *.*             // Searches for password in all files
+`````
+
+
+# Unquoted service paths
 A service running as SYSTEM/Administrator with a space in an unquoted path might be a candidate to PE.\\
 The reason is that for executable files (stored in *C:\Program Files*) paths, anything that comes after a whitespace is treated as a potential argument or option for the executable.
 Another requirement is that we need to have write permissions to the service's main directory and/or subdirectories.
@@ -28,10 +53,22 @@ C:\Program Files\My Program\My service\service,exe
 `````
 So, we can simply create a malicious executable and place it in one of those directories. When the service runs, the malicous exe should be executed.
 However, we can't simply name it *Program.exe* and place it in *C:\*, or *My.exe* and place it in *C:\Program Files*. This is because it is very unlikely that we have write permissions in those directories.
-It is more likely that the service's main directory (*C:\Program Files\My Program*) or subdirectory (*C:\Program Files\My Program\My service*) is misconfigured.
+It is more likely that the service's main directory (*C:\Program Files\My Program*) or subdirectory (*C:\Program Files\My Program\My service*) is misconfigured. If this is the case, we can place a malicious file there and it will be executed.
 
-## UAC bypass
+# UAC bypass
+User Account Control (UAC) is a Microsoft user account control system that forces applications and tasks to run in the context of a non-administrative user, until an administrator authorizes elevated access.
+In a nutshell, an appliction cannot perform an action that has a potential impact on the system without asking for permission.
+It can do so in two differents way: credential prompt (standard user) or consent prompt (admin user).\\
+An admin account has two security tokens associated with it. One that runs with a medium integrity level, and one with a high one. UAC acts as a separation mechanism between them.\\
+For example, if an admin launches a command prompt, this latter will run at medium integrity level (we see it with *whoami /groups*) by default. Therefore, some actions will be prohibited.\\
+If we launch the command prompt as administrator (or use the equivalent PowerShell command *powershell.exe Start-Process cmd.exe -Verb runAs*), the command prompt will run with high integrity.
+
+Fortunately, UAC can be bypassed in various ways, allowing an administrator user to elevate their inegrity level from medium to high.\\
+Note that most UAC bypass techniques target a specific target OS version. Therefore, it is possible to find such a vector after enumerating the target specs precisely (by searching exploits or vulnerabilities for a specific target).\\
+The principle of those techniques are:
+
+- 
 
 
 
-
+# Insecure file permissions
