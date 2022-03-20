@@ -63,11 +63,19 @@ An admin account has two security tokens associated with it. One that runs with 
 For example, if an admin launches a command prompt, this latter will run at medium integrity level (we see it with *whoami /groups*) by default. Therefore, some actions will be prohibited.\\
 If we launch the command prompt as administrator (or use the equivalent PowerShell command *powershell.exe Start-Process cmd.exe -Verb runAs*), the command prompt will run with high integrity.
 
-Fortunately, UAC can be bypassed in various ways, allowing an administrator user to elevate their inegrity level from medium to high.\\
+Fortunately, UAC can be bypassed in various ways, allowing a local administrator user to elevate their inegrity level from medium to high.\\
 Note that most UAC bypass techniques target a specific target OS version. Therefore, it is possible to find such a vector after enumerating the target specs precisely (by searching exploits or vulnerabilities for a specific target).\\
 The principle of those techniques are:
 
-- 
+- Find a vulnerable program that runs as *high integrity* and uses *auto-elevate*.
+- This can be done with Sysinternal's *strings* utility:
+
+`````
+strings.exe -s *.exe | findstr /i "<autoelevate>true</autoelevate>"
+``````
+If anything is found, it can be confirmed by inspecting the program's manifest with Sysinternal's sigcheck utility (*sigcheck.exe -m <path_to_program>.
+
+- Observe how the program interacts with the OS as it executes by using *Process Monitor* from Sysinternals, try to find vulnerabilities such as DLL hijacking, the use of Windows Registry.
 
 
 
