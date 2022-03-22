@@ -8,16 +8,14 @@ output: html_document
 # Buffer overflows
 {:.no_toc}
 
-This cheatsheets aims to provide the methodology of exploiting a buffer overflow vulnerability.
-
-Here's the content so far:
+Here is the basic methodology of exploiting a buffer overflow vulnerability.
 
 1. TOC
 {:toc}
 {:style="color:black; font-size: 150%;"}
 
 # 1. Start the targeted application and attach a debugger to it.
-On Windows, attach Immunity Debugger.
+On Windows, attach Immunity Debugger.\\
 On Windows, attach EDB.
 
 # 2. Fuzz the application to discover a BO vulnerability
@@ -53,7 +51,7 @@ while(size < 2000):
     print "Could not connect!"
     sys.exit()
 ````
-With this script, we see the approximate number of bytes required to crash the application. Let's assume it is 800 for the sake of the example.
+Note that this script is for a web application, and can be adapted for other types of applications or programs if needed. With this script, we see the approximate number of bytes required to crash the application. Let's assume it is 800 for the sake of the example.
 Then, we look at the CPU registers to see if they have been overwritten by our buffer of A's. If it is the case, the application may be vulnerable to BO.
 
 # 3. Find the offset to control _EIP_
@@ -122,9 +120,9 @@ We can use _mona.py_ once again to find this instruction in the given module:
 ````
 !mona find -s "\xff\xe4" -m "modulename"
 `````
-If mona finds the instruction in the module, we muust make sure its address doesn't contain any bad characters.
+If mona finds the instruction in the module, we must make sure its address doesn't contain any bad characters.
 If everything is ok, we can replace the B's in EIP by the address of the instruction.
-Note that we must pay attention to the architecture: However, most modern machines use little-endian. Therefore, we must write the address backwards.\\
+Note that we must pay attention to the architecture; however, most modern machines use little-endian. Therefore, we must write the address backwards.\\
 Example: we found a _JMP ESP_ at the address 0x10935c71. In little endian, we will write \x71\x5c\93\x10.\\
 In Immunity, we can then go to that address to make sure it is the correct instruction, set a bbreakpoint on it, and rerun the exploit.
 
