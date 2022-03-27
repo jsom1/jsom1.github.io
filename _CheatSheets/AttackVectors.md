@@ -61,8 +61,18 @@ sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -
 `````
 Example: <a href="/_walkthroughs/Forge">Forge</a>
 
-- If the CMS is Wordpress: check **wp_admin_shell_upload**.
-Example: <a href="/_walkthroughs/basicpentest">Basic Pentesting: 1 (VulnHub)</a>
+- Web server enumeration with **nikto**:
+
+````
+sudo nikto -h targetIP
+`````
+Example: <a href="/_walkthroughs/knife">Knife</a>
+
+
+- Random:\\
+If the CMS is Wordpress: check **wp_admin_shell_upload**.\\
+Look for administration console such as **phpmyadmin** (admin tool for MySQL databases) and try to log into it. Default credentials for phpmyadmin: "root" with a blank password. Use with Burp and potentially try brute forcing.
+
 
 
 ## XXE Injection
