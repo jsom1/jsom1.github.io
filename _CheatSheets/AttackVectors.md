@@ -70,11 +70,10 @@ Example: <a href="/_walkthroughs/knife">Knife</a>
 
 
 - Random:
-
-    - If the CMS is Wordpress: check **wp_admin_shell_upload**.
-    - Look for administration console such as **phpmyadmin** (admin tool for MySQL databases) and try to log into it. Default credentials for       phpmyadmin: "root" with a blank password. Use with Burp and potentially try brute forcing.
-    - Is the web server vulnerable to Shellschock (bug causing Bash to execute commands from environment variables unintentionally (gives RCE on the server to an attacker))? If it is the case (nikto should reveal it), we can send commands to the server through HTTP requests, and get them executed by the web server OS.\\
-    POC HTTP request:
+If the CMS is Wordpress: check **wp_admin_shell_upload**.\\
+Look for administration console such as **phpmyadmin** (admin tool for MySQL databases) and try to log into it. Default credentials for       phpmyadmin: "root" with a blank password. Use with Burp and potentially try brute forcing.\\
+Is the web server vulnerable to Shellschock (bug causing Bash to execute commands from environment variables unintentionally (gives RCE on the server to an attacker))? If it is the case (nikto should reveal it), we can send commands to the server through HTTP requests, and get them executed by the web server OS.\\
+POC HTTP request:
     
 `````
 GET http://shellshock.testsparker.com/cgi-bin/netsparker.cgi HTTP/1.1
