@@ -75,12 +75,13 @@ Example: <a href="/_walkthroughs/knife">Knife</a>
     - Look for administration console such as **phpmyadmin** (admin tool for MySQL databases) and try to log into it. Default credentials for       phpmyadmin: "root" with a blank password. Use with Burp and potentially try brute forcing.
     - Is the web server vulnerable to Shellschock (bug causing Bash to execute commands from environment variables unintentionally (gives RCE on the server to an attacker))? If it is the case (nikto should reveal it), we can send commands to the server through HTTP requests, and get them executed by the web server OS.\\
     POC HTTP request:
-    `````
-    GET http://shellshock.testsparker.com/cgi-bin/netsparker.cgi HTTP/1.1
-    User-Agent: Netsparker
-    Host: shellshock.testsparker.com
-    Referer: () { :;}; echo "NS:" $(</etc/passwd)
-    ``````
+    
+`````
+GET http://shellshock.testsparker.com/cgi-bin/netsparker.cgi HTTP/1.1
+User-Agent: Netsparker
+Host: shellshock.testsparker.com
+Referer: () { :;}; echo "NS:" $(</etc/passwd)
+``````
 
 
 ## XXE Injection
@@ -115,7 +116,9 @@ Client-side vulnerability that works by manipulating a vulnerable web site so th
 **Detection**: manually by submitting simple unique input into every entry point of the application, identifying every location where the submitted input is returned in HTTP responses, and testing each location individually to determine whether suitably crafted input can be used to execute arbitrary JavaScript. Example:
 
 ````
-<script>alert('test')</script>
+
+#<script>alert('test')</script>
+
 `````
 **Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.\\
 Automatically by using Burp's web vulnerability scanner.
