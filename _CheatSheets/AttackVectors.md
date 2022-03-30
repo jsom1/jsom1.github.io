@@ -31,6 +31,16 @@ Example: <a href="/_walkthroughs/ServMon">ServMon</a>
 
 ## Enumeration (Directories, files, subdomains, ...)
 
+- Headers 
+
+````
+curl -i targetIP            // If redirect (302), next command
+curl -i -L targetIP         // Follows redirect, shows the raw code of the page
+curl -s -L targetIP | grep "title\|href" | sed -e 's/^[[:space:]]*//'       // title tag
+curl -s -L targetIP | html2text -width '99' | uniq                          // "renders" web page
+`````
+
+
 - Directories and files enumeration with **dirb** (-r for non recursive):
 
 ````
@@ -40,6 +50,7 @@ sudo dirb http://targetIP -r
 - Directories and files enumeration with **gobuster**:
 
 ````
+sudo gobuster dir -u http://targetIP/ -w /usr/share/seclists/Discovery/Web_Content/common.txt -s '200,204,301,302,307,403,500' -e
 sudo gobuster dir -u http://targetIP/ -w /usr/share/wordlists/...wordlist
 sudo gobuster dir -u http://targetIP/ -w /usr/share/wordlists/...wordlist -x php # looks for php files
 ``````
