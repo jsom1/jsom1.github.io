@@ -92,7 +92,7 @@ And the full TCP one is:
 ````
 sudo nmap -sV -sC -p 1-65535 10.10.10.214
 ````
-UDP scans are way slower than TCP scans, so it is going to take some time. The TCP scan finishes in a few seconds and doesn't bring anything new. After a while, we see the UDP scan doesn't reveal anything either.\\
+UDP scans are way slower than TCP scans, so it is going to take some time. The TCP scan finishes within a few seconds and doesn't bring anything new. After a while, we see the UDP scan doesn't reveal anything either.\\
 By googling the error we saw previously, I found a StackExchange describing a similar problem:
 
 <div class="img_container">
@@ -105,19 +105,19 @@ The person gives a link and mentions the three CVEs we see in the image below:
 ![CVE]({{https://jsom1.github.io/}}/_images/htb_time_cve.png){: height="320px" width = "550px"}
 </div>
 
-There is however no Metasploit module linked to any of those CVEs, and I don't really know what to do from there. Looking at other resources on the internet, it seems that this vulnerability is caused by an **insecure deserialization**. Serialization is the process of converting a an object, such as a Java object, from a programming language to a format that can be stored in a database or sent over the network. Desrialization is the opposite process.\\
+There is however no Metasploit module linked to any of those CVEs, and I don't really know what to do from there. Looking at other resources on the internet, it seems that this vulnerability is caused by an **insecure deserialization**. Serialization is the process of converting an object, such as a Java object, from a programming language to a format that can be stored in a database or sent over the network. Deserialization is the opposite process.\\
 Insecure deserialization happens when an attacker is able to manipulate the serialized object, eventually leading to DoS, authentication bypass or RCE. 
 
-From what I understand in our case, we submit a JSON object to the application, and this latter serializes it before sending it to the server. This serialized object is then desrialized and "executed". The idea could then be to embed our own malicious code in the JSON object we submit to the application.
+From what I understand in our case, we submit a JSON object to the application, and this latter serializes it before sending it to the server. This serialized object is then deserialized and "executed". The idea could then be to embed our own malicious code in the JSON object we submit to the application.
 
-After a long time of researching, I found a Github repo that looks promising: https://github.com/jas502n/CVE-2019-12384. The explanations are kind of cryptic, but fortunatly there is a link at the bottom of the README on which the repo is based. The authors of the article analyzed an application which used the Jackson library for deserializing JSONs. They show how an attacker can leverage the deserialization to gain remote code execution, and that seems to be what we want to achieve.\\
+After a long time of researching, I found a Github repo that looks promising: https://github.com/jas502n/CVE-2019-12384. The explanations are kind of cryptic, but fortunately there is a link at the bottom of the README on which the repo is based. The authors of the article analyzed an application which used the Jackson library for deserializing JSONs. They show how an attacker can leverage the deserialization to gain remote code execution, and that seems to be what we want to achieve.\\
 It is required to download various scripts and libraries, but fortunately the Github repo contains everything we need. Let's clone it on Kali to have what we need:
 
 <div class="img_container">
 ![github clone]({{https://jsom1.github.io/}}/_images/htb_time_git.png)
 </div>
 
-And we're ready to follow the steps given in the article. Because this might be the wrong exploit (there are many of them), I'll first try to "run it blindly" so that I don't spend too much time on it in case it doesn't work. If it works, I'll take some time to read and understand how it works. The first part of the article shows how to perform a SRRF. SSRF stands for Server-Side Request Forgery, which is a technique that consists of inducing the server-side application to make HTTP requests to an arbitrary domain of the attacker's choosing. We could typically use that to make a connection back to ourselves. The command in the following:
+And we're ready to follow the steps given in the article. Because this might be the wrong exploit (there are many of them), I'll first try to "run it blindly" so that I don't spend too much time on it in case it doesn't work. Obviously this is a very bad practice, and it shouldn't be done that way in a real life scenario! If it works, I'll take some time to read and understand the details. The first part of the article shows how to perform a SRRF. SSRF stands for Server-Side Request Forgery, which is a technique that consists of inducing the server-side application to make HTTP requests to an arbitrary domain of the attacker's choosing. We could typically use that to make a connection back to ourselves. The command in the following:
 ````
 jruby test.rb "[\"ch.qos.logback.core.db.DriverManagerConnectionSource\", {\"url\":\"jdbc:h2:mem:\"}]"
 ````
