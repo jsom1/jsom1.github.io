@@ -195,7 +195,7 @@ function connectDB(){
 
 On the website, there's a *LOG DATA* tab that appears when we hover over *Management Menu*. There, we can request log data. Within the returned file, we see ourselves (I see netpal) as well as the previously seen user, *m4lwhere*. So, we know have a password and two potential users. Even though the password is for MySQL, we can try it with SSH. Indeed, passwords are often reused. Unfortunately, it's not the case here.
 
-After looking at the other files from the zip, there is something interesting in *logs.php*. This script uses the *exec()* function, and this reminds me of another box, <a href="/_walkthroughs/BountyHunter">BountyHunter</a>, which used the python function *eval()*. This function was being run in root context and could be used to import the os module, allowing us to read or write files.\\
+After looking at the other files from the zip, there is something interesting in *logs.php*. This script uses the *exec()* function, and this reminds me of another box, <a href="/_walkthroughs/BountyHunter">BountyHunter</a>, in which the python function *eval()* was also being used. This function was being run in root context and could be used to import the os module, allowing us to read or write files.\\
 The present situation looks similar :
 
 <div class="img_container">
