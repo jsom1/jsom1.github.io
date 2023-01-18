@@ -138,7 +138,7 @@ I really wanted to do this machine on my own but sadly I had to look at the foru
 ![Burp2]({{https://jsom1.github.io/}}/_images/htb_prev_burp2.png){: height="415px" width = 625px"}
 </div>
 
-Apparently, we shoud be able to *render* the page in Burp but it generates an error for some reason. We can still see what we need to create an account by sending a POST request to */accounts.php*:
+Note that we see HTTP/1.1, and http version 1.x sends requests as cleartext (in opposition to http 2.x which sends them as binary). Apparently, we shoud be able to *render* the page in Burp but it generates an error for some reason. We can still see what we need to create an account by sending a POST request to */accounts.php*:
 
 <div class="img_container">
 ![Test user creation]({{https://jsom1.github.io/}}/_images/htb_prev_testuser.png){: height="415px" width = 625px"}
