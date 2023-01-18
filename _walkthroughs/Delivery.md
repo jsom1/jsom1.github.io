@@ -73,7 +73,7 @@ We have the same problem again... We also see it is running on port 8065. Before
 </div>
 
 Those directories don't look very promising, and we can't access any of them anyway.
-Next, let's try to add some hostnames in our /etc/hosts file and see if that resolves the problem. We can simply append text to the file using the following syntax: *echo "some text" >> /etc/hosts*. Note that it might be necessary to give write permissions beforehand, which can be done with *sudo chmod 777 /etc/hosts* (it could be a good idea to get back to default permissions once we're done editing the file).
+Next, let's try to add some hostnames in our /etc/hosts file and see if that resolves the problem. The reason is that our browser first looks up records in the local /etc/hosts. If it doesn't find the IP address and corresponding hostname, it contacts a DNS server.  We can simply append text to the file using the following syntax: *echo "some text" >> /etc/hosts*. Note that it might be necessary to give write permissions beforehand, which can be done with *sudo chmod 777 /etc/hosts* (it could be a good idea to get back to default permissions once we're done editing the file).
 
 <div class="img_container">
 ![add hostname]({{https://jsom1.github.io/}}/_images/htb_delivery_hostname.png)
