@@ -77,7 +77,15 @@ I then tried to launch it with something like *python exploit.py*, and we get a 
 ![exploit launch]({{https://jsom1.github.io/}}/_images/htb_buff_launch.png)
 </div>
 
-It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using GET requests. A web shell is a web script (like PHP or ASPX), that accepts our commands through HTTP request parameters (GET, POST,...). It then executes our commands and prints the output on the web page. At this point, I thought I had to upload something on it but didn't know what and how (there wasn't anything else to do). I had to ask for help...
+It worked, we're in as Shaun. From the documentation, we can now communicate with the webshell using GET requests. A web shell is a web script (like PHP or ASPX), that accepts our commands through HTTP request parameters (GET, POST,...). It then executes our commands and prints the output on the web page. A web shell script is typically a short one-liner such as :
+
+````
+<?php system($_REQUEST["cmd"]); ?> (for PHP)
+<% Runtime.getRuntime().exec(request.getParameter("cmd")); %> (for jsp)
+<% eval request("cmd") %> (for asp)
+````
+
+At this point, I thought I had to upload something on it but didn't know what and how (there wasn't anything else to do). I had to ask for help...
 We indeed have to upload 2 executables (maybe there are other ways to do it): **nc.exe** and **plink.exe**. Let's look at those executables.
 
 - **nc.exe**: is the executable of netcat (for Windows). We will use it to catch a **reverse shell**.
