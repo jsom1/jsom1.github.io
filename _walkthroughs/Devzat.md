@@ -27,8 +27,6 @@ output: html_document
 
 **TL;DR**: The host runs a subdomain, which in turn runs a *Go* application. This latter is a pet inventory on which we can add a pet. By enumerating, we find the git repository of this app, which we can retrieve using git dumper and git extractor. In this repo, we have access to the app's Go source code and see that the parameter *species* is vulnerable to command injection. Using Burp, we intercept the request and alter it in order to get a reverse shell. By running linpeas on the machine, we discover there's a docker container running. We can then use *nmap* against it via SSH tunnelling and proxychains, revealing that an InfluxDB is running in the container. The version of InfluxDB (1.7.5) is vunerable to an authentication bypass exploit, giving us access to the database. This database contains credentials that allow us to switch to the user who has the flag. Finally, we discover that the dev version of the app is running locally and contains a special command - which isn't on the prod version - which allows us to read any file on the system.
 
-Let's look on the web if we can find anything about it by searching "influxDB admin 1.7.5 exploit". The first link that comes up looks promising.
-
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
 
@@ -38,7 +36,7 @@ Let's start by enumerating the services and their version that are running on th
 ![nmap]({{https://jsom1.github.io/}}/_images/htb_dz_nmap.png)
 </div>
 
-We see two instances of SSH and web server. I don't know what's SSH on port 8000 yet, but we'll probably have an answer soon. As usual, we will start by the web server as SSH is rarely if ever exploitable.
+We see two instances of SSH (port 22 and 8000) and a web server. I have never seen SSH on port 8000 yet, but hopefully we'll get an answer later. As usual, we will start by the web server as SSH is rarely if ever exploitable.
 
 ## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
@@ -53,7 +51,7 @@ sudo echo "10.10.11.118 devzat.htb" >> /etc/hosts
 Now, the domain name should be mapped with the IP address and the page should render correctly:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_dz_site1.png){: height=80px" width = 100px"}
+![site]({{https://jsom1.github.io/}}/_images/htb_dz_site1.png){: height=70px" width = 80px"}
 </div>
 
 Apparently, it offers a way to chat with any device that has an SSH client. There are other interesting information on the page, such as:
@@ -92,7 +90,7 @@ I didn't see at first the *run /help to see what you can do*, so I issued a *ls*
 By running the */help* command, we discover the app is on Github (github.com/quackduck/devzat). Let's head there to see how it's organized:
 
 <div class="img_container">
-![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height=180px" width = 200px"}
+![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height=80px" width = 100px"}
 </div>
 
 The first thing I noticed here is that there are 3 branches, although the website mentionned two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). Given the fact that there are 10 contributors, that it's roughly 7 months old and the application itself, it wasn't built just to be used in a HtB machine. Therefore, the stable release is probably safe and if it is this version that is running on the machine, it might not be the way to a foothold...\\
