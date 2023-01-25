@@ -281,6 +281,11 @@ As we can see, this is a screenshot from the KeePass password manager we discove
 ![root]({{https://jsom1.github.io/}}/_images/htb_squashed_root.png)
 </div>
 
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_squashed_pwn.png)
+</div>
+
+
 <ins>**My thoughts**</ins>
 As usual, the box is rated easy, but I had quite a hard time and wouldn't have made it without the official writeup.
 Even though we didn't have to modify some complicated exploits, this box required some specific knowledge about file permissions and X-Server related topics. 
