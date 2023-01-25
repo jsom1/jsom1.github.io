@@ -287,6 +287,7 @@ As we can see, this is a screenshot from the KeePass password manager we discove
 
 
 <ins>**My thoughts**</ins>
+
 As usual, the box is rated easy, but I had quite a hard time and wouldn't have made it without the official writeup.
 Even though we didn't have to modify some complicated exploits, this box required some specific knowledge about file permissions and X-Server related topics. 
 As always, it's easy if you know these things but if you've never seen them, it is unlikely you root this box "out of the blue".\\
@@ -294,6 +295,7 @@ While it can be frustrating on the one hand, it is also what's interesting on th
 Overall, I learned a lot of new things and found this box really interesting.
 
 <ins>**Fix the vulnerabilities**</ins>
+
 There are at least two ways to prevent an attacker from doing what we did, and both can be done within the NFS configuration file (*/etc/exports*):
 
 <div class="img_container">
