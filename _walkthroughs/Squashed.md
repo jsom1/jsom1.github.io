@@ -282,7 +282,7 @@ As we can see, this is a screenshot from the KeePass password manager we discove
 </div>
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_squashed_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_squashed_pwn.png){: height="380px" width = 390px"}
 </div>
 
 
