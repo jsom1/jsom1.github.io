@@ -27,17 +27,20 @@ Description: the purpose is to get a picture of the target's online presence, in
 Then, run them through *Shodan*: for i in $(cat ip-addresses.txt);do shodan host $i;done. Shodan can find devices and systems such as cameras, servers, smart home systems, and so on...
 - Finally, inspect the DNS records: dig any <domainname.com>. Some of the records are: A = this record contains a domain's IP address. MX = shows which mail server manages the email in the company. NS = show which name servers are used to resolve the fully qualified domain name (FQDN) to IP addresses. TXT = often contains verification keys for third-party providers, ... This can reveal interesting third-parties such as Atlassian, Google Gmail, mailgun, outlook, and so on.
 
+
 # Cloud Resources
 Cloud providers secure their infrastructure centrally, but it doesn't mean that companies usign them don't have vulnerabilities. Indeed, that depends on  the configurations made by the administrators. Sometimes, it is possible to retrieve documents from the cloud. 
 - For example, Google search for AWS: intext:<company name> inurl:amazonaws.com. For Azure, it would be: intext:<company name> inurl:blob.core.windows.net. Such researches could return PDF files, text files, presentations, code, and others. 
 - Alternatively, we can check on https://buckets.grayhatwarfare.com/. If we're lucky, we could find for example a SSH private key. After downloading it, we could log onto one or more machines in the company, without using a password.
 - Another good resource: https://domain.glass/ (it also shows the DNS records)
 
+  
 # HTTP enumeration
 Service/protocol: Hypertext Transfer Protocol
 Port(s): 80, 443
 Description:
 
+  
 # FTP enumeration
 Service/protocol: File Transfer Protocol
 Port(s): 21
@@ -52,10 +55,31 @@ A few useful commands: ls -R (recursive listing), wget -m --no-passive ftp://ano
 - Interact with the service with netcat or telnet: nc -nv <targetIP> 21 or telnet <targetIP> 21
 - If the FTP server runs with TLS/SSL encryption, we need a vlient that can handle it. We can use openssl: openssl s_client -connect <targetIP>:21 -starttls ftp
 
+  
 # DNS enumeration
 Service/protocol: Domain Name System
 Port(s): 53
-Description:
+Description: DNS is a system which is an integrel part of the internet; it resolves computer names into IP addresses. There are different types of DNS servers: DNS root servers, authoritative name servers, non-authoritative name servers, caching servers, forwarding servers, and resolvers. Although DNS is originally unencrypted, there are now ways to encrypt it (DNS over TLS (DoT), DNS over HTTPS (DoH), and the network protocol *NSCrypt*).\\
+In addition to resolving names into IP addresses, the DNS also stores information about the services associated with a domain. Therefore, we can determine the role of a computer in a domain (for example a mail server) or what the domain's name servers are called.\\
+The structure is as follows:\\
+- Top Level Domains (TLD): .com, .net, .org, ...
+- Second Level Domain: mydomain.com, mydomain.net, ...
+- Sub-domain: www.mydomain.com, mail.mydomain.com, dev.mydomain.com, ...
+- Hosts: WS01.dev.mydomain.com, ...\\
+In the *Domain information* section, we saw different DNS records that are used for the DNS queries. For example, *A* returns an IPv4 address of the requested domain as a result, *MX* returns the mail servers, *SOA* returns information about the corresponding DNS zone and email address of the administrative contact, and so on. We can use the *dig* command to get those information, for example: *dig soa <sub-domain>*.\\
+DNS servers work with 3 types of configuration files:\\
+- Local DNS configuration files
+- Zone files
+- Reverse name resolution files
+On Linux, the DNS server *Bind9* is often used and its configuration file is *named.conf*. If a DNS server is found to be running, it can be footprinted as follows:\\
+- Query the server to discover other name servers using the *ns* record: *dig ns <secondLevelDomain> @<targetDNSserverIP>*
+- Query the server to get its version using the *TXT* record and a class *CHAOS*: *dig CH TXT version.bind <targetDNSserverIP>*
+- Query the server to see all available records (that it is willing to disclose): *dig any <secondLevelDomain> @<targetDNSserverIP>*
+- Query the server to get the zone file: *dig axfr <secondLevelDomain> @<targetDNSserverIP>* (axfr = Asynchronous Full Transfer Zone, which consists in the transfer of the zone file from a master DNS server to other slaves DNS servers. This is done to ensure that all the DNS servers have the same version of the zone file after some changes have been made - if this is not the case, there could be a DNS failure).
+- Query the server to get the another zone: *dig axfr internal.<secondLevelDomain> @<targetDNSserverIP>*
+- Brute force subdomains with a bash one-liner: *for sub in $(cat /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt);do dig $sub.<secondLevelDomain> @<targetDNSserverIP> | grep -v ';\|SOA' | sed -r '/^\s*$/d' | grep $sub | tee -a subdomains.txt;done*
+- Brute force subdomains using *DNSenum*: *dnsenum --dnsserver <targetDNSserverIP> --enum -p 0 -s 0 -o subdomains.txt -f /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt <secondLevelDomain>*
+
 
 # SMB enumeration
 Service/protocol: Server Message Block
@@ -72,16 +96,48 @@ Here also, we're looking for misconfigurations of SMB (if Samba is used, the con
 - Alternatively to rpcclient or SMBmap, use CrackMapExec: *crackmapexec smb <targetIP> --shares -U '' -p ''*
 - Alternatively to the previous commands, use Enum4Linux-ng: *git clone https://github.com/cddmp/enum4linux-ng.git*, then *cd enum4linux-ng* and *pip3 install -r requirements.txt*. Finally, run *./enum4linux-ng.py 10.129.14.128 -A*.
 
+  
 # NFS enumeration
 Service/protocol: Network File System
 Port(s): 111, 2049
-Description: NFS is a network file system which has the same purpose as SMB: access file systems over a network as if they were local. However, NFS uses a different protocol and is only used between Linux and Unix systems. Therefore, NFS clients cannot communicate directly with SMB servers. NFS version 3.0 authenticates the client computer, but more recent versions (NFSv4) authenticates the user (as with SMB). Because NFS has less options than FTP or SMB, it is easier to configure and might have less misconfigurations. Anyways, the */etc/exports* file contains a table of physical filesystem on an NFS server that are accessible by the clients. It also shows which options it accepts.
+Description: NFS is a network file system which has the same purpose as SMB: access file systems over a network as if they were local. However, NFS uses a different protocol and is only used between Linux and Unix systems. Therefore, NFS clients cannot communicate directly with SMB servers. NFS version 3.0 authenticates the client computer, but more recent versions (NFSv4) authenticates the user (as with SMB). Because NFS has less options than FTP or SMB, it is easier to configure and might have less misconfigurations. Anyways, the */etc/exports* file contains a table of physical filesystem on an NFS server that are accessible by the clients. It also shows which options it accepts, some of which can be dangerous. For example, there is an *insecure* option which allows to use ports above 1024. If this is the case, any users can use those ports and interact with the service (the first 1024 can only be used by root). There can also be misconfigurations of file permissions, such as *rw* (read and write) permissions.\\
+If NFS is found to be running on the host, it can be footprinted with the following commands:\\
+- Use nmap: *sudo nmap <targetIP> -p111,2049 -sV -sC*
+- Use nmap's NSE scripts (such as rpcinfo): *sudo nmap --script nfs* <targetIP> -sV -p111,2049*
+- Show available NFS shares: *showmount -e <targetIP>*
+- Mount a share on our local machine: we start by creating a new empty directory folder to which the NFS share will be mounted. Once mounted, we can access it as anything else on our local system. Create a folder: *mkdir <sharename>*, mount it with *sudo mount -t nfs <targetIP>:/ ./<sharename>/ -o nolock*. Finally, we can access it: *cd <sharename>*, *tree .*. At this point, we can see the rights and the usernames and groups to whom the files belong. With this information, we can create those usernames, groups, UIDs and GUIDs on our system and modify the files (see below).
+- List contents with usernames and group names (once mounted): *ls -l mnt/nfs/*
+- List content with UIDs and GUIDs: *ls -n mnt/nfs/*
+- Finally, we unmount the share: *cd ..*, then *sudo umount ./<sharename>*.\\
+Example: CTF Squashed
 
+  
 # SMTP enumeration
 Service/protocol: Simple Mail Transfer Protocol
 Port(s): 25
-Description:
+Description: this protocol is for sending emails in a network. It can either be used between an email client and an outgoing mail server, or between 2 SMTP servers. It is often used combined with IMAP or POP3, two protocols used to access and send emails.\\
+By default, SMTP servers accept connections on port 25 (newer servers can also use port 587) and it is unencrypted. As for DNS however, SMTP can be used in conjunction with SSL/TLS encryption to prevent unauthorized reading of data.\\
+To prevent spam, most modern SMTP servers support the protocol extension ESMTP (Extended SMTP) with SMTP-Auth. This latter is used to authenticate users, so that only those latter can send emails. When a client (known as the Mail User Agent (MUA)) sends an email, it then converts it into a header and a body, and sends those to the SMTP server. There, the Mail Transfer Agent (MTA) checks the email for size and spam and stores it. The MTA is often preceded by a Mail Submission Agent (MSA, also called Relay Server), which checks the origin of the email. Finally, the MTA searches the DNS for the IP address of the recipient mail server. When the data packets arrive there, they are reassembled to form a complete email and the mail delivery agent (MDA) transfers it to the recipient's mailbox. Those steps can be summarized as follows:\\
+Client (MUA) -> Submission Agent (MSA) -> Open Relay (MTA) -> Mail delivery agent (MDA) -> Mailbox (POP3/IMAP)\\
+The SMTP configuration file can be inspected with the following command: *cat /etc/postfix/main.cf | grep -v "#" | sed -r "/^\s*$/d"*.\\
+We can interact with an SMTP server by initiating a connection using telnet (the actual initialization of the session is done with the command *EHLO* or *HELO*): *telnet <tagetIP> 25*, then use a command like *EHLO <domainname>*. Depending on the configuration, the command *VRFY* can be used to check the existence of users on the system. After using telnet to connect (no need to use *EHLO*), we can for example *VRFY root*. Once again however, we could get false positives (response code 252) for any users we try depending on the configuration.\\
+We could use SMTP to send an email as follows:\\
+- Use telnet to connect: *telnet <FQDN/tagetIP> 25*
+- Initialize the session: *EHLO <hostname>*
+- Specify the sender: *MAIL FROM: <senderemail>*
+- Specify the recipient: *RCPT TO: <recipientemail>*
+- Type *data*
+- Type the subject of the email: *subject:<subject>*
+- Type the body of the mail. When done, type ".". There should be a confirmation message, saying the mail is queued. Finally, close the connection with *QUIT*.\\
+If an SMTP server is found on the host, here's how it can be footprinted:\\
+- Use nmap: *sudo nmap <targetIP> -sV -sC -p25*
+- Use nmap "smtp-open-relay" NSE script: *sudo nmap <targetIP> -p25 --script smtp-open-relay -v
+- Use smtp-user-enum tool (*sudo apt install smtp-user-enum* if necessary. Then the commands are shown with *smth-user-enum -h*): *smtp-user-enum -w 25 -M VRFY -U <wordlist.txt> -t <targetIP>*. In this command, -w is used to specify the waiting time for a reply, -M specifies the method to use for username guession (VRFY is the default, but it could also be EXPN or RCPT)
+  
 
+# IMAP/POP3
+
+  
 # SNMP enumeration
 Service/protocol: Simple Network Management Protocol
 Port(s): 161, 162 (UDP)
