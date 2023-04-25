@@ -109,8 +109,9 @@ If NFS is found to be running on the host, it can be footprinted with the follow
 - Mount a share on our local machine: we start by creating a new empty directory folder to which the NFS share will be mounted. Once mounted, we can access it as anything else on our local system. Create a folder: *mkdir <sharename>*, mount it with *sudo mount -t nfs <targetIP>:/ ./<sharename>/ -o nolock*. Finally, we can access it: *cd <sharename>*, *tree .*. At this point, we can see the rights and the usernames and groups to whom the files belong. With this information, we can create those usernames, groups, UIDs and GUIDs on our system and modify the files (see below).
 - List contents with usernames and group names (once mounted): *ls -l mnt/nfs/*
 - List content with UIDs and GUIDs: *ls -n mnt/nfs/*
-- Finally, we unmount the share: *cd ..*, then *sudo umount ./<sharename>*.\\
-Example: CTF Squashed
+- Finally, we unmount the share: *cd ..*, then *sudo umount ./<sharename>*.
+
+Example: <a href="/_walkthroughs/Squashed">Squashed</a>
 
   
 # SMTP enumeration
