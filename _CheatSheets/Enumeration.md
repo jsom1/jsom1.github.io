@@ -21,7 +21,8 @@ Service/protocol: Hypertext Transfer Protocol
 Port(s): 80, 443
 Description: the purpose is to get a picture of the target's online presence, including subdomains.
 - Examine the main's website SSL certificate (could reveal subdomains)
-- Check for information on crt.sh (alternatively *curl* it: curl -s https://crt.sh/\?q\=<domainname.com>\&output\=json | jq .)
+- Check for information on crt.sh (alternatively *curl* it: curl -s https://crt.sh/\?q\=<domainname.com>\&output\=json | jq .)\\
+
 - Filter hosts directly reachable from the internet (not hosted by third-party providers, as we are not allowed to test these without their permission): *for i in $(cat subdomainlist);do host $i | grep "has address" | grep <domainname.com> | cut -d" " -f1,4;done*
 - Repeat the previous command but keep only IP addresses: *for i in $(cat subdomainlist);do host $i | grep "has address" | grep <domainname.com> | cut -d" " -f4 >> ip-addresses.txt;done*.
 Then, run them through *Shodan*: *for i in $(cat ip-addresses.txt);do shodan host $i;done*. Shodan can find devices and systems such as cameras, servers, smart home systems, and so on...
