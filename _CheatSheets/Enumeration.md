@@ -17,9 +17,9 @@ Here's the content so far:
 {:style="color:black; font-size: 150%;"}
 
 # Domain information
-Service/protocol: Hypertext Transfer Protocol
-Port(s): 80, 443
-Description: the purpose is to get a picture of the target's online presence, including subdomains.
+**Service/protocol**: Hypertext Transfer Protocol\\
+**Port(s)**: 80, 443\\
+**Description**: the purpose is to get a picture of the target's online presence, including subdomains.
 - Examine the main's website SSL certificate (could reveal subdomains)
 - Check for information on crt.sh (alternatively *curl* it: curl -s https://crt.sh/\?q\=<domainname.com>\&output\=json | jq .)
 - Filter hosts directly reachable from the internet (not hosted by third-party providers, as we are not allowed to test these without their permission): *for i in $(cat subdomainlist);do host $i | grep "has address" | grep <domainname.com> | cut -d" " -f1,4;done*
@@ -36,32 +36,33 @@ Cloud providers secure their infrastructure centrally, but it doesn't mean that 
 
   
 # HTTP enumeration
-Service/protocol: Hypertext Transfer Protocol
-Port(s): 80, 443
-Description:
+**Service/protocol**: Hypertext Transfer Protocol\\
+**Port(s)**: 80, 443\\
+**Description**:
 
   
 # FTP enumeration
-Service/protocol: File Transfer Protocol
-Port(s): 21
-Description: the File Transfer Protocol is a client-server protocol and one of the oldest on the internet. It is meant for transmitting files between computers over TCP/IP connections and relies on 2 communication channels between the client and sever: a control channel for controlling the conversation (TCP port 21) and a data channel for transmitting file content (usually TCP port 20).\\
+**Service/protocol**: File Transfer Protocol\\
+**Port(s)**: 21\\
+**Description**: the File Transfer Protocol is a client-server protocol and one of the oldest on the internet. It is meant for transmitting files between computers over TCP/IP connections and relies on 2 communication channels between the client and sever: a control channel for controlling the conversation (TCP port 21) and a data channel for transmitting file content (usually TCP port 20).\\
 FTP can operate in two modes: active or passive. In the active mode, the client establishes the connection and informs the server via which port the server can transmit its responses. The problem is that if the client is protected by a firewall, the server cannot reply since external connections are blocked. In the passive mode, the server announces a port through which the client can establish the data channel. Since it is the client who initiates the connection. the firewall doesn't block the transfer.\\
 FTP is still commonly used to transfer files behind the scenes by applications. Although credentials are usually required to use FTP on a server, the server sometimes offers anonymous FTP. If this is the case, we can simply connect to it, list directories, and possibly even download and upload files.\\
 VsFTPd is one of the most used FTP servers on Linux. Its configuration can be found in */etc/vsftpd.conf*. Also, a file called */etc/ftpusers* is used to deny certain users access to the service.\\
 A few useful commands: ls -R (recursive listing), wget -m --no-passive ftp://anonymous_anonymous@<targetIP> (downloads all available files). So, if FTP is running:
-- Use nmap NSE script listed with the following command: find / -type f -name ftp* 2>/dev/null | grep scripts
-- Use nmap: sudo nmap -sV -p21 -sC -A <targetIP>
+  
+- Use nmap NSE script listed with the following command: *find / -type f -name ftp\* 2>/dev/null | grep scripts*
+- Use nmap: *sudo nmap -sV -p21 -sC -A <targetIP>*
 - Try to log in as anonymous (could be revealed by one of the previous scan)
-- Interact with the service with netcat or telnet: nc -nv <targetIP> 21 or telnet <targetIP> 21
-- If the FTP server runs with TLS/SSL encryption, we need a vlient that can handle it. We can use openssl: openssl s_client -connect <targetIP>:21 -starttls ftp
+- Interact with the service with netcat or telnet: *nc -nv <targetIP> 21* or *telnet <targetIP> 21*
+- If the FTP server runs with TLS/SSL encryption, we need a client that can handle it. We can use openssl: *openssl s_client -connect <targetIP>:21 -starttls ftp*
 
   
 # DNS enumeration
-Service/protocol: Domain Name System
-Port(s): 53
-Description: DNS is a system which is an integrel part of the internet; it resolves computer names into IP addresses. There are different types of DNS servers: DNS root servers, authoritative name servers, non-authoritative name servers, caching servers, forwarding servers, and resolvers. Although DNS is originally unencrypted, there are now ways to encrypt it (DNS over TLS (DoT), DNS over HTTPS (DoH), and the network protocol *NSCrypt*).\\
+**Service/protocol**: Domain Name System\\
+**Port(s)**: 53\\
+**Description**: DNS is a system which is an integrel part of the internet; it resolves computer names into IP addresses. There are different types of DNS servers: DNS root servers, authoritative name servers, non-authoritative name servers, caching servers, forwarding servers, and resolvers. Although DNS is originally unencrypted, there are now ways to encrypt it (DNS over TLS (DoT), DNS over HTTPS (DoH), and the network protocol *NSCrypt*).\\
 In addition to resolving names into IP addresses, the DNS also stores information about the services associated with a domain. Therefore, we can determine the role of a computer in a domain (for example a mail server) or what the domain's name servers are called.\\
-The structure is as follows:\\
+The structure is as follows:
 - Top Level Domains (TLD): .com, .net, .org, ...
 - Second Level Domain: mydomain.com, mydomain.net, ...
 - Sub-domain: www.mydomain.com, mail.mydomain.com, dev.mydomain.com, ...
@@ -71,7 +72,8 @@ DNS servers work with 3 types of configuration files:\\
 - Local DNS configuration files
 - Zone files
 - Reverse name resolution files
-On Linux, the DNS server *Bind9* is often used and its configuration file is *named.conf*. If a DNS server is found to be running, it can be footprinted as follows:\\
+On Linux, the DNS server *Bind9* is often used and its configuration file is *named.conf*.\\
+**Footprinting**: if a DNS server is found to be running, it can be footprinted as follows:
 - Query the server to discover other name servers using the *ns* record: *dig ns <secondLevelDomain> @<targetDNSserverIP>*
 - Query the server to get its version using the *TXT* record and a class *CHAOS*: *dig CH TXT version.bind <targetDNSserverIP>*
 - Query the server to see all available records (that it is willing to disclose): *dig any <secondLevelDomain> @<targetDNSserverIP>*
@@ -137,7 +139,18 @@ If an SMTP server is found on the host, here's how it can be footprinted:\\
   
 
 # IMAP/POP3
-
+**Service/protocol**: Internet Message Access Protocol (IMAP) and Post Office Protocol (POP3)\\
+**Port(s)**: 143 for IMAP2 and IMAP4, 220 for IMAP3, 993 IMAPS, 110 for unencrypted POP3, 995 for POP3S (secured POP3 over SSL/TLS)\\
+**Description**: IMAP allows to access emails directly on a mail server, manage the emails on the server, and supports folder structures. In short, this protocol allows to manage emails on a remote server.\\
+Its functioning is thus the opposite of POP3, which retrieves emails on the local machine and stocks them with a special software (by default, this software deletes the retrieved emails from the server). Note that newer versions of IMAP also give the possibility to retrieve emails locally.\\
+As for any other service, IMAP and POP3 can be misconfigured with dangerous settings. Even though most companies use third-party email providers (Google, Microsoft, ...), some companies still use their own mail servers. If misconfigured, an attacker could potentially read all the emails... Here's how to footprint those services.\\
+**Footprinting**:
+- Use nmap: *sudo nmap \<targetIP\> -sV -sC -p110,143,993,995*
+- Log into the mail server (given we have credentials): *curl -k 'imaps://\<targetIP\>' --user user:\<password\> -v* (the verbosity displays information about the version of TLS, the SSL certificate, and the banner which can contain the version of the mail server)
+- Use openssl or ncat to interact with a IMAP or POP3 server over SSL: *openssl s\_client -connect \<targetIP\>:pop3s*, and *openssl s\_client -connect \<targetIP\>:imaps*
+- Once connected and logged in to the target email server, we can interact with it with various commands (search for "imap commands" and "pop3 commands" on Google)
+  
+  
   
 # SNMP enumeration
 Service/protocol: Simple Network Management Protocol
