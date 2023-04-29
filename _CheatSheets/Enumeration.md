@@ -8,7 +8,7 @@ output: html_document
 # Enumeration/footprinting CheatSheet
 {:.no_toc}
 
-This "CheatSheet" aims to provide a few enumeration/footprinting commands for each stage of a penetration test (initial enumeration and Windows/Linux enumeration once a foothold has been obtained). 
+This "CheatSheet" is based on the module *Footprinting* from the *Penetration tester*aims to provide a few enumeration/footprinting commands for each stage of a penetration test (initial enumeration and Windows/Linux enumeration once a foothold has been obtained). 
 
 Here's the content so far:
 
@@ -176,8 +176,56 @@ Managing a SQL database and its configuration can be very complex, and it is not
   
 # MSSQL  
 **Service/protocol**: Microsoft SQL\\
+**Port(s)**: 1433\\
+**Description**: unlike MySQL, MSSQL is closed source and is popular among database administrators and developers who build applications that run on Microsoft'S .NET framework. Even though some versions of MSSQL can run on Linux and MacOS, it is more likely to see it on targets running Windows. SQL Server Management Studio (SSMS) is a tool that can be installed with the MSSQL install package (it is a GUI which facilitates the interaction with the database). It is often installed on the server for initial configuration and management of the databases. SSMS is a client-side application, therefore it's not only present on the server hosting the database, but on any machine where a system administrator or developper might have installed it. If we find this application running on a vulnerable system, we might find credentials that allow us to connect to the database.\\
+Some client that can be used to access a database running on MSSQL include: *mssql-cli*, *SQL Server PowerShell*, *HediSQL*, *SQLPro*, and *Impacket's mssqlclient.py*. Thise latter is interesting to pentesters because impacket is installed by default on many pentesting distributions (*locate mssqlclient*).\\
+Like MySQL, MSSQL has default system databases that help understand the structure of all the databases that are hosted on the server. Those default databases are: *master* (tracks system information), *model* (template database; every new database created will be based on it), *msdb* (the SQL Server Agent uses it to schedule jobs and alerts), *tempdb* (stores temporary objects), and *resource* (read-only database containing system objects included with SQL Server).\\
+Usually, the SQL service runs as NT SERVICE\MSSQLSERVER (at least at the installation time). It is possible to connect from the client-side through Windows Authentication (the default authentication method), and encryption is not enforced by default. With Windows Authentication, the Windows OS uses either the local SAM database or the domain controller (hosting Active Directory) to allow the connection to the database management system.\\
+As for MySQL, configuring MSSQL can be complex and there are various dangerous settings such as: MSSQL clients not using encryption to connect to the MSSQL server, the use of self-signed certificates when encryption is used (self-signed certificates can be spoofed), the use of named pipes (named pipes provide communication between a pipe server and a pipe client. A pipe is a part of memory that is used for communication between processes), and the use of weak or default *sa* (System Administrator) credentials (by default, the *sa* account is disabled. If it is enabled for some reason and we can use it, then we have all permissions on the instance).\\
+**Footprinting**: If MSSQL is found to be running on the target, it can be footprinted in various ways. Here's a few possibilities.
+- Use nmap NSE scripts: *sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 \<targetIP\>*. This long command can show the hostname, database instance name, software version of MSSQL and if named pipes are enabled.
+- Use Metasploit's auxiliary scanner *mssql_ping*: start Metasploit with *sudo msfconsole -q*, use the scanner with *use auxiliary/scanner/mssql/mssql_ping*. We only have to specify rhosts (the IP address of the target server)
+- Connect with impacket's mssqlclient.py (credentials are required): *sudo python3 /usr/local/bin/mssqlclient.py \<username\>@\<targetIP\> -windows-auth*. Once we enter this command, the password is requested. Then, we can use Transact-SQL to interact with the database. For example, list the databases: *select name from master.sys.databases;*, or list the tables: *select \* from information_schema.tables;*.
+ 
+  
+# Oracle TNS
+**Service/protocol**: Oracle Transparent Network Substrate\\
+**Port(s)**: 1521\\
+**Description**: The Oracle TNS server is a communication protocol used between Oracle databases and applications over networks. It is used for managing large and complex databases, because it supports various networking protocols between the databases and client applications, such as TCP/IP and IPX/SPX (IPX/SPX is very similar to TCP/IP. Terry Lambert, who implemented IPX/SPX, says that the only reason to care about IPX/SPX is if we have really old printers or 4 ports serial box. The reason is that IPX is broadcast, so there is a lot of noise in the network.\\
+Oracle TNS has a built-in encryption mechanism and it supports SSL/TLS encryption, making it suitable for name resolution, connection management, load balancing, and security.\\
+The configuration files for Orcale TNS are called *tnsnames.ora* and *listener.ora* and are located in the *ORACLE_HOME/network/admin* directory. The default configuration depends on the version and edition of the Oracle software installed. Oracle TNS is often used with other Oracle services such as Oracle DBSNMP, Oracle Databases, Oracle application server, Oracle Enterprise Manager, web servers, and so on. On Oracle 9, the default password is *CHANGE_ON_INSTALL*. On Oracle 10, there is no default password. Oracle DBSNMP uses *dbsnmp* as the default password.\\
+Each database or service has a distinct entry in the *tnsnames.ora* configuration file. This latter contains the required information for clients to connect to the service (name of the service, ip address and port, and the database name). Sometimes, it also contains authentication details.\\
+The *listener.ora* is a server-side configuration file which defines the parameters of the listener. This latter handles client requests and forwards them to the appropriate database instance. The client-side Oracle Net Services software uses *tnsnames.ora* to resolve service names to network addresses, and the listener uses the *listener.ora* file to determine the services it should listen to.\\
+PL/SQL Exclusion List is a user-created text file that can be used to protect Oracle databases. It has to be placed in the *\$ORACLE_HOME/sqldeveloper* directory. The files contains a list of the PL/SQL packages that should be excluded from execution. It is a blacklist that can't be accessed via the Oracle Application Server.\\
+So, if there is a TNS listener on port 1521, we can enumerate the service as follows: first, we need some specific packages and tools that we can install with the following script (let's call it prereq_install.sh):
+````
+#!/bin/bash
+sudo apt-get install libaio1 python3-dev alien python3-pip -y
+git clone https://github.com/quentinhardy/odat.git
+cd odat/
+git submodule init
+sudo submodule update
+sudo apt install oracle-instantclient-basic oracle-instantclient-devel oracle-instantclient-sqlplus -y
+pip3 install cx_Oracle
+sudo apt-get install python3-scapy -y
+sudo pip3 install colorlog termcolor pycryptodome passlib python-libnmap
+sudo pip3 install argcomplete && sudo activate-global-python-argcomplete
+`````
+When this is done, we can try to:
+- Use *ODAT* (Oracle Database Attacking Tool) to test the security of the database: *./odat.py all -s \<targetIP\>*. It can be used to identify and exploit vulnerabilities such as SQL injections, RCE, and privilege escalation. The main flags are *-s* to specify the IP address and *-d* to specify the SID (see below). Here, *all* runs all modules in order to know what it is possible to do.
+- Use nmap: *sudo nmap -p1521 -sV \<targetIP\> --open*
+- Use nmap NSE script to bruteforce a SID (System identifier): *sudo nmap -p1521 -sV \<targetIP\> --open --script oracle-sid-brute*. A SID is a unique name that identifies a particular database instance (if a SID isn't specified by the client, the default value specified in *tnsnames.ora* is used). 
+- Use *SQLplus* to login (given we have credentials): *sqlplus \<username\>/\<password\>@\<targetIP\>/\<SID\>;* (XE is the default SID (?)). If the error "sqlplus: error while loading shared libraries: libsqlplus.so: cannot open shared object file: No such file or directory" occurs, we can execute the following: *sudo sh -c "echo /usr/lib/oracle/12.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf";sudo ldconfig*. Once connected, we can use SQLplus commands such as: *select table_name from all_tables;* to list the tables, *select * from user_role_privs;* to see the privileges and allowed actions of the current user (we see if it has ADM (administrative) privileges).
+- Use *SQLplus* to log in as the System Database Admin (sysdba). The user we know must have appropriate privileges: *sqlplus \<username\>/\<password\>@\<targetIP\>/XE as sysdba*. If this works, we can try to extract password hashes (to crack them offline): *select name, password from sys.user$;*. We can also try to upload a web shell (requires the server to run a web server as well, and we must know the webserver's root directory (the default is */var/www/html* on Linux, and *C:/inetpub/wwwroot* on Windows)). We start by testing the file upload possibility with a text file: *echo "File upload test" > testing.txt*, then *./odat.py utlfile -s \<targetIP\> -d XE -U \<username\> -P \<password\> --sysdba --putFile C:\\inetpub\\wwwroot testing.txt ./testing.txt*. Finally, we can see if it worked with *curl*: *curl -X GET http://\<targetIP\>/testing.txt*.
+  
+  
+# IPMI
+**Service/protocol**: \\
 **Port(s)**: \\
-**Description**: unlike MySQL, MSSQL is closed source and is popular among database administrators and developers who build applications that run on Microsoft'S .NET framework. Even though some versions of MSSQL can run on Linux and MacOS, it is more likely to see it on targets running Windows.
+**Description**:  
+  
+  
+  
   
   
   
