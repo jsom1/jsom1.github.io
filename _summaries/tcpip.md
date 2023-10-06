@@ -399,4 +399,111 @@ Routing will allow us to send a message outside of our network. Networks are lin
 A **router** is a layer 3 device (hardware) that links several networks together. It must have an interface in each network it is connected to. In other words, it is simply a machine that has several network cards. Its role is to route the packets between the different networks. A computer with 2 network cards could be a router.\\
 So, what's the difference between a computer and a router?\\
 --> Not much, the main difference is that a router accepts to route packets that are not meant for itself, whereas a computer just throws them away. But technically, any machine connected to a network can work as a router. We must just enable the routing on that machine.
-p. 119
+
+What happens when our machine receives the following frame :\\ 
+00:11:22:33:44:55 | 01:2B:45:56:78:ED | IP | ??? | IP SRC: 10.0.0.1 | IP DST: 136.42.0.28 | data to be sent RC | CRC\\
+
+We see the IP address of the machine which sent this information, 10.0.0.1. However, we cannot know its MAC address because this latter is specific to a local network. The frame arrives on our machine on the interface 192.168.0.1/24, and obviously 10.0.0.1 is not part of this network. Therefore, we will never know its MAC address. The MAC address we see in the frame is in the fact the one of the last router which sent us the frame.\\
+Let's describe what happens when our machine receives this frame.\\
+First, the frame arrives at the network card in the form of 0's and 1's, and this latter sends it to our OS. The second layer reads it and retrieves the destination's MAC address : 00:11:22:33:44:55. This is our MAC address, so we can continue to read the header to know who is sending this frame, and to which layer 3 protocol it should be sent. We see it is written "IP", so we remove the ethernet header and send it to the IP protocol of the third layer.\\
+The IP protocol reads the IP layer, and realizes the datagram's IP destination isn't our IP address. This happens frequently, as it is normal for routers to receive messages that aren't intendent for it. However, it must now redirect the message to its real destination.\\
+To do this, the router uses a **routing table**: a table in which the next router to which the message should be sent is indicated. In fact, the indicated destination is not a machine, but a network (otherwise the routing tables would be huge). The principle of a routing table is as follows: there are 2 columns, one containing a network to reach, and the other containing the router (or gateway) to which we must send the datagram to reach that network. Here's an example of such a table (in reality, there are often additional columns):\\
+
+Network to join      Gateway
+192.168.1.0/24       10.0.0.253
+192.168.122.0/24     10.0.0.45
+192.168.8.0/24       10.0.0.254
+
+We can wonder, should our routing table contain routes for every single network of the internet?\\
+--> Fortunately, it is not the case. In fact, there is a mechanism to do this and we could add a line to our routing table:\\
+
+Network to join      Gateway
+default              some address
+
+So, if the address we want to reach isn't in our routing table, we must use the default gateway. If this gateway allows us to reach the internet, then we can reach any network.
+
+Let's see how this works in practice with the following very simple network:
+
+<div class="img_container">
+![simple network]({{https://jsom1.github.io/}}/_images/tcpip_simplenetwork.png){: height="100px" width = "300px"}
+</div>
+
+We see two networks (192.168.0.0./24 and 192.168.1.0/24) linked together by the router which has a network interface in each network (where are the switches? This image only shows the connexions logic between networks. The switches, which are specific to a network, are not represented. We could say however that they are represented by the horizontal lines). We will write the router's routing tables.\\
+We read the addresses as follows: for example, the 3rd computer in the top network has the address 192.168.0.3. The router has the address 192.168.0.254 in the top network, and 192.168.1.254 in the bottom one.
+
+There is a **3 steps** method to write a router's routing table (works for every case) :
+
+1. Indicate the networks to which my machine is connected
+2. Indicate the default gateway
+3. Indicate all the other networks that I cannot join with the two previous steps
+
+Let's apply this method. As shown in the image above, the router is connected to two networks:
+
+Network to join      Gateway
+192.168.0.0/24       ?
+192.168.1.0/24       ?
+
+We will look at the gateways later. The second step consists in indicating the default gateway: in our particular case, the router is already connected to all the networks, so it doesn't need a default gateway (it knows all the networks already).
+
+Finally, we have to indicate all the other networks that we still cannot reach: once again, there is no other network in this case. The last thing we have to do is indicate the gateways. We apply the following rule: the gateway to reach one of **my** network is **my** address:
+
+Network to join      Gateway
+192.168.0.0/24       192.168.0.254
+192.168.1.0/24       192.168.1.254
+
+At this point, the router knows how to redirect packets, but the two networks still can't communicate because something is missing. In fact, every machine connected to a network (computer, printer, phone, ...) has a routing table. This table is used to determine to which gateway a packet should be sent to reach another network. The routing table of the first laptop (192.168.0.1) can be determined with the 3 steps method described above:\\
+1) this machine is only connected to the 192.168.0.0/24 network:
+
+Network to join      Gateway
+192.168.0.0/24       ?
+
+2) In this network, there isn't many options for the default gateway (only 1 network...):
+
+Network to join      Gateway
+192.168.0.0/24       ?
+default              ?
+
+3) Once again, we already indicated the two networks we can join, so there is nothing to add. The last thing to do is to determine the gateways. The first line concerns our own network, so we can indicate our own address (192.168.0.1). However, we must still indicate the gateway to use to reach the 192.168.1.0/24 network. In other words, "to who should the machine 192.168.0.1 send its packets to reach the network 192.168.0.1/24? Obviously it's going to be the router, but to which interface? In fact, we can imagine that our networks are like rooms in a house, and the router is the door separating them. If we want to go from one to another, which door handle do we use? Here again, the answer is obvious: we must use the handle which is on our side of the door, and it's the same for routing: to reach a network, a machine must use a gateway that belongs to its own network. Finally, we have the routing table for the first laptop:
+
+Network to join      Gateway
+192.168.0.0/24       192.168.0.1
+default              192.168.0.254
+
+This was a very basic example in a very simple network, but these 3 steps apply regardless of the architecture.
+
+### Routing in practice
+
+A few commands on Windows:
+
+- The *ipconfig* command shows our network configuration. In particular, it shows our IP address, the mask to which it is associated, and the default gateway.
+- The *route print* command shows the routing table
+- The *ping* command can be used to verify we can communicate with another machine (we can *ping* our gateway for example, or any website such as www.google.com)
+- The *tracert* command shows the routers we go through to reach a destination
+
+To modify our network configuration on Windows, we must use the GUI (Start > Configuration > Network > IP (TCP/IP) > Properties)
+
+On Linux, the commands differ a little bit:
+
+- The *ifconfig* command is similar to *ipconfig*. We usually see at least two network interfaces. The first one, eth0 (for ethernet), is our network card. The second one, lo (for loopback or local), is a virtual interface that is only accessible on the machine itself. Its address is always 127.0.0.1 by convention.
+- The *route -n* shows the routing table. We see that Linux doesn't show our address, but shows 0.0.0.0 instead.
+- The *ping* command is the same
+
+Unlike on Windows, we can modify the network settings from the command line (if we do modifications on a remote machine, we lose the connexion -> only do it on a machine to which we have a physical access). For example, we could type *ifconfig eth0 10.0.0.1 netmask 255.255.255.0* to change our address. We can then adapt our routing table: *route del default*, *route add default gw 10.0.0.254* (check it worked with *route -n*).
+
+In the book, they now setup a simple network consisting of two networks linked together by a router (1 router, 2 computers -> 3 virtual machines). They use VirtualBox and create 3 debians with a NAT network (File > Preferences > Network > ...). They then add a network (give a name and CIDR, supports DHCP) and connect the machines to it. They change the IP addresses (even though DHCP assigned them) and try to ping the router from the first machine: it works. However, pinging the third machine from the first does not (it is normal since they are not in the same network) -> we must add an interface to the router in the network of the third machine to link the two networks together (On Linux, we can add as many addresses as we want to a network interface). Once this address is added, we must still enable routing on the second machine: *echo 1 > /proc/sys/net/ipv4/ip_forward*. However, we still can't ping the third machine from the first one, because the first one doesn't know where to send its message to reach the other network (the second machine). We must add a route to its routing table (*route add default gw secondmachineIP*).\\
+And yet, we still cannot reach the third machine. So far, the first machine knows that it has to send its message to the second one (acting as a router) to reach the third one.  The router receives it, reads the MAC address in the second layer and the destination IP in the third layer. It realizes the message isn't for itself, and since routing is activated, checks in its routing table where it should forward it. It sees the third machine is in its own network, so it can send it. The third machines receives it, but since its routing table doesn't have a default route, it doesn't know how to get out of its network and cannot answer... We can confirm this with *tcpdump* or *wireshark*.\\
+This is a common mistake in networks: people think about configuring the sending of packets, but not their return -> we must add a default gateway to the third machine (*route add default gw secondmachineIP*). Finally, the two machines can communicate through the router!
+
+
+## The other protocols
+
+p.155
+-> 226 
+
+
+
+
+
+
+
+
