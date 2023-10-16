@@ -425,7 +425,7 @@ So, if the address we want to reach isn't in our routing table, we must use the 
 Let's see how this works in practice with the following very simple network:
 
 <div class="img_container">
-![simple network]({{https://jsom1.github.io/}}/_images/tcpip_simplenetwork.png)
+![simple network]({{https://jsom1.github.io/}}/_images/tcpip_simplenetwork.png){: height="600px" width = "800px"}
 </div>
 
 We see two networks (192.168.0.0./24 and 192.168.1.0/24) linked together by the router which has a network interface in each network (where are the switches? This image only shows the connexions logic between networks. The switches, which are specific to a network, are not represented. We could say however that they are represented by the horizontal lines). We will write the router's routing tables.\\
