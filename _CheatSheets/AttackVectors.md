@@ -97,6 +97,15 @@ The *f* stands for "filter" (fs filters the size, fw the words, and fs the lines
 
 Example: <a href="/_walkthroughs/Forge">Forge</a>
 
+- Fuzzing with ffuf
+
+Ffuf can also be used to fuzz a formular. Let's imagine we can enter 3 values in a form: first name, last name, and age. Instead of manually trying to inject things, we can use ffuf as follows:
+
+````
+sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://targetIP/page_with_form -d "first_name=FUZZ&last_name=FUZZ&age=FUZZ" -X POST
+`````
+Obviously, the parameters must be the exact same as the ones that are used in the page. There are many ways to get their correct names: we can inspect the element (right click -> inspect), analyze the network tab in developer mode, or use Burp to intercept the request and analyze it. We can also directly use Burp's intruder functionality. 
+
 - Web server enumeration with **nikto**:
 
 ````
