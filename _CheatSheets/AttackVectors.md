@@ -141,7 +141,7 @@ Client-side vulnerability that works by manipulating a vulnerable web site so th
 
 ````
 
-#<script>alert(\'test')</script>
+&lt;script&gt;alert('test')&lt;/script&gt;
 
 `````
 **Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.\\
