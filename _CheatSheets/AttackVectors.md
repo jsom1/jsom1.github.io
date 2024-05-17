@@ -86,8 +86,15 @@ Example: <a href="/_walkthroughs/basicpentest">Basic Pentesting: 1 (VulnHub)</a>
 - Subdomains enumeration with **ffuf**:
 
 ````
-sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://targetIP/ -H "Host: FUZZ.targetIP" -t 200 -fl 10
+sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://targetIP/ -H "Host: FUZZ.targetIP"
 `````
+If the server returns a generic response for unexisting subdomains, this command can flood our terminal. If this is the case, and let's say all the false positives have a status of 200, the same size, number of words and lines, we can filter further to avoid displaying this noise. For example:
+
+````
+sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://targetIP/ -H "Host: FUZZ.targetIP" -fs 3842 -fw 473 -fl 102
+`````
+The *f* stands for "filter" (fs filters the size, fw the words, and fs the lines).
+
 Example: <a href="/_walkthroughs/Forge">Forge</a>
 
 - Web server enumeration with **nikto**:
