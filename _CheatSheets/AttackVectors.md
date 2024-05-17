@@ -38,10 +38,11 @@ There are 2 authentication methods:
 ssh username@ip_adress
 `````
   
-- SSH keys: more secure, it uses a pair of SSH keys. The server contains the public key, whereas the private key is on the target machine. If we can get the private key, the we can use it to connect via ssh:
+- SSH keys: more secure, it uses a pair of SSH keys. The server contains the public key, whereas the private key is on the target machine. If we can get the private key (id_rsa), the we can use it to connect via ssh. It might be necessary to change the file's permission first:
 
 ````
-ssh -i pivate_key username@ip_adress
+chmod 600 id_rsa
+ssh -i id_rsa username@ip_adress
 `````
 
 # 80 - HTTP
