@@ -27,6 +27,23 @@ Example: <a href="/_walkthroughs/ServMon">ServMon</a>
 
 - Known vulnerable versions: ProFTPD 1.3.3c, vsFTPd 2.3.4, ... -> Search for Metasploit exploits
 
+# 22 - SSH
+
+Rarely vulnerable, but often running on the target. Useful when we discover credentials, but can still use weak credentials such as root/root for example, so it's always worth trying.
+There are 2 authentication methods:
+
+- Username and password: the default username is "root", but often people create other users.
+
+````
+ssh username@ip_adress
+`````
+  
+- SSH keys: more secure, it uses a pair of SSH keys. The server contains the public key, whereas the private key is on the target machine. If we can get the private key, the we can use it to connect via ssh:
+
+````
+ssh -i pivate_key username@ip_adress
+`````
+
 # 80 - HTTP
 
 ## Enumeration (Directories, files, subdomains, ...)
@@ -79,12 +96,9 @@ sudo nikto -h targetIP
 `````
 Example: <a href="/_walkthroughs/knife">Knife</a>
 
-
-- Random:\\
-1. If the CMS is Wordpress: check **wp_admin_shell_upload**.\\
-2. Look for administration console such as **phpmyadmin** (admin tool for MySQL databases) and try to log into it. Default credentials for       phpmyadmin: "root" with a blank password. Use with Burp and potentially try brute forcing.\\
-3. Is the web server vulnerable to Shellschock (bug causing Bash to execute commands from environment variables unintentionally (gives RCE on the server to an attacker))? If it is the case (nikto should reveal it), we can send commands to the server through HTTP requests, and get them executed by the web server OS.\\
-POC HTTP request:
+- Check **wp_admin_shell_upload**. if the CMS is Wordpress
+- Look for an administration console such as **phpmyadmin** (admin tool for MySQL databases) and try to log into it. Default credentials for phpmyadmin: "root" with a blank password. Use with Burp and potentially try brute forcing.
+- Is the web server vulnerable to Shellschock (bug causing Bash to execute commands from environment variables unintentionally (gives RCE on the server to an attacker))? If it is the case (nikto should reveal it), we can send commands to the server through HTTP requests, and get them executed by the web server OS. POC HTTP request:
     
 `````
 GET http://shellshock.testsparker.com/cgi-bin/netsparker.cgi HTTP/1.1
@@ -127,7 +141,7 @@ Client-side vulnerability that works by manipulating a vulnerable web site so th
 
 ````
 
-#<script>alert('test')</script>
+#<script>alert(\'test')</script>
 
 `````
 **Attention**: *alert()* doesn't work on Chrome from version 92 onward. In this case, we can use *print()* instead.\\
