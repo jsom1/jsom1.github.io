@@ -162,6 +162,7 @@ This is what we're supposed to exploit.
 
 
 ## 2. Gaining a foothold
+{:style="color:DarkRed; font-size: 170%;"}
 
 Now, we want to imitate the user with the UID of 2017. If we can do that, then we would have write permissions on the share and could add a malicious file (like a reverse shell payload for example) on the server...\\
 We start by adding a new user on our machine, and assign them the UID of 2017 (by default, it is given the highest ID found in */etc/passwd*, plus one):
@@ -201,7 +202,7 @@ We see Python wasn't installed, but Python3 is. From there, we can retrieve the 
 Now that we have a foothold on the target, we must find a way to elevate our privileges to root. 
 Even though the next section is called privilege escalation, it of course first covers enumeration.
 
-## 4. Vertical privilege escalation
+## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
 Still following the walkthrough (I would never have figured that out on my own), we should have noticed something interesting in Ross' share: the presence of *.Xauthority* and *.xsession*.\\
