@@ -90,8 +90,8 @@ Note that we see exactly what *nmap* command the tool used. Finally, we see ther
 ## 2. Gaining a foothold
 {:style="color:DarkRed; font-size: 170%;"}
 
-Before visiting the web page, let's look into the */tcp80* directory. It's awesome, the folder contains results of directories bruteforce with different wordlists, and another *nmap* scan specifically for port 80.\\
-This latter many http scripts and shows that it didn't find any CSRF vulnerabilities, could't determine the underlying framework or CMS, didn't find any DOM-based or stored XSS, and so on... Even though it didn't find anything we can use, it's still very useful to have this information so that we don't have to do these checks manually ourselves.
+Before visiting the web page, let's look into the */tcp80* directory. It's awesome, the folder contains results of directories bruteforcing with different wordlists, and another *nmap* scan specifically for port 80.\\
+This latter contains many http scripts and shows that it didn't find any CSRF vulnerabilities, couldn't determine the underlying framework or CMS, didn't find any DOM-based or stored XSS, and so on... Even though it didn't find anything we can use, it's still very useful to have this information so that we don't have to do these checks manually ourselves.
 
 We saw in the *nmap* result that there was a redirect to *horizontall.htb*, so let's add it to our */etc/hosts* file and browse to it to see this website.
 
@@ -100,7 +100,7 @@ sudo echo "10.10.11.105 horizontall.htb" >> /etc/hosts
 ``````
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_hor_site.png)
+![site]({{https://jsom1.github.io/}}/_images/htb_hor_site.png){: height="300px" width = 320px"}
 </div>
 
 The page has many buttons, but nothing happens when we click on them. We see a bunch of *JavaScript* scipts when inspecting the page. At the bottom of it, there's a "Contact us" form. I tried sending something and intercept the request with *Burp*, but nothing happens when we click on *Send*.\\
@@ -267,7 +267,7 @@ I don't see the *execa* function in the script, but let's try the exploit and se
 We see it works and gives us a kind of prompt. I tried here to issue *whoami*, but we get a message indicating it's a blind RCE and that there's no output. We have to find the intended syntax to execute code. Note that we also got credentials and should now be able to access the admin panel (use *admin@horizontall.htb/SuperStrongPassword1* on */admin*). We land on the following page:
 
 <div class="img_container">
-![admin panel]({{https://jsom1.github.io/}}/_images/htb_hor_dashboard.png)
+![admin panel]({{https://jsom1.github.io/}}/_images/htb_hor_dashboard.png){: height="300px" width = 320px"}
 </div>
 
 There's a file upload possibility, and maybe it's possible to upload a reverse shell payload on execute it? Before exploring this lead however, let's see if we can get the previous exploit to work. I found a Github repo (https://github.com/diego-tella/CVE-2019-19609-EXPLOIT) containing an exploit for this vulnerability. The code is the following:
@@ -383,14 +383,14 @@ and the following one on *strapi*:
 Note that the syntax for the last command is *./chisel client [kali_IP]:[kali_port] R:[port_to_listen_connection]:127.0.0.1:[port_to_forward]*. So, we redirect everything on port 8000 on the target onto port 6001 on Kali. If everything works fine, we should be able to see the page content in our browser on Kali:
 
 <div class="img_container">
-![web page]({{https://jsom1.github.io/}}/_images/htb_hor_laravel.png)
+![web page]({{https://jsom1.github.io/}}/_images/htb_hor_laravel.png){: height="300px" width = 320px"}
 </div>
 
 I find it awesome and way easier to read than the output we got by using *wget*. In a glance, we see Laravel v8. There are a few results with *searchsploit*, but the version isn't mentionned. Let's look on the internet instead. By searching "laravel v8 exploit", we see a lot of results and RCEs. I read somewhere that "*If Laravel is in debugging mode you will be able to access the code and sensitive data. For example http://127.0.0.1:8000/profiles*".\\
 We can try in our browser, and indeed it seems to be in debugging mode:
 
 <div class="img_container">
-![debug]({{https://jsom1.github.io/}}/_images/htb_hor_debug.png)
+![debug]({{https://jsom1.github.io/}}/_images/htb_hor_debug.png){: height="300px" width = 320px"}
 </div>
 
 Furthermore, it is said that this is usually needed for exploiting other Laravel RCE CVEs. We learn that the error page in the debugging mode is handled by Ignition, and that this latter in version <= 2.5.1 is vulnerable. There are a few existing exploits, let's try https://github.com/nth347/CVE-2021-3129_exploit. We start by cloning it and making it executable, and then we use it with the syntax given in the article:
