@@ -40,6 +40,7 @@ As usual, we scan open ports with nmap:
 We see SSH running on port 22, and two web servers on port 80 (http) and 443 (https). We will focus our attention on the web servers as this version of SSH isn't vulnerbable.
 
 ## 2. Gaining a foothold
+{:style="color:DarkRed; font-size: 170%;"}
 
 Let's see the http web page:
 
@@ -113,7 +114,7 @@ We see the various layers the image is made of, and the manifest. The manifest g
 ![docker image config]({{https://jsom1.github.io/}}/_images/htb_bolt_config.png)
 </div>
 
-We see the image was built for an amd64 architecture, this is why I specified *--platform linux/arm/v7* when I tried to run the image. I first tried without this argument but got an error regarding the architecture. There is a *hostname* value, but I don't know how this could be useful at the moment. We also see commands that are executed within the container. For example, it moves a file to "/", runs the application, installs pip3, then uses it to install the requirements, and finally exposes the port 5005 of the container.\\
+We see the image was built for an amd64 architecture, this is why I specified *--platform linux/arm/v7* when I tried to run the image. I first tried without this argument but got an error regarding the architecture. There is a *hostname* value, but I don't know how this could be useful at the moment. We also see commands that are executed within the container. For example, it moves a file to "/", runs the application, installs pip3, then uses it to install the requirements, and finally exposes the port 5005 of the container.
 
 Each layer contains a few items, among which a *layer.tar*. By inspecting all of them, we discover interesting information in *a4ea7da8...*:
 
@@ -209,6 +210,7 @@ After confirming the changes, we indeed receive a reverse shell:
 We're currently in as *www-data* in the */var/www/demo* directory, and we need to find a way to become a user which has more permissins. We're back at enumerating! 
 
 ## 3. Horizontal privilege escalation
+{:style="color:DarkRed; font-size: 170%;"}
 
 Before trying to upload scripts and automate the process, let's spend a moment to look around manually. In the */home* directory, we see two users, *clark* and *eddie*. From this point, we don't enumerate folders and files randomly. So far, we've seen Docker, Bolt, AdminLTE, and so on... I may not have documented it, but I also discovered earlier that the https page is *passbolt.bolt.htb*. Therefore, we're looking for something related to that.\\
 In */etc/passbolt*, there's a configuration file called *passbolt.php*. This latter contains credentials for a database:
@@ -234,7 +236,7 @@ After looking around and at the forum for help, we have to look at the emails. T
 ![eddie email]({{https://jsom1.github.io/}}/_images/htb_bolt_eddiemail.png)
 </div>
 
-The password management server is *passbolt*, and apparently eddie should have a backup of his private key to access the server. He also downloaded the extension for passbolt in his browser. Let's look at */home/eddie/.config/google-chrome/Default/Local Extension Settings/didegimhafipceonhjepacocaffmoppf*. Note that since Python isn't installed, we can't use it to spawn a bash shell and the one we have is inconvenient (it doesn't have auto complete for example. Edit: autocompletion comes from a package called *bash-completion* (in my opinion it should be installed by default). We can check if it is installed with the command *dkpg -l | grep bash-completion*. If it is not installed, we can install it with *apt install -y bash-completion*. It might be necessary restart the terminal. I tried to connect with SSH and it worked. It's not necessary but makes it easier. There, there's a log file (*000003.log*) that we can inspect:
+The password management server is *passbolt*, and apparently eddie should have a backup of his private key to access the server. He also downloaded the extension for passbolt in his browser. Let's look at */home/eddie/.config/google-chrome/Default/Local Extension Settings/didegimhafipceonhjepacocaffmoppf*. Note that since Python isn't installed, we can't use it to spawn a bash shell and the one we have is inconvenient (it doesn't have auto complete for example). Edit: autocompletion comes from a package called *bash-completion* (in my opinion it should be installed by default). We can check if it is installed with the command *dkpg -l \| grep bash-completion*. If it is not installed, we can install it with *apt install -y bash-completion*. It might be necessary restart the terminal. I tried to connect with SSH and it worked. It's not necessary but makes it easier. There, there's a log file (*000003.log*) that we can inspect:
 
 <div class="img_container">
 ![private key]({{https://jsom1.github.io/}}/_images/htb_bolt_pkey.png)
