@@ -51,7 +51,7 @@ sudo echo "10.10.11.118 devzat.htb" >> /etc/hosts
 Now, the domain name should be mapped with the IP address and the page should render correctly:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_dz_site1.png){: height=70px" width = 80px"}
+![site]({{https://jsom1.github.io/}}/_images/htb_dz_site1.png){: height="300px" width = 320px"}
 </div>
 
 Apparently, it offers a way to chat with any device that has an SSH client. There are other interesting information on the page, such as:
@@ -90,7 +90,7 @@ I didn't see at first the *run /help to see what you can do*, so I issued a *ls*
 By running the */help* command, we discover the app is on Github (github.com/quackduck/devzat). Let's head there to see how it's organized:
 
 <div class="img_container">
-![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height=80px" width = 100px"}
+![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height="300px" width = 320px"}
 </div>
 
 The first thing I noticed here is that there are 3 branches, although the website mentionned two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). Given the fact that there are 10 contributors, that it's roughly 7 months old and the application itself, it wasn't built just to be used in a HtB machine. Therefore, the stable release is probably safe and if it is this version that is running on the machine, it might not be the way to a foothold...\\
@@ -136,19 +136,19 @@ sudo echo "10.10.11.118 pets.devzat.htb" >> /etc/hosts
 and browse to it:
 
 <div class="img_container">
-![pet]({{https://jsom1.github.io/}}/_images/htb_dz_pet.png)
+![pet]({{https://jsom1.github.io/}}/_images/htb_dz_pet.png){: height="300px" width = 320px"}
 </div>
  
 This has nothing to do with the application, but it's definitely a good find. By scrolling down the page, we see we can create another entry in the list:
  
 <div class="img_container">
-![pet 2]({{https://jsom1.github.io/}}/_images/htb_dz_pet2.png)
+![pet 2]({{https://jsom1.github.io/}}/_images/htb_dz_pet2.png){: height="300px" width = 320px"}
 </div>
 
 Since we can input text on the page (as the pet's name), there are a few things we can check. For example, does this application parses XML? If it were the case, it could be vulnerable to XXE injection. Or also, is user input sanitized? Unsanitized user input is a trigger of many vulnerabilies, such as SSRF, CSRF, XSS, SQL injections, and so on... We see in the image I added a cat and entered a javascript command as its name. If by refreshing the page a windows pops up, that would mean it might be vulnerable to XSS (it's not the case here). To learn more about how the application handles our input, we can start by inspecting the page by right clicking on it > inspect element. In the debugger tab, we see a few java scripts and references to an api (*/api/pet*):
 
 <div class="img_container">
-![Inspect page]({{https://jsom1.github.io/}}/_images/htb_dz_inspect.png){: height=250px" width = 400px"}
+![Inspect page]({{https://jsom1.github.io/}}/_images/htb_dz_inspect.png){: height="300px" width = 320px"}
 </div>
 
 We also see *App.svelte*, and we can learn more about this latter with a quick Google search:
