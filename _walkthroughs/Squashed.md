@@ -53,7 +53,7 @@ I also looked at RPC (Remote Procedure Call), which is a software communication 
 In other words, RPC is used to call processes on the remote systems like a local system.
 
 From my understanding, a client machine on a network can thus request a procedure (subroutine) from a server. 
-The client sends the procedure parameters over the network to the server, which then executes the procedure locally and sends the results back to the client.\\
+The client sends the procedure parameters over the network to the server, which then executes the procedure locally and sends the results back to the client.
 
 I still started by looking at the web server. Web applications present a vast attack surface, and it is often the way to a foothold in HTB. Browsing at *10.10.11.191*, we land on the following page:
 
