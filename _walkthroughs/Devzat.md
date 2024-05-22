@@ -51,7 +51,7 @@ sudo echo "10.10.11.118 devzat.htb" >> /etc/hosts
 Now, the domain name should be mapped with the IP address and the page should render correctly:
 
 <div class="img_container">
-![site]({{https://jsom1.github.io/}}/_images/htb_dz_site1.png){: height="300px" width = 320px"}
+![site]({{https://jsom1.github.io/}}/_images/htb_dz_site1.png){: height="400px" width = 450px"}
 </div>
 
 Apparently, it offers a way to chat with any device that has an SSH client. There are other interesting information on the page, such as:
@@ -90,7 +90,7 @@ I didn't see at first the *run /help to see what you can do*, so I issued a *ls*
 By running the */help* command, we discover the app is on Github (github.com/quackduck/devzat). Let's head there to see how it's organized:
 
 <div class="img_container">
-![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height="300px" width = 320px"}
+![github page]({{https://jsom1.github.io/}}/_images/htb_dz_gh.png){: height="500px" width = 520px"}
 </div>
 
 The first thing I noticed here is that there are 3 branches, although the website mentionned two. These are: *main*, *patch-1* and *v2*. We are currently on *main*, which is most likely the stable release. We see the app is mostly written in *Go* (98.8%) and in shell (1.2%). Given the fact that there are 10 contributors, that it's roughly 7 months old and the application itself, it wasn't built just to be used in a HtB machine. Therefore, the stable release is probably safe and if it is this version that is running on the machine, it might not be the way to a foothold...\\
