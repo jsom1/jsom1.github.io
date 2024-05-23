@@ -24,7 +24,7 @@ output: html_document
   
 **Ports/services exploited:** 80/http\\
 **Tools:** chatGPT\\
-**Techniques:** \\
+**Techniques:** SSTI\\
 **Keywords:** 
 
 **TL;DR**: 
@@ -50,6 +50,17 @@ Need comprendre la vulnerabilité. Ne marche pas à tous les coups ?! C'est quoi
 Ca spécifie que quand l'app reçoit une requête HTTP GET pour le chemin /ss, elle doit exécuter le code "Hello World". 
 Sur burp, on voit où il cherche l'image localement. Semble indiquer que l'app utilise le framework sinatra, un DSL pour créer des apps en ruby. Donc l'app sinatra fonctionne localement sur le serv.
 Le port 3000 n'écoute que sur localhost et n'est pas exposé à l'extérieur. C'est pour ça que nmap ne le montre pas.
+Bcp de tests avec burp, différents payloads et encodage.
+
+Hint : SSTI. Vuln qui se produit quand l'app web permet à l'utilisateur de souettres des données qui sont ensuite incorp dans un templat côté serveur. Si l'entrée user n'est pas correctement filtrée ou échapée, un attaquant peut injecter du code qui sera executé par le moteur de template du serveur.
+
+
+Need reproduire... Testé pleins de payloads et d'encodage. Certains passent, comme l'encodage URL standard... l'encodafe hexadécimal ou base64 ne passe pas (Malicious input blocked). Surtout, certains payloads passent dans burp ou curl, mais pas dans le formulaire en ligne. Ex : get%20%27/tst%27%20do%0A%20%20%22Hello%20World%22%0Aend.
+Ex. de curl :
+
+```
+curl -X POST -d "category1=%3C%25%20%60ls%60%20%25%3E&grade1=90&weight1=20&category2=Math&grade2=80&weight2=20&category3=English&grade3=85&weight3=20&category4=Science&grade4=70&weight4=20&category5=History&grade5=75&weight5=20" http://10.10.11.253/weighted-grade-calc
+```
 
 Check .txt de searchsploit webrick. La version 1.7.0 est p-e vuln. 
 
