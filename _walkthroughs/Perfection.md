@@ -82,14 +82,14 @@ Once we have selected the pitchfork attack, we must configure the 15 payloads; p
 In Burp, we select this file for the payload:
 
 <div class="img_container">
-![burp]({{https://jsom1.github.io/}}/_images/htb_perf_burp2.png)
+![burp]({{https://jsom1.github.io/}}/_images/htb_perf_burp2.png){: height="400px" width = "600px"}
 </div>
 
 At that time, I was already doing a mistake; I was trying payloads to detect XSS, SQLi, SSTI, and so on, but without considering the application is written in ruby. I should have used Ruby payloads, and that's what I did later. Anyways, let's configure the payloads for the remaining positions.\\
 For the grades (positions 2, 5, 8, 11, and 14), we want random integers between 0 and 100, so we configure that this way:
 
 <div class="img_container">
-![burp pos]({{https://jsom1.github.io/}}/_images/htb_perf_burp3.png)
+![burp pos]({{https://jsom1.github.io/}}/_images/htb_perf_burp3.png){: height="450px" width = "600px"}
 </div>
 
 Finally, for the weights (positions 3, 6, 9, 12, and 15), we want them to add up to 100. The easiest way to do that is to assign 20 to all positions. It's the same as for the grades, except we specify from 20 to 20.\\
@@ -437,7 +437,7 @@ From there, since Susan is in the sudo group, it's pretty straightforward to gai
 We see that Susan can execute every command with sudo ((ALL : ALL) ALL). So, we can simply spawn a shell as root.
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_perf_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_perf_pwn.png){: height="300px" width = "320px"}
 </div>
 
 
