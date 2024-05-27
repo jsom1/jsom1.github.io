@@ -105,7 +105,8 @@ We see all the requests done by Burp, and the payloads used. We can analyze each
 curl -X POST -d "category1=%3C%25%20%60ls%60%20%25%3E&grade1=90&weight1=20&category2=Math&grade2=80&weight2=20&category3=English&grade3=85&weight3=20&category4=Science&grade4=70&weight4=20&category5=History&grade5=75&weight5=20" http://10.10.11.253/weighted-grade-calc
 ```
 It is a bit less convenient however. So, we must keep searching for the right payload. One place we can look at is <a href="https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#erb-ruby" target="_blank">HackTricks</a>
-. In the SSTI section, we see some payloads to test for an SSTI vulnerability in Ruby. Instead of using Burp's intruder, let's use the repeater. We modify the "category1" payload with the following ones:
+. In the SSTI section, we see some payloads to test for an SSTI vulnerability in Ruby. This kind of vulnerability can arise by accident due to poor template design (people who are not familiar with the security implications). In this case, user input is concatenated and embedded into a template rather than being passed in as data.\\
+When this is the case, we can use native template syntax to place a payload server-side. So let's try that, and instead of using Burp's intruder, we will use the repeater. We modify the "category1" payload with the following ones:
 
 ```
 {{7*7}} = {{7*7}}
@@ -443,12 +444,18 @@ We see that Susan can execute every command with sudo ((ALL : ALL) ALL). So, we 
 
 <ins>**My thoughts**</ins>
 
-This is the second time I came across a SSTI vulnerability (the first time was in <a href="/_walkthroughs/Forge">Forge</a>). This kind of vulnerability can arise by accident due to poor template design (people who are not familiar with the security implications). In this case, user input is concatenated and embedded into a template rather than being passed in as data.\\
-When this is the case, we can use native template syntax to place a payload server-side.
-
-Ces vulnérabilités surviennent lorsque les entrées utilisateur sont concaténées dans des modèles plutôt que passées comme données. Par exemple, un modèle statique avec des espaces réservés pour les données dynamiques est généralement sûr, mais si les entrées utilisateur sont directement intégrées dans le modèle avant le rendu, cela ouvre la porte aux attaques SSTI. Cela peut se produire par accident en raison d'une mauvaise conception des modèles ou intentionnellement, comme lorsque certains utilisateurs privilégiés sont autorisés à soumettre des modèles personnalisés, ce qui présente un risque de sécurité majeur si leurs comptes sont compromis.
+This is the second time I came across a SSTI vulnerability (the first time was in <a href="/_walkthroughs/Forge">Forge</a>), and it was a great opportunity to practice its detection and exploitation once again. I found that figuring out the right payload and encoding was pretty hard. Once we got a reverse shell though, the privilege escalation is pretty straightforward (even though I had to use Linpeas).\\
+Overall, it was a nice box and the "easy" rating seemed fair to me.
 
 <ins>**Fix the vulnerabilities**</ins>
 
+Regarding the SSTI vulnerability, there are a few ways to prevent it, among which:
+
+- The easiest way is simply to not allow any users to modify or submit new templates. However, this behaviour is sometimes allowed by design. That wasn't the case here though.
+- Use a logic-less template engine to separate the logic from the presentation. The logic part includes the programming part, whereas the presentation is the formatting of data. In this case, ERB (embedded Ruby) is not a logic-less template.
+- Validate (sanitize) user inputs before putting them into the template. This is what the code tries to do, but unfortunately it's not robust enough.
+- Accept that arbitrary code execution is inevitable, and deploy the template in a locked-down container.
+
+Regarding the privilege escalation, I don't think it's a problem that Susan is in the sudo group. However, we shouldn't be able to access the hashed passwords in the SQLite database so easily. And then, the password policy shouldn't be given like this.
 
 
