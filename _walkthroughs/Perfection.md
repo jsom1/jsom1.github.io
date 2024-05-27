@@ -79,6 +79,12 @@ Once we have selected the pitchfork attack, we must configure the 15 payloads; p
 ![custom list]({{https://jsom1.github.io/}}/_images/htb_perf_list.png)
 </div>
 
+In Burp, we select this file for the payload:
+
+<div class="img_container">
+![burp]({{https://jsom1.github.io/}}/_images/htb_perf_burp2.png)
+</div>
+
 At that time, I was already doing a mistake; I was trying payloads to detect XSS, SQLi, SSTI, and so on, but without considering the application is written in ruby. I should have used Ruby payloads, and that's what I did later. Anyways, let's configure the payloads for the remaining positions.\\
 For the grades (positions 2, 5, 8, 11, and 14), we want random integers between 0 and 100, so we configure that this way:
 
