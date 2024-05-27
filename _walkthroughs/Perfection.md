@@ -24,7 +24,7 @@ output: html_document
   
 **Ports/services exploited:** 80/http\\
 **Tools:** Burpsuite, JtR, Hashcat, cewl, LinPeas\\
-**Techniques:** SSTI\\
+**Techniques:** SSTI, password cracking\\
 **Keywords:** Ruby, custom wordlist, SQLite, ERB template
 
 **TL;DR**: the host is running a web server which presents an application written in Ruby. This latter is vulnerable to a server-side template injection (SSTI), and we are able to execute arbitrary code on the server. From there, we can get a reverse shell as susan, who turns out to be in the sudo group. The only thing required to escalate privileges to root is her password, and we find it hashed in a SQLite database. Finally, we find the password specifications in susan's mails. Hashcat can be used with a mask to crack the password. Once we have it, we can spawn a shell as root.
