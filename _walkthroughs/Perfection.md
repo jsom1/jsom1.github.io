@@ -96,7 +96,7 @@ Finally, for the weights (positions 3, 6, 9, 12, and 15), we want them to add up
 Once we have set up all the payloads, we can launch the attack. The result looks like this:
 
 <div class="img_container">
-![burp reqs]({{https://jsom1.github.io/}}/_images/htb_perf_burp4.png)
+![burp reqs]({{https://jsom1.github.io/}}/_images/htb_perf_burp4.png){: height="450px" width = "600px"}
 </div>
 
 We see all the requests done by Burp, and the payloads used. We can analyze each request response to see if we could get the application to react in weird way. Sadly, every response indicated "Malicious input blocked". But we know there must be a vulnerability, we must "only" understand it and how it works. Note that instead of Burp, we can also use curl to try different payloads:
@@ -114,7 +114,7 @@ ${7*7} = ${7*7}
 ```
 
 <div class="img_container">
-![burp 7t7]({{https://jsom1.github.io/}}/_images/htb_perf_burp8.png)
+![burp 7t7]({{https://jsom1.github.io/}}/_images/htb_perf_burp8.png){: height="400px" width = "600px"}
 </div>
 
 This works, as we see the URL-encoded code 7*7 got executed on the server. Also, the fact of adding a new line (%0A) seems to bypass any filter that might be present. There are a few other commands we can try, such as:
@@ -134,7 +134,7 @@ This works, as we see the URL-encoded code 7*7 got executed on the server. Also,
 For example, let's try to list the files with *ls*:
 
 <div class="img_container">
-![burp ls]({{https://jsom1.github.io/}}/_images/htb_perf_burp9.png)
+![burp ls]({{https://jsom1.github.io/}}/_images/htb_perf_burp9.png){: height="400px" width = "600px"}
 </div>
 
 If we can execute code, then we should be able to get a reverse shell. We can use <a href="https://www.revshells.com/">revshells</a> to get some reverse shells codes. After trying a few ones (python), I found out the following simple bash one works:
@@ -161,7 +161,7 @@ sudo nc -nlvp 4444
 And we send it:
 
 <div class="img_container">
-![burp revsh]({{https://jsom1.github.io/}}/_images/htb_perf_burplast.png)
+![burp revsh]({{https://jsom1.github.io/}}/_images/htb_perf_burplast.png){: height="400px" width = "600px"}
 </div>
 
 We see a "504 Gateway Time-out" message, but that doesn't matter since we got our reverse shell:
@@ -437,7 +437,7 @@ From there, since Susan is in the sudo group, it's pretty straightforward to gai
 We see that Susan can execute every command with sudo ((ALL : ALL) ALL). So, we can simply spawn a shell as root.
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_perf_pwn.png){: height="300px" width = "320px"}
+![pwn]({{https://jsom1.github.io/}}/_images/htb_perf_pwn.png){: height="400px" width = "420px"}
 </div>
 
 
