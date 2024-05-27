@@ -109,7 +109,7 @@ It is a bit less convenient however. So, we must keep searching for the right pa
 When this is the case, we can use native template syntax to place a payload server-side. So let's try that, and instead of using Burp's intruder, we will use the repeater. We modify the "category1" payload with the following ones:
 
 ```
-{{7*7}} = {{7*7}}
+\{\{7*7\}\} = \{\{7*7\}\}
 ${7*7} = ${7*7}
 <%= 7 * 7 %> = 49
 <%= foobar %> = Error
