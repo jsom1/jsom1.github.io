@@ -22,12 +22,12 @@ output: html_document
 </div>
 -->
   
-**Ports/services exploited:** \\
-**Tools:** \\
-**Techniques:** \\
-**Keywords:** 
+**Ports/services exploited:** 5000\\
+**Tools:** Burp\\
+**Techniques:** Cookie stealing, path manipulation\\
+**Keywords:** Werkzeug
 
-**TL;DR**: 
+**TL;DR**: A web application is running on TCP port 5000, and it is vulnerable to SSTI injection. With the right payload, it is possible to steal an admin cookie, thus gaining access to the admin dashboard. This latter is vulnerable to command injection, allowing us to get a reverse shell on the machine. Then, the user has the permissions to run a script as root, and this script calls another script without specifying the absolute path, so we can replace the script with a malicious one. In this malicious script, we can add the SUID bit (Set User ID) to the /bin/bash binary, and spawn /bin/bash as root.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -152,7 +152,7 @@ Let's start by digging into the error message and try to modify the cookie. To d
 Unfortunately, as we see in the image below, it is already the cookie being used.
 
 <div class="img_container">
-![dashboard]({{https://jsom1.github.io/}}/_images/htb_headless_cookie.png){: height="300px" width = "400px"}
+![cookie]({{https://jsom1.github.io/}}/_images/htb_headless_cookie.png){: height="300px" width = "400px"}
 </div>
 
 We see something on the right: is_admin is an array consisting of 2 strings: "InVzZXIi" and "uAlmXlTvm8vyihjNaPDWnvB_Zfs". If we decode "InVzZXIi" (Base64) with the following command:
@@ -170,7 +170,7 @@ echo -n "admin" | base64
 This returns "YWRtaW4=", which we replace in the cookie. The new cookie is "YWRtaW4=.uAlmXlTvm8vyihjNaPDWnvB_Zfs". Let's refresh the page:
 
 <div class="img_container">
-![dashboard]({{https://jsom1.github.io/}}/_images/htb_headless_cookie2.png){: height="300px" width = "400px"}
+![cookie2]({{https://jsom1.github.io/}}/_images/htb_headless_cookie2.png){: height="300px" width = "400px"}
 </div>
 
 It doesn't work... We see the parsed value on the right is not the same anymore. It was an array previously, whereas it is an object now. I tried removing the "=" from "YWRtaW4=" (it's called *URL-safe encoding* (base64URL format)), and it's recognized as an array once again. However, the error message is still the same... Let's leave it aside for the moment, and have a look at the formular.
