@@ -355,8 +355,9 @@ The *chmod* command modifies the permissions. The *u+s* option specifies that th
 
 <ins>**My thoughts**</ins>
 
-
+I found the initial foothold quite hard, because once I had the admin cookie, I struggled during several days to access the admin dashboard. Once we have a reverse shell, the privilege escalation part is quite easy, especially with the help of chat-GPT!
 
 <ins>**Fix the vulnerabilities**</ins>
 
-l'utilisation de chmod u+s sur des binaires comme /bin/bash est généralement considérée comme dangereuse et doit être évitée dans la plupart des cas
+SSTI and CI :
+Regarding the privesc, the use of *chmod u+s* on binaries such as */bin/bash* shouldn't be authorized.
