@@ -351,7 +351,7 @@ The *chmod* command modifies the permissions. The *u+s* option specifies that th
 Note that the "*-p*" in the command "*/bin/bash -p*" is the *privileged* option. When we use that option, it spawns a new Bash shell with root permisions. Once we have this shell, we see we're root and we can do anything on the machine!
 
 <div class="img_container">
-![pwn]({{https://jsom1.github.io/}}/_images/htb_headless_pwn.png)
+![pwn]({{https://jsom1.github.io/}}/_images/htb_headless_pwn.png){: height="400px" width = "420px"}
 </div>
 
 
