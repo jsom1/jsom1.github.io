@@ -22,14 +22,13 @@ output: html_document
 **Techniques:** Pixie Dust\\
 **Keywords:** OpenPLC, SQLite, Wifi
 
-**TL;DR**: The machine runs a proxy server that redirects to a OpenPLC login page. We can log in with the default OpenPLC credentials, *openplc / openplc*.
-Once authenticated, we can use an exploit (<a href="https://github.com/thewhiteh4t/cve-2021-31630" target="_blank">CVE-2021-31630</a>) which uploads a C-based reverse shell payload on the server, which gives us access as root.
+**TL;DR**: The machine runs a proxy server that redirects to an OpenPLC login page. We can log in with the default OpenPLC credentials, *openplc / openplc*.
+Once authenticated, we can use an exploit (<a href="https://github.com/thewhiteh4t/cve-2021-31630" target="_blank">CVE-2021-31630</a>) which uploads a C-based reverse shell payload on the server, granting us access as root.
 However, the */root* directory only contains the user flag.\\
-Checking the network interfaces (*ifconfig*) reveals a wifi interface (*wlan0*). Its enumeration shows the wifi network's name (SSID, "plcrouter"), and also that WPS (Wifi Protected Setup) is enabled.
-Despite the name "WPS", it is a dangerous parameters that make wifi vulnerable to the **Pixie Dust** attack.\\
-This attack allows us to retrieve the PSK (Pre-Shared Key) required to connect to the network. There is an existing python <a href="https://github.com/kimocoder/OneShot" target="_blank">exploit</a> that does just that.
-With the PSK in our possession, we can create a configuration file and connect to the network with *wpa_supplicant* (a daemon process that manages wireless connections on Linux). Once connected to the wifi network, we can SSH into the router which has the default address 192.168.1.1.\\
-This is where we find the root flag.
+Checking the network interfaces (*ifconfig*) reveals a wifi interface (*wlan0*). Its enumeration shows the wifi network's name (SSID, "*plcrouter*"), and also that WPS (Wifi Protected Setup) is enabled.
+Despite the name "WPS", it is a dangerous parameter that makes wifi vulnerable to the **Pixie Dust** attack.\\
+This attack allows us to retrieve the PSK (Pre-Shared Key) required to connect to the network. There is an existing python <a href="https://github.com/kimocoder/OneShot" target="_blank">exploit</a> which does just that.
+With the PSK in our possession, we can create a configuration file and connect to the network with *wpa_supplicant* (a daemon process that manages wireless connections on Linux). Once connected to the wifi network, we can SSH into the router which has the default address *192.168.1.1*., and this is where we find the root flag.
 
 ## 1. Services enumeration
 {:style="color:DarkRed; font-size: 170%;"}
@@ -114,9 +113,9 @@ Nmap done: 1 IP address (1 host up) scanned in 31.67 seconds
 
 There are 2 services running:
 
-- SSH on port 22, using OpenSSH version 8.2p1. *Nmap* also shows the associated SSH keys.
+- **SSH on port 22**, using OpenSSH version 8.2p1. *Nmap* also shows the associated SSH keys.
   As usual, SSH is rarely the service to target, especially if it uses recent versions.
-- HTTP-proxy (port 8080) : as a proxy HTTP server, its role is to act as an intermediary between clients (us) and HTTP servers.
+- **HTTP-proxy (port 8080)** : as a proxy HTTP server, its role is to act as an intermediary between clients (us) and HTTP servers.
   Unlike a classic web server which directly responds to clients' HTTP requests, the proxy receives the requests, analyzes them, and transmits them to other appropriate servers.
   Therefore, they can be used to filter traffic, enhance performances by caching frequently requested resources, or to protect against DDoS attacks.
   So, this proxy could redirect requests to another web server running locally on the target.
@@ -287,7 +286,7 @@ uname -a
 On Kali, we see it's an *aarch64* architecture (for ARM-64 bits systems), whereas it's an *x86_64* architecture on the target.\\
 It might me possible to recompile those binaries to match the architecture, but I think it's a bit complicated and probably not what we are supposed to do.
 
-After searching on the internet about bruteforcing PSK, we find many mentions to the **Pixie Dust attack* on a router.\\
+After searching on the internet about bruteforcing PSK, we find many mentions to the **Pixie Dust attack**.\\
 More information about the attack can be found on <a href="https://security.stackexchange.com/questions/149178/what-is-pixie-dust-attack-on-router" target="_blank">Stack Overflow</a>.\\
 For this attack to work, WPS must be enabled, and we saw it is the case in the image above.\\
 There is an available python exploit which performs this Pixie Dust attack that can be found on <a href="https://github.com/kimocoder/OneShot" target="_blank">Github</a>.
@@ -321,7 +320,7 @@ network={
 }
 ```
 
-And we transfer it on the machine in */etc/wpa_supplicant* (**apparently, it is possible to use a command-line utility called *wpa_passphrase* to generate the WPA PSK configuration file** --> this is what I had to do in the end, because mine didn't work).
+And we transfer it on the machine in */etc/wpa_supplicant* (**apparently, it is possible to use a command-line utility called *wpa_passphrase* to generate the WPA PSK configuration file --> this is what I had to do in the end, because the file above didn't work**).
 
 ```
 curl -O http://10.10.14.4:8001/wpa_supplicant.conf
@@ -344,7 +343,7 @@ So, we are now connected to a new wifi network (I picked *192.168.1.91* randomly
 ```
 for i in {1..254}; do ping -c 1 192.168.1.$i | grep "64 bytes" | cut -d " " -f 4; done
 ```
-Unfortunately, the terminal freezes when we use this command.
+Unfortunately, the terminal freezes once again when we use this command.
 
 After checking *iwconfig*, I realized something went wrong and I wasn't connected to the network.\\
 So, I deleted my configuration file (*wpa_supplicant.conf*), and created a new one with *wpa_passphrase*:
