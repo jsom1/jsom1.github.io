@@ -17,20 +17,18 @@ Il joue donc un rôle crucial en fournissant des alertes, en centralisant les lo
 Un SIEM peut également automatiser certaines réponses aux menaces, comme bloquer une adresse IP suspecte ou isoler un segment de réseau compromis. Toutefois, pour des incidents plus complexes, une intervention humaine est généralement nécessaire pour évaluer la situation et prendre des mesures appropriées.\\
 Exemple de SIEM: **Splunk**.
 
-<div style="margin-bottom: 120px;">
+<hr>
 
-- Qu'est-ce qu'un SOC ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un SOC ?</h3>
 
 Un SOC (Security Operations Center) est une équipe centralisée de sécurité chargée de surveiller, détecter, analyser et répondre aux incidents de sécurité en temps réel.\\
 Il est composé d'analystes de sécurité et de technologies de surveillance qui travaillent ensemble pour protéger les systèmes informatiques d'une organisation.
 Les SOC utilisent généralement des SIEM pour détecter les menaces et les anomalies.\\
 En résumé, le SOC est l'équipe et l'infrastructure qui gère la sécurité, tandis que le SIEM est un outil clé utilisé par le SOC pour accomplir cette mission.
 
-<div style="margin-bottom: 280px;">
+<hr>
 
-- Qu'est-ce qu'un IDS et un IPS ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un IDS et un IPS ?</h3>
 
 **IDS** (Intrusion Detection System) : outil qui surveille le trafic pour détecter des activités suspectes en générant des alertes pour permettre une réponse appropriée (qui est manuelle).
 
@@ -38,8 +36,7 @@ En résumé, le SOC est l'équipe et l'infrastructure qui gère la sécurité, t
 
 
 
-- Qu'est-ce qu'un EDR, un XDR, et un MDR ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un EDR, un XDR, et un MDR ?</h3>
 
 **EDR** (Endpoint Detection and Response) : technologie de sécurité axée sur les terminaux, c'est-à-dire les ordinateurs, les smartphones, les tablettes et autres dispositifs qui se connectent au réseau d'une entreprise.
 L'objectif principal de l'EDR est de détecter, d'analyser, de répondre et de remédier aux menaces de sécurité directement sur ces dispositifs.\\
@@ -60,8 +57,7 @@ C’est donc un service complet de gestion des menaces.
 
 
 
-- Qu'est-ce qu'un MSS ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un MSS ?</h3>
 
 Un MSS (Managed Security Services) désigne des services de sécurité externalisés fournis par une entreprise tierce pour gérer et surveiller la sécurité des systèmes et des réseaux des clients.\\
 Un MSSP (Managed Security Services Provider) offre généralement des services comme la gestion des firewalls, la surveillance des événements de sécurité, la détection et la réponse aux menaces, et la gestion des vulnérabilités 24/7. 
@@ -75,8 +71,7 @@ Les MSS incluent souvent :
 
 
 
-- Qu'est-ce que le threat hunting ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le threat hunting ?</h3>
 
 Il s'agit d'une démarche proactive : on n’attend pas des alertes ou autres, ce qui permet de détecter des choses que les IDS ou IPS sont susceptibles de louper (lateral movement, etc…). 
 Les informations recueillies permettent aussi d’améliorer ensuite les SIEM ou EDR. Étapes du threat hunting :
@@ -89,8 +84,7 @@ Les informations recueillies permettent aussi d’améliorer ensuite les SIEM ou
 
 
 
-- Qu'est-ce que le modèle OSI ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le modèle OSI ?</h3>
 
 Le modèle OSI (Open System Intercommunication) est un modèle théorique décrivant des standards pour rendre possible la communication entre 2 systèmes, quelle que soit leur architecture.
 Concrètement, on peut par exemple envoyer un mail depuis gmail sur Windows à quelqu'un qui va l'ouvrir sur Protonmail sur un Mac, sans se poser de questions.\\
@@ -108,8 +102,7 @@ Il faut noter qu'il s'agit surtout d'un modèle théorique. En pratique, on util
 
 
 
-- Qu'est-ce que le modèle TCP/IP ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le modèle TCP/IP ?</h3>
 
 Le modèle TCP/IP est "la vraie implémentation" du modèle OSI. 
 Il s'agit d'une suite de protocoles de communication utilisée pour interconnecter les dispositifs sur Internet. 
@@ -117,8 +110,7 @@ Contrairement au modèle OSI, il est composé de quatre couches : la couche d'ac
 
 
 
-- Quelle est la différence entre les protocoles TCP et UDP ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre les protocoles TCP et UDP ?</h3>
 
 Les 2 sont des protocoles utilisés dans la couche transport du modèle OSI.
 
@@ -128,8 +120,7 @@ Les 2 sont des protocoles utilisés dans la couche transport du modèle OSI.
 
 
 
-- Qu'est-ce qu'un firewall (FW) et quelles sont les étapes à suivre pour le configurer ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un firewall (FW) et quelles sont les étapes à suivre pour le configurer ?</h3>
 
 Un FW est un dispositif qui contrôle le trafic entrant et sortant en fonction de règles de sécurité prédéfinies. 
 Il peut être configuré pour bloquer ou autoriser le trafic en fonction de critères comme l’adresse IP, le port ou le protocole.
@@ -144,8 +135,7 @@ Pour configurer un firewall, on suit généralement les étapes suivantes :
 
 
 
-- Qu'est-ce qu'un IVS ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un IVS ?</h3>
 
 Un Internal Vulnerability Scanner (IVS) analyse les systèmes internes pour identifier les failles de sécurité, les configurations incorrectes et les logiciels obsolètes qui pourraient être exploités. 
 Il joue donc un rôle crucial dans la sécurité proactive en permettant de corriger les vulnérabilités avant qu’elles ne soient exploitées. 
@@ -153,16 +143,14 @@ Les IVS effectuent des scans réguliers pour détecter les vulnérabilités **co
 
 
 
-- Quelle est la différence entre OT et IT ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre OT et IT ?</h3>
 
 **IT** (Information Technology) : les systèmes IT collectent, traitent et stockent les données qui aident au business decision-making et à la communication.
 **OT** (Operational Technology) : les système OT contrôlent et surveillent les équipement physiques ainsi que les processus de fabrication dans des industries. Ils se concentrent sur des données en temps réel.
 
 
 
-- Comment sécuriser un serveur ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Comment sécuriser un serveur ?</h3>
 
 Il faut suivre les étapes suivantes :
 
@@ -173,8 +161,7 @@ Il faut suivre les étapes suivantes :
 
 
 
-- Qu'est-ce qu'AD ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'AD ?</h3>
 
 Active Directory (AD) est un service de gestion des identités et des accès développé par Microsoft pour les environnements Windows. 
 Il permet aux administrateurs de gérer les utilisateurs, les ordinateurs, les groupes et les ressources au sein d'un réseau d'entreprise. 
@@ -183,8 +170,7 @@ Il est couramment utilisé pour gérer les droits d'accès et les permissions, a
 
 
 
-- Quelles sont quelques cyberattaques courantes ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelles sont quelques cyberattaques courantes ?</h3>
 
   - Malware
   - Phishing
@@ -194,16 +180,14 @@ Il est couramment utilisé pour gérer les droits d'accès et les permissions, a
 
 
 
-- Qu'est-ce que SSH ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que SSH ?</h3>
 
 SSH (Secure Shell) est un "shell sécurisé" (ou terminal) et c'est la méthode la plus courante pour de gestion de serveurs Linux.
 Ce protocole permet de dialoguer avec une machine ou un serveur à distance. 
 
 
 
-- Qu'est-ce que SSL, TLS, et quelle est la différence entre les deux ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que SSL, TLS, et quelle est la différence entre les deux ?</h3>
 
 Il s'agit de protocoles de sécurité utilisés pour sécuriser les communications sur internet.
 
@@ -212,16 +196,14 @@ Il s'agit de protocoles de sécurité utilisés pour sécuriser les communicatio
 
 
 
-- Le protocole SSL est-il suffisant pour assurer la sécurité du réseau ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Le protocole SSL est-il suffisant pour assurer la sécurité du réseau ?</h3>
 
 SSL vérifie l'identité de l'expéditeur, mais n'assure pas la sécurité une fois les données transférées vers le serveur. 
 Il est donc recommandé d'encrypter les données côté serveur pour le protéger.
 
 
 
-- Qu'est-ce que le processus de salage ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le processus de salage ?</h3>
 
 Le processus de salage (ou salting en anglais) est une technique utilisée pour renforcer la sécurité des mots de passe stockés dans les bases de données. 
 Il consiste en :
@@ -236,8 +218,7 @@ En résumé, le salage améliore considérablement la sécurité des mots de pas
 
 
 
-- Qu'est-ce qu'une attaque CSRF ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'une attaque CSRF ?</h3>
 
 Un CSRF (Cross-Site Request Forgery) est une attaque où un attaquant trompe un utilisateur authentifié pour qu'il effectue une action non désirée sur une application web à laquelle il est connecté. 
 Cela se fait généralement en incitant l'utilisateur à cliquer sur un lien malveillant ou à visiter une page contenant un script malveillant (email de phishing, lien sur un forum, etc...).
@@ -246,8 +227,7 @@ Cette requête est exécutée avec les mêmes droits que ceux de l'utilisateur a
 
 
 
-- Qu’est-ce que ARP et l’ARP poisoning ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu’est-ce que ARP et l’ARP poisoning ?</h3>
 
 **ARP** (Address Resolution Protocol) : protocole utilisé pour associer une adresse IP à une adresse MAC sur un réseau local. Protocole qui fonctionne comme une interface entre le réseau OSI et la couche liaison OSI.
 
@@ -255,31 +235,27 @@ Cette requête est exécutée avec les mêmes droits que ceux de l'utilisateur a
 
 
 
-- Qu'est-ce qu'un jeton d'accès (token) ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un jeton d'accès (token) ?</h3>
 
 Un jeton d'accès est une chaîne de caractères utilisée pour authentifier un utilisateur sur un réseau ou une application. 
 Il permet l'accès aux ressources sans nécessiter de fournir des identifiants à chaque requête.
 
 
 
-- Qu’est-ce que le cracking WEP ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu’est-ce que le cracking WEP ?</h3>
 
 Le cracking WEP (Wired Equivalent Privacy) est le processus de décryptage de la clé de sécurité utilisée dans les réseaux Wi-Fi protégés par WEP. 
 Exemple d'outil de cracking WEP : Aircrack-ng.
 
 
 
-- Qu'est-ce que la règle 80/20 dans un réseau ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que la règle 80/20 dans un réseau ?</h3>
 
 La règle 80/20 stipule que 80 % du trafic réseau se produit localement (à l'intérieur du réseau local) et seulement 20 % va à l'extérieur (à travers le WAN).
 
 
 
-- Qu'est-ce qu'une adresse IP ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'une adresse IP ?</h3>
 
 L'adresse IP, associée à un masque, donne deux informations importantes : le réseau dans lequel se trouve la machine à joindre, et l'adresse de la machine dans ce réseau.
 Une adresse IP est codée sur 32 bits, ou 4 bytes. On utilise la notation décimale.
@@ -291,8 +267,7 @@ La partie réseau de l'adresse est donc 192.168, et la partie machine est 0.1.
 
 
 
-- Qu'est-ce que le protocole Ethernet ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le protocole Ethernet ?</h3>
 
 Ethernet est le langage utilisé par les machines pour communiquer entre elles. Puisqu'elles ont des architectures différentes (Mac OS, Windows, Linux), il leur faut un langage commun pour se comprendre.
 Dans le support (air ou câbles), ce qui circule n'est qu'une suite de 0 et de 1, par exemple "00110011001010101010000101001111" ; sans protocole qui définisse le sens de cette information (l'ordre des bits), cela ne veut absolument rien dire.
@@ -301,15 +276,12 @@ Le protocole Ethernet définit le format des messages envoyés sur le réseau (l
 
 
 
-- Qu'est-ce qu'un honeypot ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un honeypot ?</h3>
 
 Un honeypot est un système informatique configuré pour attirer et piéger les attaquants en simulant des failles de sécurité afin de les observer et de comprendre leurs méthodes d'attaque.
 
 
-
-- Quelle est la différence entre HIDS et NIDS ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre HIDS et NIDS ?</h3>
 
 **HIDS** (Host-based Intrusion Detection System) : système de détection d'intrusion installé sur un seul hôte ou dispositif pour surveiller et analyser l'activité suspecte.
 
@@ -317,23 +289,20 @@ Un honeypot est un système informatique configuré pour attirer et piéger les 
 
 
 
-- Qu'est-ce que l'OWASP ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que l'OWASP ?</h3>
 
 L'OWASP (Open Web Application Security Project) est une organisation mondiale qui se consacre à améliorer la sécurité des logiciels. Ils fournissent des ressources et des outils pour aider à sécuriser les applications web.
 Ils listent aussi le top 10 des vulnérabilités les plus courantes (injections, XXE (XML External Entities), XSS, Insecure deserialization, SSRF, Misconfigurations, etc...)
 
 
 
-- Qu'est-ce qu'un cheval de troie ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un cheval de troie ?</h3>
 
 Un cheval de troie est un type de logiciel malveillant qui se fait passer pour un programme légitime tout en effectuant des actions malveillantes à l'insu de l'utilisateur.
 
 
 
-- Quelle est la différence entre Diffie-Hellman et RSA ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre Diffie-Hellman et RSA ?</h3>
 
 Diffie-Hellman est un protocole de chiffrement utilisé pour échanger des clés de manière sécurisée (permet à deux parties de générer une clé secrète partagée sur un canal de communication non sécurisé sans échanger la clé elle-même), tandis que RSA est un algorithme de cryptographie asymétrique utilisé pour le chiffrement et la signature numérique (RSA utilise une paire de clés, une clé publique pour le chiffrement et une clé privée pour le déchiffrement. Les clés ne sont pas éphémères et peuvent être utilisées à long terme).
 Diffie-Hellman est souvent utilisé en conjonction avec d'autres algorithmes pour sécuriser les communications, comme TLS.\\
@@ -341,24 +310,21 @@ RSA est utilisé dans de nombreux protocoles de sécurité pour le chiffrement d
 
 
 
-- Qu'est-ce que SOAR ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que SOAR ?</h3>
 
 Un SOAR (Security Orchestration, Automation, and Response) est une technologie qui permet de collecter des données sur les menaces et d'automatiser les réponses aux incidents de sécurité. 
 Il aide donc les équipes de sécurité à gérer et à coordonner les réponses aux incidents de manière plus efficace et rapide.
 
 
 
-- Qu'est-ce qu'un WAF ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un WAF ?</h3>
 
 Un Web Application Firewall (WAF) est une solution de sécurité qui surveille, filtre et bloque les requêtes HTTP/HTTPS malveillantes vers une application web.\\
 Il permet donc de protéger l'application contre des attaques web classiques telles que des injections SQL, du cross-site scripting, etc...
 
 
 
-- Qu'entend-on par red team, blue team, purple team ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'entend-on par red team, blue team, purple team ?</h3>
 
 **Red Team** : Équipe qui simule des attaques pour tester la sécurité d'une organisation.
 **Blue Team** : Équipe qui défend contre les attaques et surveille les menaces de sécurité.
@@ -366,8 +332,7 @@ Il permet donc de protéger l'application contre des attaques web classiques tel
 
 
 
-- Qu'est-ce qu'un attaque DDoS et comment l'empâcher ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un attaque DDoS et comment l'empâcher ?</h3>
 
 Une attaque DDos (Distributed Denial of Service) est une attaque qui met hors service un serveur. Il y a 2 types de DDoS :
 
@@ -378,15 +343,13 @@ On peut éviter des attaques DDoS en utilisant des logiciels anti DDoS, en confi
 
 
 
-- Qu'est-ce qu'un botnet ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un botnet ?</h3>
 
 C’est un réseau de dispositifs informatiques infectés par des logiciels malveillants, contrôlés à distance par un attaquant pour mener des activités malveillantes comme des DDoS, spam, vol d’informations.
 
 
 
-- Quelle est la différence entre une menace, une vulnérabilité, et un risque ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre une menace, une vulnérabilité, et un risque ?</h3>
 
 **Menace** : potentiel événement ou agent capable de causer des dommages à un système.
 **Vulnérabilité** : faiblesse ou faille dans un système ou une app qui peut être exploitée par une menance.
@@ -394,8 +357,7 @@ C’est un réseau de dispositifs informatiques infectés par des logiciels malv
 
 
 
-- Qu'est-ce que l'encryption SSL ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que l'encryption SSL ?</h3>
 
 SSL (Secure Sockets Layer) est un standard de sécurité pour créer des connexions encryptées entre un serveur web et un browser, permettant de garantir la data privacy et pour protéger les données.
 Les étapes pour établir une connexion SSL sont les suivantes :
@@ -408,16 +370,14 @@ Les étapes pour établir une connexion SSL sont les suivantes :
 
 
 
-- Qu'est-ce qu'un VPN ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un VPN ?</h3>
 
 Un VPN (Virtual Private Network) permet de créer une connexion sécurisée et encryptée. Lorsqu'on utilise un VPN, les données du client sont envoyées vers un serveur qui les encrypte et les envoie sur internet vers un autre serveur qui les décrypte et les transmets au récipient final, et vice-versa.
 En résumé, un VPN permet d'envoyer des données encryptées.
 
 
 
-- Quels sont les différentes réponses d'un serveur ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quels sont les différentes réponses d'un serveur ?</h3>
 
   - 1xx - Réponse informatives
   - 2xx - Succès
@@ -427,8 +387,7 @@ En résumé, un VPN permet d'envoyer des données encryptées.
 
 
 
-- Qu'est-ce qu'une attaque MitM et comment la prévenir ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'une attaque MitM et comment la prévenir ?</h3>
 
 Une attaque MitM (Man-in-the-Middle) est un type d'attaque où le hacker se place entre deux personnes qui communiquent et vole les informations.\\
 Si 2 personnes A et B communiquent, le hacker se joint à la discussion, et il se fait passer pour la personne B auprès de A, et pour la personne A auprès de B.
@@ -438,8 +397,7 @@ On peut empêcher cette attaque en utilisant un VPN.
 
 
 
-- Qu'est-ce que la CIA triad ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que la CIA triad ?</h3>
 
 Il s'agit d'un modèle utilisé pour mettre en place des bonnes pratiques de sécurité.
 **Confidentiality** : les données doivent être accessibles et lisibles que par le personnel autorisé. Elles doivent être encryptées au cas où quelqu’un arriverait à y accéder.\\
@@ -448,15 +406,13 @@ Il s'agit d'un modèle utilisé pour mettre en place des bonnes pratiques de sé
 
 
 
-- Qu'est-ce que la cryptographie ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que la cryptographie ?</h3>
 
 La cryptographie est la pratique et l'étude des techniques permettant de sécuriser les communications et les données en les transformant en un format illisible, uniquement déchiffrable par ceux qui possèdent la clé appropriée.
 
 
 
-- Quels sont les signes d'intrusion sur un système ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quels sont les signes d'intrusion sur un système ?</h3>
 
 **Activité inhabituelle sur le réseau** : connexion innattendue d’adresse ip externes, gros volumes de données vers des destinations inconnues ou des protocoles rarement utilisés, traffic à des heures étranges pendant lesquelles le réseau est généralement calme.\\
 **Changement inattendus du système** : changement de taille de fichiers, timestamps, permissions, création de nouveaux comptes utilisateurs, changement de comptes existants, modifications de fichiers système ou de configuration.\\
@@ -466,8 +422,7 @@ La cryptographie est la pratique et l'étude des techniques permettant de sécur
 
 
 
-- Quelle est la différence entry l'encryption symétrique et asymétrique ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entry l'encryption symétrique et asymétrique ?</h3>
 
 Dans l'encryption symétrique, on utilise la même clé pour encrypter / décrypter (donc une seule clé).\\
 Dans l'encryption asymétrique, on utilise des clés différentes (clé privée et clé publique).\\
@@ -476,23 +431,20 @@ On peut utiliser l'encryption asymétrique pour initialiser une conversation, pu
 
 
 
-- Qu'est-ce que traceroute ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que traceroute ?</h3>
 
 Traceroute est un outil qui suit la route que prend un paquet pour rejoindre sa destination, et ça identifie les routeurs par lesquels il passe. 
 Ça permet de voir là où il y a un problème de routage et de corriger le problème.
 
 
 
-- Quelles méthodes utiliser pour renforcer l'authentification ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelles méthodes utiliser pour renforcer l'authentification ?</h3>
 
 Il faut des mots de passe fort (mélangeant caractères spéciaux, lettres et chiffres), ainsi qu'utiliser la 2FA ou MFA.
 
 
 
-- Qu'est-ce que le "three-way handshake" ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le "three-way handshake" ?</h3>
 
 Il s'agit de la méthode utilisée dans les réseaux TCP/IP pour créer une connexion entre un hôte et un client. Il consiste en 3 étapes :
   - Le client envoie un packet SYN (Synchronize) au serveur pour voir s'il est disponible
@@ -503,16 +455,14 @@ A ce stade, la connexion est établie et les deux parties peuvent s'envoyer des 
 
 
 
-- Qu'est qu'une attaque XXE ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est qu'une attaque XXE ?</h3>
 
 Une attaque XXE (XML External Entitites) est une attaque visant les applications qui parse des input XML.
 Elle se produit lorsqu'une entrée XML contenant une référence à une entité externe est traitée par un analyseur XML faiblement configuré.
 
 
 
-- Qu'est qu'une injection SQL ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est qu'une injection SQL ?</h3>
 
 Une injection SQL est une technique d'attaque qui exploite des vulnérabilités dans une application web en manipulant les requêtes SQL pour accéder, modifier ou supprimer des données dans une base de données non autorisée.\\
 Si une telle vulnérabilité existe, l'attaquant peut faire ce qu'il veut. Par exemple sur un site de vente en ligne, il pourrait modifier le prix d'un produit.\\
@@ -531,8 +481,7 @@ On peut prévenir ce type d'injections en validant les entrées des utilisateurs
 
 
 
-- Quelles est la différence entre un malware, un virus, et un ver ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quelles est la différence entre un malware, un virus, et un ver ?</h3>
 
 **Malware** : Les logiciels malveillants sont un terme général qui englobe tous les logiciels conçus pour nuire (virus, vers, ransomware, etc...)
 
@@ -546,8 +495,7 @@ Comme un ver a la capacité de se propager automatiquement, il est possible qu'u
 
 
 
-- Qu'est-ce que le NAT ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le NAT ?</h3>
 
 Le NAT (Network Address Translation) est un mécanisme permettant à un routeur de faire correspondre des adresses IP à d'autres adresses IP.\\
 Ceci est utilisé par exemple pour permettre à des machines ayant des adresses privées dans un intranet (ces adresses ne sont ni uniques ni routables en dehors de l'intranet) de communiquer avec le reste d'internet.
@@ -559,8 +507,7 @@ Concrètement, le routeur modifie les adresses IP dans les en-têtes des paquets
 
 
 
-- Pourquoi un attaquant créerait-il une machine virtuelle ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Pourquoi un attaquant créerait-il une machine virtuelle ?</h3>
 
 Il y a plusieurs raisons possibles :
 
@@ -572,8 +519,7 @@ Il y a plusieurs raisons possibles :
 
 
 
-- Quels sont quelques ports/protocoles communs ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Quels sont quelques ports/protocoles communs ?</h3>
 
 Voici quelques services fréquents :
 
@@ -589,8 +535,7 @@ Voici quelques services fréquents :
 
 
 
-- Comment restez-vous informé de l'actualité en cybersécurité ?
-{:style="color:DarkRed; font-size: 120%;"}
+<h3 style="color:DarkRed; font-size: 160%;">Comment restez-vous informé de l'actualité en cybersécurité ?</h3>
 
 Il y a 3 moyens de rester informé :
 
