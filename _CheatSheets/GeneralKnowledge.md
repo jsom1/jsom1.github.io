@@ -5,7 +5,7 @@ date: "June 26, 2024"
 output: html_document
 ---
 
-#General knowledge
+# General knowledge
 {:.no_toc}
 
 The purpose of this document is to prepare for technical questions that a recruiter might ask for a junior cybersecurity job.
@@ -16,8 +16,8 @@ The purpose of this document is to prepare for technical questions that a recrui
 --->
 
 
-
-<h3 style="color:DarkRed; font-size: 120%;">Qu'est-ce qu'un SIEM ?</h3>
+<div style="margin-bottom: 20px;">
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un SIEM ?</h3>
 
 Un SIEM (Security Information and Event Management) est un outil logiciel qui collecte et analyse les données de sécurité provenant de diverses sources (logs de systèmes, applications, réseaux) pour détecter des activités suspectes et des menaces potentielles en temps réels.\\
 Il joue donc un rôle crucial en fournissant des alertes, en centralisant les logs, et en permettant des réponses rapides aux attaques.
@@ -25,7 +25,7 @@ Un SIEM peut également automatiser certaines réponses aux menaces, comme bloqu
 Exemple de SIEM: **Splunk**.
 
 
-
+<div style="margin-bottom: 20px;">
 - Qu'est-ce qu'un SOC ?
 {:style="color:DarkRed; font-size: 120%;"}
 
@@ -35,7 +35,7 @@ Les SOC utilisent généralement des SIEM pour détecter les menaces et les anom
 En résumé, le SOC est l'équipe et l'infrastructure qui gère la sécurité, tandis que le SIEM est un outil clé utilisé par le SOC pour accomplir cette mission.
 
 
-
+<div style="margin-bottom: 20px;">
 - Qu'est-ce qu'un IDS et un IPS ?
 {:style="color:DarkRed; font-size: 120%;"}
 
