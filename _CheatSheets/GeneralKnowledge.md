@@ -126,12 +126,12 @@ Un FW est un dispositif qui contrôle le trafic entrant et sortant en fonction d
 Il peut être configuré pour bloquer ou autoriser le trafic en fonction de critères comme l’adresse IP, le port ou le protocole.
 Pour configurer un firewall, on suit généralement les étapes suivantes :
 
-1. Modifier le username / password par défaut
-2. Désactiver l'administration à distance
-3. Configurer le port forwarding pour certaines applications (web server ou serveur FTP)
-4. Désactiver le serveur DHCP du FW s’il y en a déjà un dans le réseau (sinon il pourrait y avoir des conflits)
-5. S’assurer que les logs soient activés
-6. S'assurer que le FW est configuré pour respecter les policies
+  - Modifier le username / password par défaut
+  - Désactiver l'administration à distance
+  - Configurer le port forwarding pour certaines applications (web server ou serveur FTP)
+  - Désactiver le serveur DHCP du FW s’il y en a déjà un dans le réseau (sinon il pourrait y avoir des conflits)
+  - S’assurer que les logs soient activés
+  - S'assurer que le FW est configuré pour respecter les policies
 
 <hr>
 
@@ -145,7 +145,7 @@ Les IVS effectuent des scans réguliers pour détecter les vulnérabilités **co
 
 <h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre OT et IT ?</h3>
 
-**IT** (Information Technology) : les systèmes IT collectent, traitent et stockent les données qui aident au business decision-making et à la communication.
+**IT** (Information Technology) : les systèmes IT collectent, traitent et stockent les données qui aident au business decision-making et à la communication.\\
 **OT** (Operational Technology) : les système OT contrôlent et surveillent les équipement physiques ainsi que les processus de fabrication dans des industries. Ils se concentrent sur des données en temps réel.
 
 <hr>
@@ -191,7 +191,7 @@ Ce protocole permet de dialoguer avec une machine ou un serveur à distance.
 
 Il s'agit de protocoles de sécurité utilisés pour sécuriser les communications sur internet.
 
-**SSL** (Secure Sockets Layer) : vérifie l’identité de l’expéditeur et aide à suivre la personne avec laquelle on communique.
+**SSL** (Secure Sockets Layer) : vérifie l’identité de l’expéditeur et aide à suivre la personne avec laquelle on communique.\\
 **TLS** (Transport Layer Security) : version plus récente et plus sécurisée de SSL, qui offre un canal sécurisé entre 2 clients.
 
 <hr>
@@ -311,7 +311,7 @@ RSA est utilisé dans de nombreux protocoles de sécurité pour le chiffrement d
 
 <hr>
 
-<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que SOAR ?</h3>
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un SOAR ?</h3>
 
 Un SOAR (Security Orchestration, Automation, and Response) est une technologie qui permet de collecter des données sur les menaces et d'automatiser les réponses aux incidents de sécurité. 
 Il aide donc les équipes de sécurité à gérer et à coordonner les réponses aux incidents de manière plus efficace et rapide.
@@ -327,13 +327,13 @@ Il permet donc de protéger l'application contre des attaques web classiques tel
 
 <h3 style="color:DarkRed; font-size: 160%;">Qu'entend-on par red team, blue team, purple team ?</h3>
 
-**Red Team** : Équipe qui simule des attaques pour tester la sécurité d'une organisation.
-**Blue Team** : Équipe qui défend contre les attaques et surveille les menaces de sécurité.
+**Red Team** : Équipe qui simule des attaques pour tester la sécurité d'une organisation.\\
+**Blue Team** : Équipe qui défend contre les attaques et surveille les menaces de sécurité.\\
 **Purple Team** : Équipe qui combine les efforts des équipes red et blue pour améliorer les défenses de sécurité grâce à une collaboration accrue.
 
 <hr>
 
-<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un attaque DDoS et comment l'empâcher ?</h3>
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'une attaque DDoS et comment l'empâcher ?</h3>
 
 Une attaque DDos (Distributed Denial of Service) est une attaque qui met hors service un serveur. Il y a 2 types de DDoS :
 
@@ -352,8 +352,8 @@ C’est un réseau de dispositifs informatiques infectés par des logiciels malv
 
 <h3 style="color:DarkRed; font-size: 160%;">Quelle est la différence entre une menace, une vulnérabilité, et un risque ?</h3>
 
-**Menace** : potentiel événement ou agent capable de causer des dommages à un système.
-**Vulnérabilité** : faiblesse ou faille dans un système ou une app qui peut être exploitée par une menance.
+**Menace** : potentiel événement ou agent capable de causer des dommages à un système.\\
+**Vulnérabilité** : faiblesse ou faille dans un système ou une app qui peut être exploitée par une menance.\\
 **Risque** : probabilité qu’une menace exploite une vulnérabilité pour causer un dommage, combinée à l’impact potentiel de ce dommage.
 
 <hr>
@@ -400,7 +400,7 @@ On peut empêcher cette attaque en utilisant un VPN.
 
 <h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que la CIA triad ?</h3>
 
-Il s'agit d'un modèle utilisé pour mettre en place des bonnes pratiques de sécurité.
+Il s'agit d'un modèle utilisé pour mettre en place des bonnes pratiques de sécurité.\\
 **Confidentiality** : les données doivent être accessibles et lisibles que par le personnel autorisé. Elles doivent être encryptées au cas où quelqu’un arriverait à y accéder.\\
 **Integrity** : les données ne doivent pas avoir été modifiées par quelqu'un de pas autorisé. Donc l’intégrité s’assure que les données ne sont pas corrompues. S’il y a une tentative, elles doivent doivent être restaurées dans un état précédent leur corruption.\\ 
 **Availability** : les données doivent être accessibles dès qu’un utilisateur autorisé en a besoin. Il faut maintenir le hardware, faire les mises à jour, faire des backups, éviter les network bottlenecks, etc..
