@@ -496,15 +496,15 @@ Comme un ver a la capacité de se propager automatiquement, il est possible qu'u
 
 <hr>
 
-<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le NAT ?</h3>
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que la NAT ?</h3>
 
-Le NAT (Network Address Translation) est un mécanisme permettant à un routeur de faire correspondre des adresses IP à d'autres adresses IP.\\
-Ceci est utilisé par exemple pour permettre à des machines ayant des adresses privées dans un intranet (ces adresses ne sont ni uniques ni routables en dehors de l'intranet) de communiquer avec le reste d'internet.
-Le routeur leur donne des adresses externes publiques, uniques et routables.\\
-Ainsi, on peut faire correspondre une seule adresse externe publique visible surinternet à toutes les adresses d'un réseau privé.\\
-Concrètement, le routeur modifie les adresses IP dans les en-têtes des paquets. En plus de permettre la communication avec le reste d'internet, le NAT permet de :
-  - Economiser les adresses IP publiques (puisque plusieurs machines sur un réseau local utilisent une seule adresse IP publique pour accéder à internet)
-  - Améliorer la sécurité en masquant les adresses IP internes
+La NAT (Network Address Translation) est un mécanisme permettant d'assigner une adresse IP publique à des adresses IP privées. Le fait d'utiliser des adresses IP privées dans des réseaux privés permet notamment d'économiser les adresses IP publiques (puisque les adresses IPv4 sont codées sur 4 octets, cela ne laisse "que" 2^32, soit environ 4 milliards d'adresses possibles). Il y a des adresses réservées pour les réseaux privés : 10.0.0.0/8, 172.16.0.0/12, et 192.168.0.0/16.\\
+Ces adresses ne sont donc pas uniques dans le monde. Le problème est que si on demande d'accéder à Google depuis une adresse privée, notre requête va bien arriver au serveur de Google. Mais lorsqu'il voudra répondre, il verra qu'il doit le faire à une adresse privée. Or, il n'a aucune de comment faire (d'ailleurs, les routeurs ne routent pas les paquets avec des adresses privées).\\
+Pour résoudre ce problème, notre routeur, qui fait face à internet et qui a une adresse publique, va remplacer l'adresse IP privée dans l'en-tête du paquet par sa propre adresse IP publique. Comme ça, le serveur de Google pourra répondre à la demande. Afin de savoir à quelle machine du réseau privé envoyer la réponse, le routeur ajoute encore une information sur le port. De cette manière, il sait exactement à quelle machine répondre (il a une "NAT table" contenant ces informations).\\
+Les avantages de la NAT sont donc : 
+- de pouvoir faire correspondre une seule adresse externe publique visible surinternet à toutes les adresses d'un réseau privé.
+- Economiser les adresses IP publiques (puisque plusieurs machines sur un réseau local utilisent une seule adresse IP publique pour accéder à internet)
+- Améliorer la sécurité en masquant les adresses IP internes
 
 <hr>
 
