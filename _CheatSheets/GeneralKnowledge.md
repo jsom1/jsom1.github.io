@@ -546,3 +546,11 @@ Il y a 3 moyens de rester informé :
 
 <hr>
 
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un DLL, et qu'est-ce que le DLL hijacking ?</h3>
+
+Un DLL (Dynamic-Link Library) est un fichier qui contient du code et des données pouvant être utilisés par plusieurs programmes sur Windows. C'est donc des bibliothèques partagées qui permettent de ne pas avoir à répliquer des fonctions courantes. Ils contiennent souvent des fonctions essentielles telles que l'affichage des fenêtres, la gestion des fichiers, les opérations réseaux, etc... Windows et d'autres applications peuvent donc charger ces fichiers quand ils en ont besoin.\\
+Lorsqu'un programme se lance, il cherche les DLL dont il a besoin dans un certain ordre (commençant généralement par le répertoire du programme, puis dans d'autres répertoires système comme C:/Windows/System32.\\
+Donc si un attaquant peut placer un fichier DLL malveillant dans un des répertoires où le programme cherche ses dépendances, le programme pourrait charger ce DLL à la place de celui d'origine. Le DLL s'exécute alors avec les mêmes permissions que le programme qui l'a chargé. L'attaquant peut donc exécuter du code arbitraire, ce qui peut être catastrophique si l'application est exécutée avec des privilèges élevés.
+
+<hr>
+
