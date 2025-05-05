@@ -554,3 +554,49 @@ Donc si un attaquant peut placer un fichier DLL malveillant dans un des réperto
 
 <hr>
 
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un proxy / reverse proxy ?</h3>
+
+- Un **proxy** est un serveur intermédiaire entre un client (p. ex. un browser) et internet. Il relaie les requêtes **sortantes**, les filtre, les journalise, voire les bloque selon les règles définies. Son rôle est donc de contrôler les accès web, anonymiser les utilisateurs, et garder un cache pour accélérer le chargement de sites. Exemple de proxy : *Squid*
+
+- Un **reverse proxy** est placé entre les clients externes et les serveurs internes (souvent web). Il reçoit les requêtes **entrantes** et les redirige vers le bon serveur backend. Son rôle est donc de sécuriser les accès (par exemple avec un WAF), répartir la charge (load balancing), et masquer l'architecture interne. Exemple de reverse proxy : *Nginx*, *F5*.
+
+<hr>
+
+<h3 style="color:DarkRed; font-size: 160%;">Quelles sont les étapes à suivre en cas de détection d'intrusion ?</h3>
+
+Après qu'une alerte ait été générée (SIEM, EDR, ...) suite à un comportement suspect ou une signature, il faut suivre les étapes suivantes (standard NIST) : 
+
+1. **Identifier** la menace à travers les logs : est-ce un faux positif, une infection, une attaque réelle ? 
+2. **Confiner** la machine ou le segment réseau concerné (par exemple en isolant la machine du réseau)
+3. **Collecter** des éléments de preuves
+4. **Notifier** les personnes concernées (RSSI, équipe IT)
+5. **Eradiquer** la menace (malware, accès non autorisé, backdoor, etc...
+6. **Restaurer** le système
+7. **Documenter** l'incident, analyser les causes, mettre en place des mesures correctives, mettre à jour les règles/alertes, etc...
+
+<hr>
+
+<h3 style="color:DarkRed; font-size: 160%;">Que sont les ACL (Access Control Lists) ?</h3>
+
+Les ACL sont des listes de règles définissant qui (utilisateurs, groupes, adresses IP, ...) peut accéder à quoi), dans quelles conditions (type d'accès, protocole, port). Il en existe 2 types principaux : 
+
+- ACL réseau (sur les routeurs, switches, pare-feux) ; elles permettent de limiter l'accès entre sous-réseaux (segmentation du réseau), filtrer des ports/protocoles spécifiques, appliquer des politiques de sécurité entre zones (DMZ, LAN, etc...). Exemple : "Autoriser le trafic HTTP depuis 192.168.1.0/24 vers 10.0.0.5, bloquer tout le reste".
+
+- ACL système / fichiers (permissions locales) : elles permettent de définir les droits d'accès à des fichiers, répertoires ou services.  Sous Windows ou AD, les ACL sont partout ; chaque fichier, dossier, clé de registre a une liste de droits.
+
+<hr>
+
+<h3 style="color:DarkRed; font-size: 160%;">En quoi consiste l'installation / configuration d'un VPN ?</h3>
+
+Une installation typique du côté d'une entreprise comprend : 
+
+1. Choisir une solution : *OpenVPN*, *Cisco AnyConnect*, etc...
+2. Installer le serveur VPN sur une machine exposée (on-premise ou cloud)
+3. Configurer l'authentification : certificats d'accès, comptes LDAP, 2FA, etc...
+4. Définir les routes et accès : par exemple accès uniquement au réseau interne, ou accès vers internet ?
+5. Gérer les règles de pare-feu / NAT pour laisser passer le trafic chiffré
+6. Déployer les clients VPN sur les postes (avec fichiers de config, ou par une application dédiée)
+
+Les objectifs du VPN sont de permettre l'accès sécurisé à distance du réseau de l'entreprise, et le chiffrement du trafic sur des réseaux non sûrs et/ou publics
+
+<hr>
