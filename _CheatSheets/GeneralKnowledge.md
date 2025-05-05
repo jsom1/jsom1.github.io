@@ -5,9 +5,11 @@ date: "June 26, 2024"
 output:
   html_document:
     toc: true
-    toc_depth: 2
-    toc_float: true
+    toc_depth: 1
 ---
+
+{:toc}
+{:style="color:black; font-size: 150%;"}
 
 # Sécurité générale et concepts clés
 
