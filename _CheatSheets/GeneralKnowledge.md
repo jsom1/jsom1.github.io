@@ -557,7 +557,6 @@ Donc si un attaquant peut placer un fichier DLL malveillant dans un des réperto
 <h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce qu'un proxy / reverse proxy ?</h3>
 
 - Un **proxy** est un serveur intermédiaire entre un client (p. ex. un browser) et internet. Il relaie les requêtes **sortantes**, les filtre, les journalise, voire les bloque selon les règles définies. Son rôle est donc de contrôler les accès web, anonymiser les utilisateurs, et garder un cache pour accélérer le chargement de sites. Exemple de proxy : *Squid*
-
 - Un **reverse proxy** est placé entre les clients externes et les serveurs internes (souvent web). Il reçoit les requêtes **entrantes** et les redirige vers le bon serveur backend. Son rôle est donc de sécuriser les accès (par exemple avec un WAF), répartir la charge (load balancing), et masquer l'architecture interne. Exemple de reverse proxy : *Nginx*, *F5*.
 
 <hr>
@@ -581,7 +580,6 @@ Après qu'une alerte ait été générée (SIEM, EDR, ...) suite à un comportem
 Les ACL sont des listes de règles définissant qui (utilisateurs, groupes, adresses IP, ...) peut accéder à quoi), dans quelles conditions (type d'accès, protocole, port). Il en existe 2 types principaux : 
 
 - ACL réseau (sur les routeurs, switches, pare-feux) ; elles permettent de limiter l'accès entre sous-réseaux (segmentation du réseau), filtrer des ports/protocoles spécifiques, appliquer des politiques de sécurité entre zones (DMZ, LAN, etc...). Exemple : "Autoriser le trafic HTTP depuis 192.168.1.0/24 vers 10.0.0.5, bloquer tout le reste".
-
 - ACL système / fichiers (permissions locales) : elles permettent de définir les droits d'accès à des fichiers, répertoires ou services.  Sous Windows ou AD, les ACL sont partout ; chaque fichier, dossier, clé de registre a une liste de droits.
 
 <hr>
