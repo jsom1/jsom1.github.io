@@ -148,6 +148,14 @@ Les ACL sont des listes de règles définissant qui (utilisateurs, groupes, adre
 
 <hr>
 
+<h3 style="color:DarkRed; font-size: 160%;">Qu'est-ce que le principe du moindre privilège ?</h3>
+
+Il s'agit d'un pilier fondamental de la sécurité. C'est le fait de donner à chaque utilisateur, application ou processus uniquement les droits nécessaires pour accomplir sa tâche, ni plus, ni moins. Cela permet de réduire la surface d'attaque ; si un compte est compromis, les dégâts sont limités à ce que ce compte pouvait faire. Si une application est vulnérable, elle ne pourra pas accéder à plus que ce qui est nécessaire.
+
+On peut appliquer ce principe grâce aux ACL, aux RBAC (Role-Based Access Control), aux comptes distincts pour les tâches d'administration, et à la segmentation réseau.
+
+<hr>
+
 <h3 style="color:DarkRed; font-size: 160%;">Qu’est-ce que le cracking WEP ?</h3>
 
 Le cracking WEP (Wired Equivalent Privacy) est le processus de décryptage de la clé de sécurité utilisée dans les réseaux Wi-Fi protégés par WEP. 
@@ -577,6 +585,18 @@ Après qu'une alerte ait été générée (SIEM, EDR, ...) suite à un comportem
 5. **Eradiquer** la menace (malware, accès non autorisé, backdoor, etc...
 6. **Restaurer** le système
 7. **Documenter** l'incident, analyser les causes, mettre en place des mesures correctives, mettre à jour les règles/alertes, etc...
+
+<hr>
+
+<h3 style="color:DarkRed; font-size: 160%;">Concrètement, comment peut-on isoler une machine en cas d'incident ?</h3>
+
+En cas d'attaque avérée, c'est très important d'isoler rapidement la machine concernée afin d'éviter la propagation de l'attaque au reste du réseau. Voici les différentes possibilités :
+
+- Débrancher la machine physiquement : on peut l'éteindre, ou on débranche le câble Ethernet / coupe le Wi-Fi. Evidemment, ça nécessite d'être présent
+- Via le switch réseau : on peut se connecter à l'interface d'administration du switch, et désactiver le port auxquel la machine est connectée
+- Via AD + GPO : on crée une Unité d'Organisation (OU) spéciale "Quarantaine" avec une GPO (Group Policy) qui coupe le trafic réseau via le pare-feu local et désactive les services critiques. On place ensuite la machine dans cette OU afin que la GPO s'applique
+- Via un EDR : si un EDR comme Crowdstrike est déployé, il offre généralement une fonctionnalité d'isolation réseau à distance
+- Via une pare-feu : on peut ajouter une règle temporaire pour bloquer le trafic entrant/sortant depuis ou vers l'IP ou l'adresse MAC de la machine concernée
 
 <hr>
 
