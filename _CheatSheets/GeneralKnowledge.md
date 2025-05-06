@@ -9,7 +9,6 @@ output:
 ---
 
 {:toc}
-{:style="color:black; font-size: 150%;"}
 
 # Sécurité générale et concepts clés
 
